@@ -327,6 +327,14 @@ def main():
     prepare_storage()
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     os.makedirs(os.path.dirname(DATA), exist_ok=True)
+
+    # Пересобираем при старте. Без этого на хостинге не было бы страницы входа:
+    # её секретный адрес не хранится в репозитории, а берётся из LOGIN_PATH,
+    # и собирается она только сборщиком.
+    try:
+        rebuild()
+    except Exception as e:
+        print('сборка при старте не удалась: ' + str(e))
     try:
         host = '0.0.0.0' if os.environ.get('STORAGE_DIR') else '127.0.0.1'
         server = Server((host, port), Handler)
