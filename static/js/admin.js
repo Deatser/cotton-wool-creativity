@@ -9,7 +9,7 @@
    висела «загружается» по десять-пятнадцать секунд. */
 
 const SDK = 'https://www.gstatic.com/firebasejs/12.18.0/';
-const API_VERSION = 3;   // должно совпадать с API_VERSION в serve.py
+const API_VERSION = 4;   // должно совпадать с API_VERSION в serve.py
 const ROOT = document.body.getAttribute('data-root') || '';
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {
@@ -190,18 +190,117 @@ function renderAdminBits() {
       const tools = document.createElement('div');
       tools.className = 'card__tools';
       tools.innerHTML =
+        '<button type="button" class="card__tool card__tool--move" title="Перетащить">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3' +
+          'M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg></button>' +
         '<button type="button" class="card__tool" title="Изменить">' +
           '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
           '<path d="M4 20h4L20 8l-4-4L4 16v4z"/></svg></button>' +
         '<button type="button" class="card__tool card__tool--del" title="Удалить">' +
           '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
           '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>';
-      const [edit, del] = tools.querySelectorAll('button');
+      const [move, edit, del] = tools.querySelectorAll('button');
       edit.addEventListener('click', (e) => { e.preventDefault(); openEditor(toy, toy.section); });
       del.addEventListener('click', (e) => { e.preventDefault(); confirmDelete(toy); });
+      dragByHandle(move, card, grid, id);
       card.appendChild(tools);
     });
   }
+}
+
+/* ============================== перестановка карточек в каталоге ============ */
+
+/** Тащим карточку за ручку. События указателя работают одинаково для мыши
+    и для пальца, поэтому отдельная ветка под телефон не нужна. */
+function dragByHandle(handle, card, grid, section) {
+  handle.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+
+    // Захват указателя тут не годится: при перестановке карточки вызывается
+    // insertBefore, для браузера это удаление и повторная вставка узла, и он
+    // снимает захват с ручки, которая едет вместе с карточкой. Мышь замолкала
+    // после первой же перестановки. Поэтому слушаем окно.
+    card.classList.add('is-dragging');
+    document.body.classList.add('is-reordering');
+
+    const onMove = (ev) => {
+      autoScroll(ev.clientY);
+
+      // Соседа ищем по координатам, а не через elementFromPoint. Раньше ради
+      // хит-теста карточке ставился pointer-events: none, но ручка лежит внутри
+      // неё, и браузер срывал захват указателя посреди перетаскивания: мышь
+      // переставала слать события, а pointerup не приходил вовсе.
+      const over = [...grid.querySelectorAll('.card[data-id]')].find((c) => {
+        if (c === card) return false;
+        const r = c.getBoundingClientRect();
+        return ev.clientX >= r.left && ev.clientX <= r.right &&
+               ev.clientY >= r.top && ev.clientY <= r.bottom;
+      });
+      if (!over) return;
+
+      // до середины соседа встаём перед ним, после - за ним
+      const box = over.getBoundingClientRect();
+      const after = (ev.clientX - box.left) > box.width / 2;
+      grid.insertBefore(card, after ? over.nextSibling : over);
+    };
+
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove, true);
+      window.removeEventListener('pointerup', onUp, true);
+      window.removeEventListener('pointercancel', onUp, true);
+      card.classList.remove('is-dragging');
+      document.body.classList.remove('is-reordering');
+      saveOrder(grid, section);
+    };
+
+    window.addEventListener('pointermove', onMove, true);
+    window.addEventListener('pointerup', onUp, true);
+    window.addEventListener('pointercancel', onUp, true);
+  });
+}
+
+/** Подкручиваем страницу, когда тащим к краю экрана. */
+function autoScroll(y) {
+  const edge = 90;
+  if (y < edge) window.scrollBy(0, -14);
+  else if (y > window.innerHeight - edge) window.scrollBy(0, 14);
+}
+
+async function saveOrder(grid, section) {
+  const ids = [...grid.querySelectorAll('.card[data-id]')].map((c) => c.dataset.id);
+  const was = toys.filter((t) => t.section === section).map((t) => t.id);
+  if (ids.join() === was.join()) return;      // ничего не сдвинулось
+
+  toast('Сохраняем порядок...');
+  try {
+    await api('/api/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ section, ids }),
+    });
+    // держим свой список в том же порядке, что и на экране
+    const byId = new Map(toys.map((t) => [t.id, t]));
+    let k = 0;
+    toys = toys.map((t) => (t.section === section ? byId.get(ids[k++]) : t));
+    toast('Порядок сохранён');
+  } catch (e) {
+    toast('Не сохранилось: ' + e.message, true);
+  }
+}
+
+function toast(text, bad) {
+  let el = document.querySelector('.admin-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'admin-toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+  el.classList.toggle('is-bad', !!bad);
+  el.classList.add('is-shown');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('is-shown'), bad ? 6000 : 1800);
 }
 
 /* ============================================================ окно правки */

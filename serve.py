@@ -32,7 +32,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 3
+API_VERSION = 4
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -208,6 +208,8 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.save_toy()
             if parsed.path == '/api/toy-delete':
                 return self.delete_toy()
+            if parsed.path == '/api/reorder':
+                return self.reorder()
         except Exception as e:
             return self.reply(500, {'error': str(e)})
         self.reply(404, {'error': 'сервер не знает адрес ' + parsed.path +
@@ -274,6 +276,39 @@ class Handler(SimpleHTTPRequestHandler):
         write_data(data)
         rebuild()
         self.reply(200, {'ok': True, 'slug': item['id']})
+
+    def reorder(self):
+        """Новый порядок карточек внутри одного раздела.
+
+        Меняем местами только записи этого раздела, оставляя их на прежних
+        позициях в общем списке: так порядок других разделов не съезжает.
+        """
+        item = self.body_json()
+        section = item.get('section')
+        ids = item.get('ids') or []
+        if section not in SECTIONS or not ids:
+            return self.reply(400, {'error': 'не указан раздел или порядок'})
+
+        data = read_data()
+        toys = data['toys']
+        spots = [i for i, t in enumerate(toys) if t['section'] == section]
+        by_id = {t['slug']: t for t in toys if t['section'] == section}
+
+        ordered = [by_id[s] for s in ids if s in by_id]
+        # если что-то не пришло с клиента, дописываем в конец, чтобы не потерять
+        known = {t['slug'] for t in ordered}
+        ordered += [toys[i] for i in spots if toys[i]['slug'] not in known]
+
+        if len(ordered) != len(spots):
+            return self.reply(400, {'error': 'список карточек не совпал с каталогом'})
+
+        for pos, toy in zip(spots, ordered):
+            toys[pos] = toy
+
+        write_data(data)
+        rebuild()
+        print('  новый порядок в разделе ' + section)
+        self.reply(200, {'ok': True})
 
     def delete_toy(self):
         item = self.body_json()
