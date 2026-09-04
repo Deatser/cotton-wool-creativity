@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import shutil
+import threading
 import time
 import unicodedata
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -315,28 +316,44 @@ def prepare_storage():
         src = os.path.join(BASE, name)
         dst = os.path.join(STORAGE, name)
         if os.path.isdir(src) and not os.path.exists(dst):
-            print('первый запуск: переношу ' + name + ' на постоянный диск')
+            print('первый запуск: переношу ' + name + ' на постоянный диск', flush=True)
             shutil.copytree(src, dst)
 
 
-def main():
-    # на хостинге приложение обязано слушать порт из amvera.yaml (по умолчанию 80),
-    # на своём компьютере удобнее 8000
-    default_port = 80 if os.environ.get('STORAGE_DIR') else 8000
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', default_port))
-    prepare_storage()
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    os.makedirs(os.path.dirname(DATA), exist_ok=True)
-
-    # Пересобираем при старте. Без этого на хостинге не было бы страницы входа:
-    # её секретный адрес не хранится в репозитории, а берётся из LOGIN_PATH,
-    # и собирается она только сборщиком.
+def warm_up():
+    """Готовим хранилище и пересобираем сайт. Выполняется уже после того,
+    как порт открыт: перенос 70 МБ и сборка занимают время, а хостинг
+    считает приложение упавшим, если оно долго не отвечает на порту."""
+    try:
+        prepare_storage()
+    except Exception as e:
+        print('не удалось подготовить хранилище: ' + repr(e), flush=True)
+    try:
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        os.makedirs(os.path.dirname(DATA), exist_ok=True)
+    except Exception as e:
+        print('не удалось создать папки: ' + repr(e), flush=True)
     try:
         rebuild()
     except Exception as e:
-        print('сборка при старте не удалась: ' + str(e))
+        print('сборка при старте не удалась: ' + repr(e), flush=True)
+    print('готово к работе', flush=True)
+
+
+def main():
+    # Порт и адрес не угадываем: на хостинге приложение обязано слушать
+    # containerPort из amvera.yaml на всех адресах, иначе снаружи будет 503.
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', 0) or 0)
+    if not port:
+        port = 80 if os.environ.get('STORAGE_DIR') else 8000
+    host = os.environ.get('HOST') or '0.0.0.0'
+
+    print('serve.py запускается', flush=True)
+    print('  код:       ' + BASE, flush=True)
+    print('  хранилище: ' + STORAGE, flush=True)
+    print('  адрес:     ' + host + ':' + str(port), flush=True)
+
     try:
-        host = '0.0.0.0' if os.environ.get('STORAGE_DIR') else '127.0.0.1'
         server = Server((host, port), Handler)
     except OSError as e:
         print('')
@@ -347,11 +364,13 @@ def main():
         print('')
         sys.exit(1)
 
-    print('Хранилище: ' + STORAGE)
-    print('Сайт:      http://127.0.0.1:' + str(port) + '/')
-    print('Каталог:   ' + DATA)
-    print('Загрузки:  ' + UPLOAD_DIR)
-    print('Остановить: Ctrl+C')
+    # порт открываем сразу, тяжёлую подготовку делаем следом в отдельном потоке
+    threading.Thread(target=warm_up, daemon=True).start()
+
+    print('Сайт:      http://127.0.0.1:' + str(port) + '/', flush=True)
+    print('Каталог:   ' + DATA, flush=True)
+    print('Загрузки:  ' + UPLOAD_DIR, flush=True)
+    print('Остановить: Ctrl+C', flush=True)
     server.serve_forever()
 
 
