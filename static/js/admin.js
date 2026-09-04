@@ -9,7 +9,7 @@
    висела «загружается» по десять-пятнадцать секунд. */
 
 const SDK = 'https://www.gstatic.com/firebasejs/12.18.0/';
-const API_VERSION = 6;   // должно совпадать с API_VERSION в serve.py
+const API_VERSION = 7;   // должно совпадать с API_VERSION в serve.py
 const ROOT = document.body.getAttribute('data-root') || '';
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {
@@ -20,6 +20,7 @@ const SECTION_NAMES = {
 
 let fb = null;          // подключённый Firebase, появляется по требованию
 let isAdmin = false;
+let me = null;          // вошедший пользователь, у него берём пропуск
 let toys = [];
 let editorState = null;
 
@@ -91,9 +92,25 @@ async function checkServer(hud) {
 /** Разговор со своим сервером. Отдельная обёртка, чтобы у падений
     была понятная причина, а не голое «Failed to fetch». */
 async function api(path, options) {
+  const opts = Object.assign({}, options);
+
+  // Всё, что меняет данные, сервер принимает только с пропуском от Firebase.
+  // Пропуск живёт около часа, getIdToken сам обновляет его при надобности.
+  if (opts.auth) {
+    delete opts.auth;
+    if (!me) throw new Error('вы не вошли в админку');
+    let token;
+    try {
+      token = await me.getIdToken();
+    } catch (e) {
+      throw new Error('не удалось подтвердить вход, обновите страницу');
+    }
+    opts.headers = Object.assign({}, opts.headers, { Authorization: 'Bearer ' + token });
+  }
+
   let res;
   try {
-    res = await fetch(path, options);
+    res = await fetch(path, opts);
   } catch (e) {
     throw new Error('локальный сервер не отвечает. Запустите его командой ' +
       '«py serve.py» в папке проекта и откройте сайт по адресу, который он покажет');
@@ -280,6 +297,7 @@ async function saveOrder(grid, section) {
   try {
     await api('/api/reorder', {
       method: 'POST',
+      auth: true,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ section, ids }),
     });
@@ -476,7 +494,7 @@ async function saveToy() {
     // У существующей адрес не меняем, иначе сломались бы ссылки и выдача в поиске.
     let id = editorState.toy && editorState.toy.id;
     if (!id) {
-      const got = await api('/api/slug?name=' + encodeURIComponent(val('name')));
+      const got = await api('/api/slug?name=' + encodeURIComponent(val('name')), { auth: true });
       id = got.slug;
     }
 
@@ -505,6 +523,7 @@ async function saveToy() {
 
     await api('/api/toy', {
       method: 'POST',
+      auth: true,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id,
@@ -564,14 +583,14 @@ async function upload(id, file, kind) {
   const q = '?id=' + encodeURIComponent(id) +
             '&name=' + encodeURIComponent(name) +
             '&kind=' + encodeURIComponent(kind || 'photo');
-  return api('/api/upload' + q, { method: 'POST', body: small });
+  return api('/api/upload' + q, { method: 'POST', body: small, auth: true });
 }
 
 /** Стираем только то, что лежит в папке загрузок: файлы статики трогать нельзя. */
 async function dropFile(path) {
   if (!path || path.indexOf('img/upload/') !== 0) return;
   try {
-    await api('/api/delete?path=' + encodeURIComponent(path), { method: 'POST' });
+    await api('/api/delete?path=' + encodeURIComponent(path), { method: 'POST', auth: true });
   } catch (e) { /* файла уже нет, это не беда */ }
 }
 
@@ -594,6 +613,7 @@ function confirmDelete(toy) {
         await dropFile(toy.cover && toy.cover.url);
         await api('/api/toy-delete', {
           method: 'POST',
+          auth: true,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: toy.id }),
         });
@@ -704,6 +724,7 @@ async function boot() {
   }
 
   const user = await whoAmI();
+  me = user;
   isAdmin = !!user;
   renderHud(user);
 
@@ -736,6 +757,7 @@ async function boot() {
 
   // вход или выход в другой вкладке - обновляем страницу
   fb.onAuthStateChanged(fb.auth, (u) => {
+    me = u;
     if (!!u !== isAdmin) location.reload();
   });
 }

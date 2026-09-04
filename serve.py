@@ -17,8 +17,11 @@ import threading
 import time
 import unicodedata
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+import urllib.request
 from urllib.parse import urlparse, parse_qs, unquote
 
+import jwt
+from cryptography.x509 import load_pem_x509_certificate
 from PIL import Image, ImageOps
 
 BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
@@ -44,7 +47,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 6
+API_VERSION = 7
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -97,6 +100,86 @@ def unique_slug(base, taken):
 
 def safe_id(value):
     return re.sub(r'[^A-Za-z0-9_-]+', '', value or '')[:64] or 'misc'
+
+
+# ------------------------------------------------------------------- доступ
+#
+# Пароль в браузере защищает только кнопки: сервер видит обычный запрос и
+# ничего про вход не знает. Поэтому каждый запрос, который что-то меняет,
+# несёт подписанный пропуск от Firebase, а сервер проверяет подпись
+# публичными ключами Google. Своих секретов на сервере не появляется.
+
+CERTS_URL = ('https://www.googleapis.com/robot/v1/metadata/x509/'
+             'securetoken@system.gserviceaccount.com')
+CERTS_TTL = 3600
+_certs = {'at': 0.0, 'keys': {}}
+
+
+class Denied(Exception):
+    """Пропуск не подошёл: запрос выполнять нельзя."""
+
+
+def setting(key, default=''):
+    """Значение из окружения, а на своём компьютере - из .env."""
+    if os.environ.get(key):
+        return os.environ[key]
+    path = os.path.join(BASE, '.env')
+    if os.path.exists(path):
+        for line in open(path, encoding='utf-8'):
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                name, value = line.split('=', 1)
+                if name.strip() == key:
+                    return value.strip().strip('"').strip("'")
+    return default
+
+
+def google_certs(force=False):
+    """Публичные ключи Google. Они меняются, поэтому обновляем раз в час."""
+    now = time.time()
+    if _certs['keys'] and not force and now - _certs['at'] < CERTS_TTL:
+        return _certs['keys']
+    with urllib.request.urlopen(CERTS_URL, timeout=20) as r:
+        _certs['keys'] = json.load(r)
+    _certs['at'] = now
+    return _certs['keys']
+
+
+def check_pass(header):
+    """Проверяем пропуск. Возвращает почту вошедшего или бросает Denied."""
+    if not header or not header.lower().startswith('bearer '):
+        raise Denied('нужно войти в админку')
+    token = header.split(' ', 1)[1].strip()
+
+    project = setting('FIREBASE_PROJECT_ID')
+    if not project:
+        raise Denied('на сервере не задан FIREBASE_PROJECT_ID')
+
+    try:
+        kid = jwt.get_unverified_header(token).get('kid')
+    except Exception:
+        raise Denied('пропуск не читается')
+
+    keys = google_certs()
+    if kid not in keys:
+        keys = google_certs(force=True)      # ключи могли смениться только что
+    if kid not in keys:
+        raise Denied('пропуск подписан незнакомым ключом')
+
+    try:
+        public = load_pem_x509_certificate(keys[kid].encode()).public_key()
+        claims = jwt.decode(token, public, algorithms=['RS256'], audience=project,
+                            issuer='https://securetoken.google.com/' + project)
+    except jwt.ExpiredSignatureError:
+        raise Denied('срок пропуска истёк, обновите страницу')
+    except Exception as e:
+        raise Denied('пропуск не подошёл: ' + e.__class__.__name__)
+
+    email = claims.get('email') or ''
+    allowed = [x.strip().lower() for x in setting('ADMIN_EMAILS').split(',') if x.strip()]
+    if allowed and email.lower() not in allowed:
+        raise Denied('этой учётной записи вход в админку не разрешён')
+    return email
 
 
 # ------------------------------------------------------------------ каталог
@@ -194,6 +277,8 @@ class Handler(SimpleHTTPRequestHandler):
         if urlparse(self.path).path == '/api/ping':
             return self.reply(200, {'ok': True, 'version': API_VERSION})
         if urlparse(self.path).path == '/api/slug':
+            if not self.allowed():
+                return
             query = parse_qs(urlparse(self.path).query)
             name = (query.get('name') or [''])[0]
             current = (query.get('id') or [''])[0]
@@ -214,9 +299,28 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     # ------------------------------------------------------------ POST
+    def allowed(self):
+        """Пускаем дальше только с действующим пропуском."""
+        try:
+            who = check_pass(self.headers.get('Authorization'))
+        except Denied as e:
+            print('  отказано: ' + str(e) + '  ' + self.path)
+            self.reply(401, {'error': str(e)})
+            return False
+        except Exception as e:
+            # ключи Google не скачались, сети нет и тому подобное
+            print('  проверить пропуск не удалось: ' + repr(e))
+            self.reply(503, {'error': 'не удалось проверить вход, попробуйте ещё раз'})
+            return False
+        self.who = who
+        return True
+
     def do_POST(self):
         parsed = urlparse(self.path)
         query = parse_qs(parsed.query)
+        # все точки ниже меняют данные, поэтому без пропуска не работают
+        if parsed.path.startswith('/api/') and not self.allowed():
+            return
         try:
             if parsed.path == '/api/upload':
                 return self.upload(query)
