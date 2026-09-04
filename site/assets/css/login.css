@@ -1,0 +1,252 @@
+@import url("../fonts/fonts.css");
+
+/* Стекло и плавающие квадраты - по образцу страницы регистрации
+   из проекта meditation, палитра подогнана под этот сайт. */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Спокойный тёмный фон: глубокая нейтральная база и очень мягкие пятна,
+   которые медленно смещаются. Цвет почти не гуляет, движение едва заметно -
+   так фон не спорит с формой. */
+body {
+  min-height: 100vh;
+  font-family: "Comfortaa", "Segoe UI", Arial, sans-serif;
+  color: #eaeef2;
+  background: #141a20;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 46% at 24% 26%, rgba(74, 104, 132, .30), transparent 68%),
+    radial-gradient(38% 42% at 78% 20%, rgba(58, 82, 104, .24), transparent 68%),
+    radial-gradient(50% 50% at 70% 84%, rgba(30, 44, 58, .55), transparent 70%),
+    radial-gradient(30% 34% at 46% 62%, rgba(176, 116, 52, .12), transparent 70%);
+  animation: drift 46s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0%   { transform: translate3d(-2%, -1.5%, 0) scale(1); }
+  100% { transform: translate3d(2%, 1.5%, 0) scale(1.06); }
+}
+
+/* лёгкое затемнение к краям, чтобы взгляд шёл к центру */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(70% 70% at 50% 45%, transparent 40%, rgba(8, 11, 14, .55) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
+.signin {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.box {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ------------------------------------------------------- стеклянная карточка */
+.container {
+  position: relative;
+  z-index: 3;
+  background: rgba(255, 255, 255, .07);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, .45);
+}
+
+/* Бегущая по периметру светящаяся змейка.
+   Угол conic-gradient анимируется через @property: обычные CSS-переменные
+   браузер анимировать не умеет, ему нужно объявить тип. */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.container::before,
+.container::after {
+  content: "";
+  position: absolute;
+  inset: 0;                         /* ровно по краю карточки, без сдвига */
+  border-radius: inherit;
+  padding: 1.5px;                   /* толщина обводки */
+  /* по всему периметру тусклая линия, по ней бежит яркий блик */
+  background: conic-gradient(from var(--angle),
+    rgba(255, 255, 255, .14) 0deg 232deg,
+    rgba(255, 255, 255, .24) 262deg,
+    rgba(255, 255, 255, .60) 300deg,
+    rgba(255, 255, 255, .98) 326deg,
+    rgba(255, 255, 255, .34) 344deg,
+    rgba(255, 255, 255, .14) 360deg);
+  /* оставляем только рамку: заливка вырезается маской */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: snake 6s linear infinite;
+  pointer-events: none;
+}
+
+/* второй слой размыт - он и даёт свечение вокруг бегущего блика */
+.container::after {
+  padding: 3px;
+  background: conic-gradient(from var(--angle),
+    transparent 0deg 252deg,
+    rgba(255, 255, 255, .45) 300deg,
+    rgba(255, 255, 255, .95) 326deg,
+    rgba(255, 255, 255, .25) 348deg,
+    transparent 360deg);
+  filter: blur(6px);
+  opacity: .7;
+}
+
+@keyframes snake {
+  to { --angle: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container::before, .container::after { animation: none; }
+}
+
+.form { position: relative; z-index: 1; padding: 40px 36px 34px; text-align: center; }
+
+.form__logo {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: block;
+}
+
+.form h1 {
+  position: relative;
+  display: inline-block;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  margin-bottom: 34px;
+}
+
+.form h1::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: -12px;
+  transform: translateX(-50%);
+  width: 64px; height: 3px;
+  border-radius: 3px;
+  background: var(--accent, #ff9900);
+}
+
+.inputBox { margin-top: 18px; }
+
+.inputBox input {
+  width: 100%;
+  padding: 13px 20px;
+  font: inherit;
+  font-size: 15px;
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 35px;
+  outline: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, .05);
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+.inputBox input::placeholder { color: rgba(255, 255, 255, .75); }
+
+.inputBox input:focus {
+  background: rgba(255, 255, 255, .13);
+  border-color: rgba(255, 153, 0, .8);
+}
+
+.inputBox input[type="submit"] {
+  margin-top: 6px;
+  background: #ff9900;
+  border-color: transparent;
+  color: #2a1a06;
+  font-weight: 700;
+  letter-spacing: .03em;
+  cursor: pointer;
+}
+
+.inputBox input[type="submit"]:hover { background: #ffab2c; }
+
+.remember {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, .9);
+  cursor: pointer;
+}
+.remember input { accent-color: #ff9900; width: 16px; height: 16px; cursor: pointer; }
+
+.message {
+  margin-top: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #ffd9a0;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.message.is-shown { opacity: 1; }
+
+.message.is-error { color: #ff9a8a; }
+
+/* блок для случая, когда сессия уже активна */
+.signed-in p { margin-top: 6px; font-size: 14px; line-height: 1.6; }
+.signed-in b { color: #ffc36b; }
+.signed-in__actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+.signed-in__actions a,
+.signed-in__out {
+  font: inherit;
+  font-size: 14px;
+  color: #eaeef2;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 30px;
+  padding: 9px 20px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.signed-in__actions a:hover,
+.signed-in__out:hover { background: rgba(255, 255, 255, .15); border-color: rgba(255, 153, 0, .7); }
+
+.back { margin-top: 22px; font-size: 13.5px; }
+.back a {
+  color: rgba(255, 255, 255, .85);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, .35);
+  transition: color .2s ease, border-color .2s ease;
+}
+.back a:hover { color: #ff9900; border-color: #ff9900; }
+
+@media (max-width: 600px) {
+  .form { padding: 32px 24px 28px; }
+}

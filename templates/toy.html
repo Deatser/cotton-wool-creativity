@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ toy.name }}{% if toy.size %}, {{ toy.size }}{% endif %} — ватная ёлочная игрушка ручной работы{% endblock %}
+{% block description %}{{ toy.name }}{% if toy.size %}, высота {{ toy.size }}{% endif %}. Ватная ёлочная игрушка ручной работы{% if toy.price %}, {{ toy.price_text }}{% else %}, можно заказать повтор{% endif %}.{% endblock %}
+{% block ogtype %}product{% endblock %}
+{% block ogimage %}{{ root }}{{ toy.cover_img }}{% endblock %}
+
+{% block content %}
+<main class="toy">
+  <div class="wrap">
+    <p class="crumbs">
+      <a href="{{ root }}">Главная страница</a> / <span>{{ toy.name }}</span>
+    </p>
+
+    <div class="toy__layout">
+      <div class="gallery">
+        {% for ph in toy.gallery %}
+        <button type="button" data-full="{{ root }}{{ ph.big }}" data-alt="{{ toy.alt }}">
+          <img src="{{ root }}{{ ph.mid }}" width="{{ ph.w }}" height="{{ ph.h }}"
+               loading="{{ 'eager' if loop.first else 'lazy' }}" decoding="async"
+               alt="{{ toy.alt }}{% if not loop.first %} — фото {{ loop.index }}{% endif %}">
+        </button>
+        {% endfor %}
+      </div>
+
+      <aside class="toy__info">
+        <h1>{{ toy.name }}</h1>
+        {% if toy.size %}<p class="toy__meta">Высота {{ toy.size }}</p>{% endif %}
+        {% if toy.note %}<p class="toy__note">{{ toy.note }}</p>{% endif %}
+
+        {% if toy.price %}
+          <p class="toy__price">{{ toy.price_text }}</p>
+          <p class="toy__status">В наличии, в единственном экземпляре.<br>Отправляем в течение 1-2 дней после оплаты.</p>
+          <a class="btn" href="{{ root }}oplata/">Купить</a>
+        {% else %}
+          <p class="toy__status">{{ toy.status_text }}</p>
+          <a class="btn" href="{{ root }}oplata/">Заказать повтор</a>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</main>
+
+<script type="application/ld+json">{{ toy.jsonld }}</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Оплата и доставка — cotton wool creativity{% endblock %}
+{% block description %}Как оплатить и получить ватную ёлочную игрушку ручной работы: перевод по QR-коду, сроки отправки и изготовления.{% endblock %}
+
+{% block content %}
+<main class="payment">
+  <div class="wrap">
+    <h1>Оплата</h1>
+    <div class="payment__cards">
+      {% for pay in payments %}
+      <figure>
+        <img src="{{ root }}{{ pay.img }}" width="{{ pay.w }}" height="{{ pay.h }}"
+             loading="{{ 'eager' if loop.first else 'lazy' }}" decoding="async" alt="{{ pay.alt }}">
+      </figure>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}

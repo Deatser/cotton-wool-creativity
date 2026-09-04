@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вход — cotton wool creativity</title>
+{# страница служебная: в поиск не пускаем и в sitemap не кладём #}
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="{{ root }}img/logo.png">
+<link rel="stylesheet" href="{{ root }}assets/css/login.css">
+</head>
+<body data-root="{{ root }}">
+
+<main class="signin">
+  <div class="box">
+    <div class="container">
+      <div class="form">
+        <img class="form__logo" src="{{ root }}img/logo.png" width="64" height="64" alt="">
+        <h1>Вход</h1>
+
+        <form id="signin-form" autocomplete="on">
+          <div class="inputBox">
+            <input type="email" name="email" placeholder="Почта" autocomplete="username" required>
+          </div>
+          <div class="inputBox">
+            <input type="password" name="password" placeholder="Пароль" autocomplete="current-password" required>
+          </div>
+
+          <label class="remember">
+            <input type="checkbox" name="remember" checked>
+            <span>Запомнить меня</span>
+          </label>
+
+          <p class="message" role="status" aria-live="polite"></p>
+
+          <div class="inputBox">
+            <input type="submit" value="Войти">
+          </div>
+        </form>
+
+        {# показывается, когда сессия уже активна #}
+        <div class="signed-in" hidden>
+          <p>Вы уже вошли как <b class="signed-in__email"></b></p>
+          <p class="signed-in__actions">
+            <a href="{{ root }}">На сайт</a>
+            <button type="button" class="signed-in__out">Выйти</button>
+          </p>
+        </div>
+
+        <p class="back"><a href="{{ root }}">Вернуться на сайт</a></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module" src="{{ root }}assets/js/auth.js"></script>
+</body>
+</html>

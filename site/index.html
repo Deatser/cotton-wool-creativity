@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cotton wool creativity</title>
+<meta name="description" content="Ватные ёлочные игрушки ручной работы по забытой технологии XIX века. Каждая игрушка в единственном экземпляре.">
+<link rel="icon" href="img/logo.png">
+<link rel="canonical" href="https://cotton-wool-creativity.ru/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="cotton wool creativity">
+<meta property="og:description" content="Ватные ёлочные игрушки ручной работы по забытой технологии XIX века. Каждая игрушка в единственном экземпляре.">
+<meta property="og:image" content="img/hero.jpg">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body data-root="">
+
+<header class="site-header site-header--over">
+  <div class="wrap">
+    <a class="brand" href="">
+      <img class="brand__logo" src="img/logo.png" width="34" height="34" alt="">
+      <span class="brand__name">cotton wool creativity</span>
+    </a>
+
+    <button class="burger" type="button" aria-expanded="false" aria-controls="nav" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" id="nav">
+      <div class="nav__item nav__item--drop">
+        <a class="nav__link" href="" aria-current="page">
+          Главная страница
+          <svg class="nav__chev" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </a>
+        <div class="nav__drop"><ul class="nav__drop-list" data-toy-list></ul></div>
+      </div>
+
+      <a class="nav__link" href="#in_stock">Игрушки в наличии</a>
+      <a class="nav__link" href="#repeat">Реализованные игрушки</a>
+      <a class="nav__link" href="#custom">Игрушки под заказ</a>
+      <a class="nav__link" href="oplata/">Оплата</a>
+    </nav>
+
+    <button class="search-toggle" type="button" aria-expanded="false" aria-controls="search" aria-label="Поиск по сайту">
+      <svg width="19" height="19" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M13 13l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="search" id="search" hidden>
+    <div class="search__inner">
+      <div class="search__box">
+        <svg class="search__icon" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M13 13l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <input class="search__input" type="search" placeholder="Найти игрушку" autocomplete="off"
+               aria-label="Поиск по каталогу">
+        <button class="search__clear" type="button" aria-label="Очистить">&times;</button>
+      </div>
+      <div class="search__results" role="listbox" hidden></div>
+    </div>
+  </div>
+</header>
+
+<section class="hero" style="background-image:url('img/hero.jpg')">
+  <div class="wrap">
+    <img class="hero__logo" src="img/logo.png" width="270" height="270"
+         alt="Ватная игрушка «Пёс с тюльпанами» — работа мастерской">
+    <div class="hero__body">
+      <p class="hero__tagline">творчество из ваты <small>по забытой технологии XIX века</small></p>
+      <h1 class="hero__title">cotton wool creativity</h1>
+      <p class="hero__subtitle">Ватные авторские игрушки</p>
+
+      <div class="hero__text">
+        <p>Наши ватные ёлочные украшения — <strong>это возрождение древнего ремесла</strong>, где каждая
+          деталь лепится из натуральной хлопковой и льняной ваты. Никакой химии — только экологически
+          чистые материалы, бережные к вашему здоровью и природе.</p>
+        <p><strong>Каждая фигурка — единственная в своём роде.</strong> Лёгкие, прочные и невероятно
+          душевные — они превратят вашу ёлку в центр праздничного волшебства.</p>
+      </div>
+
+      <p class="hero__call">
+        Подарите себе роскошь ручной работы и тепло ушедшей эпохи.<br>
+        Добавьте в свой дом неповторимый шарм, который запомнится надолго!
+      </p>
+    </div>
+  </div>
+</section>
+
+<main>
+  <section id="in_stock">
+    <div class="section-head">
+      <div class="wrap">
+        <h2><b>Игрушки в наличии</b></h2>
+        <p class="is-red"><b>Все игрушки в единичном экземпляре.</b> Повторы возможны только на заказ</p>
+      </div>
+    </div>
+
+    <div class="catalog">
+      <div class="wrap">
+        <div class="grid">
+          <article class="card" data-id="vodoley">
+            <a class="card__media" href="igrushki/vodoley/">
+              <img src="img/igrushki/vodoley/cover-600.jpg"
+                   srcset="img/igrushki/vodoley/cover-600.jpg 600w, img/igrushki/vodoley/cover-600.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Водолей», высота 10 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/vodoley/"><b>Водолей</b>, <span class="size">10 см</span></a>
+            </p>
+            <p class="card__price">5000 руб.</p>
+            <a class="card__buy" href="igrushki/vodoley/">Купить</a>
+          </article>
+          <article class="card" data-id="kozerog">
+            <a class="card__media" href="igrushki/kozerog/">
+              <img src="img/igrushki/kozerog/cover-600.jpg"
+                   srcset="img/igrushki/kozerog/cover-600.jpg 600w, img/igrushki/kozerog/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Козерог», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/kozerog/"><b>Козерог</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">5000 руб.</p>
+            <a class="card__buy" href="igrushki/kozerog/">Купить</a>
+          </article>
+          <article class="card" data-id="devochka-sinichka">
+            <a class="card__media" href="igrushki/devochka-sinichka/">
+              <img src="img/igrushki/devochka-sinichka/cover-600.jpg"
+                   srcset="img/igrushki/devochka-sinichka/cover-600.jpg 600w, img/igrushki/devochka-sinichka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Девочка-синичка», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/devochka-sinichka/"><b>Девочка-синичка</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">5000 руб.</p>
+            <a class="card__buy" href="igrushki/devochka-sinichka/">Купить</a>
+          </article>
+          <article class="card" data-id="zayac-sadovod">
+            <a class="card__media" href="igrushki/zayac-sadovod/">
+              <img src="img/igrushki/zayac-sadovod/cover-600.jpg"
+                   srcset="img/igrushki/zayac-sadovod/cover-600.jpg 600w, img/igrushki/zayac-sadovod/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Заяц-садовод», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/zayac-sadovod/"><b>Заяц-садовод</b>, <span class="size">15 см</span></a>
+            </p>
+            <p class="card__price">5000 руб.</p>
+            <a class="card__buy" href="igrushki/zayac-sadovod/">Купить</a>
+          </article>
+          <article class="card" data-id="kot-v-sapogah">
+            <a class="card__media" href="igrushki/kot-v-sapogah/">
+              <img src="img/igrushki/kot-v-sapogah/cover-600.jpg"
+                   srcset="img/igrushki/kot-v-sapogah/cover-600.jpg 600w, img/igrushki/kot-v-sapogah/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Кот в сапогах», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/kot-v-sapogah/"><b>Кот в сапогах</b>, <span class="size">15 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/kot-v-sapogah/">Купить</a>
+          </article>
+          <article class="card" data-id="druzya-na-sankah">
+            <a class="card__media" href="igrushki/druzya-na-sankah/">
+              <img src="img/igrushki/druzya-na-sankah/cover-600.jpg"
+                   srcset="img/igrushki/druzya-na-sankah/cover-600.jpg 600w, img/igrushki/druzya-na-sankah/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Друзья на санках», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/druzya-na-sankah/"><b>Друзья на санках</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/druzya-na-sankah/">Купить</a>
+          </article>
+          <article class="card" data-id="volk-i-zayac">
+            <a class="card__media" href="igrushki/volk-i-zayac/">
+              <img src="img/igrushki/volk-i-zayac/cover-600.jpg"
+                   srcset="img/igrushki/volk-i-zayac/cover-600.jpg 600w, img/igrushki/volk-i-zayac/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Волк и заяц», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/volk-i-zayac/"><b>Волк и заяц</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">6000 руб.</p>
+            <a class="card__buy" href="igrushki/volk-i-zayac/">Купить</a>
+          </article>
+          <article class="card" data-id="misha-na-kachelyah">
+            <a class="card__media" href="igrushki/misha-na-kachelyah/">
+              <img src="img/igrushki/misha-na-kachelyah/cover-600.jpg"
+                   srcset="img/igrushki/misha-na-kachelyah/cover-600.jpg 600w, img/igrushki/misha-na-kachelyah/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Миша на качелях», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/misha-na-kachelyah/"><b>Миша на качелях</b>, <span class="size">15 см</span></a>
+            </p>
+            <p class="card__price">3500 руб.</p>
+            <a class="card__buy" href="igrushki/misha-na-kachelyah/">Купить</a>
+          </article>
+          <article class="card" data-id="angelochek">
+            <a class="card__media" href="igrushki/angelochek/">
+              <img src="img/igrushki/angelochek/cover-600.jpg"
+                   srcset="img/igrushki/angelochek/cover-600.jpg 600w, img/igrushki/angelochek/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Ангелочек», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/angelochek/"><b>Ангелочек</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/angelochek/">Купить</a>
+          </article>
+          <article class="card" data-id="ovechka">
+            <a class="card__media" href="igrushki/ovechka/">
+              <img src="img/igrushki/ovechka/cover-600.jpg"
+                   srcset="img/igrushki/ovechka/cover-600.jpg 600w, img/igrushki/ovechka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Овечка», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/ovechka/"><b>Овечка</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/ovechka/">Купить</a>
+          </article>
+          <article class="card" data-id="trubachka">
+            <a class="card__media" href="igrushki/trubachka/">
+              <img src="img/igrushki/trubachka/cover-600.jpg"
+                   srcset="img/igrushki/trubachka/cover-600.jpg 600w, img/igrushki/trubachka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Трубачка», высота 9 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/trubachka/"><b>Трубачка</b>, <span class="size">9 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/trubachka/">Купить</a>
+          </article>
+          <article class="card" data-id="snegurochka">
+            <a class="card__media" href="igrushki/snegurochka/">
+              <img src="img/igrushki/snegurochka/cover-600.jpg"
+                   srcset="img/igrushki/snegurochka/cover-600.jpg 600w, img/igrushki/snegurochka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Снегурочка», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/snegurochka/"><b>Снегурочка</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/snegurochka/">Купить</a>
+          </article>
+          <article class="card" data-id="buratino">
+            <a class="card__media" href="igrushki/buratino/">
+              <img src="img/igrushki/buratino/cover-600.jpg"
+                   srcset="img/igrushki/buratino/cover-600.jpg 600w, img/igrushki/buratino/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Буратино», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/buratino/"><b>Буратино</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4000 руб.</p>
+            <a class="card__buy" href="igrushki/buratino/">Купить</a>
+          </article>
+          <article class="card" data-id="simvol-2027-goda-kozlik">
+            <a class="card__media" href="igrushki/simvol-2027-goda-kozlik/">
+              <img src="img/igrushki/simvol-2027-goda-kozlik/cover-600.jpg"
+                   srcset="img/igrushki/simvol-2027-goda-kozlik/cover-600.jpg 600w, img/igrushki/simvol-2027-goda-kozlik/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Символ 2027 года - Козлик», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/simvol-2027-goda-kozlik/"><b>Символ 2027 года - Козлик</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/simvol-2027-goda-kozlik/">Купить</a>
+          </article>
+          <article class="card" data-id="mopsik-holmsik">
+            <a class="card__media" href="igrushki/mopsik-holmsik/">
+              <img src="img/igrushki/mopsik-holmsik/cover-600.jpg"
+                   srcset="img/igrushki/mopsik-holmsik/cover-600.jpg 600w, img/igrushki/mopsik-holmsik/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Мопсик-Холмсик», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/mopsik-holmsik/"><b>Мопсик-Холмсик</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4000 руб.</p>
+            <a class="card__buy" href="igrushki/mopsik-holmsik/">Купить</a>
+          </article>
+          <article class="card" data-id="zayac">
+            <a class="card__media" href="igrushki/zayac/">
+              <img src="img/igrushki/zayac/cover-600.jpg"
+                   srcset="img/igrushki/zayac/cover-600.jpg 600w, img/igrushki/zayac/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Заяц», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/zayac/"><b>Заяц</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">3000 руб.</p>
+            <a class="card__buy" href="igrushki/zayac/">Купить</a>
+          </article>
+          <article class="card" data-id="ded-moroz-i-zayac">
+            <a class="card__media" href="igrushki/ded-moroz-i-zayac/">
+              <img src="img/igrushki/ded-moroz-i-zayac/cover-600.jpg"
+                   srcset="img/igrushki/ded-moroz-i-zayac/cover-600.jpg 600w, img/igrushki/ded-moroz-i-zayac/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Дед мороз и заяц», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/ded-moroz-i-zayac/"><b>Дед мороз и заяц</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">5000 руб.</p>
+            <a class="card__buy" href="igrushki/ded-moroz-i-zayac/">Купить</a>
+          </article>
+          <article class="card" data-id="ded-moroz">
+            <a class="card__media" href="igrushki/ded-moroz/">
+              <img src="img/igrushki/ded-moroz/cover-600.jpg"
+                   srcset="img/igrushki/ded-moroz/cover-600.jpg 600w, img/igrushki/ded-moroz/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Дед мороз», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/ded-moroz/"><b>Дед мороз</b>, <span class="size">15 см</span></a>
+            </p>
+            <p class="card__price">3000 руб.</p>
+            <a class="card__buy" href="igrushki/ded-moroz/">Купить</a>
+          </article>
+          <article class="card" data-id="vlyublennye-kotiki">
+            <a class="card__media" href="igrushki/vlyublennye-kotiki/">
+              <img src="img/igrushki/vlyublennye-kotiki/cover-600.jpg"
+                   srcset="img/igrushki/vlyublennye-kotiki/cover-600.jpg 600w, img/igrushki/vlyublennye-kotiki/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Влюбленные котики», высота 14 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/vlyublennye-kotiki/"><b>Влюбленные котики</b>, <span class="size">14 см</span></a>
+            </p>
+            <p class="card__price">4000 руб.</p>
+            <a class="card__buy" href="igrushki/vlyublennye-kotiki/">Купить</a>
+          </article>
+          <article class="card" data-id="snegovik-s-malyshami">
+            <a class="card__media" href="igrushki/snegovik-s-malyshami/">
+              <img src="img/igrushki/snegovik-s-malyshami/cover-600.jpg"
+                   srcset="img/igrushki/snegovik-s-malyshami/cover-600.jpg 600w, img/igrushki/snegovik-s-malyshami/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Снеговик с малышами», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/snegovik-s-malyshami/"><b>Снеговик с малышами</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">3000 руб.</p>
+            <a class="card__buy" href="igrushki/snegovik-s-malyshami/">Купить</a>
+          </article>
+          <article class="card" data-id="mihail-arhangel">
+            <a class="card__media" href="igrushki/mihail-arhangel/">
+              <img src="img/igrushki/mihail-arhangel/cover-600.jpg"
+                   srcset="img/igrushki/mihail-arhangel/cover-600.jpg 600w, img/igrushki/mihail-arhangel/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Михаил Архангел», высота 16 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/mihail-arhangel/"><b>Михаил Архангел</b>, <span class="size">16 см</span></a>
+<span class="note">статуэтка на подставке</span>            </p>
+            <p class="card__price">7000 руб.</p>
+            <a class="card__buy" href="igrushki/mihail-arhangel/">Купить</a>
+          </article>
+          <article class="card" data-id="rozhdestvo">
+            <a class="card__media" href="igrushki/rozhdestvo/">
+              <img src="img/igrushki/rozhdestvo/cover-600.jpg"
+                   srcset="img/igrushki/rozhdestvo/cover-600.jpg 600w, img/igrushki/rozhdestvo/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Рождество», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/rozhdestvo/"><b>Рождество</b>, <span class="size">15 см</span></a>
+<span class="note">(из 3-х фигур)</span>            </p>
+            <p class="card__price">9000 руб.</p>
+            <a class="card__buy" href="igrushki/rozhdestvo/">Купить</a>
+          </article>
+          <article class="card" data-id="cirkachka">
+            <a class="card__media" href="igrushki/cirkachka/">
+              <img src="img/igrushki/cirkachka/cover-600.jpg"
+                   srcset="img/igrushki/cirkachka/cover-600.jpg 600w, img/igrushki/cirkachka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Циркачка», высота 16 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/cirkachka/"><b>Циркачка</b>, <span class="size">16 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/cirkachka/">Купить</a>
+          </article>
+          <article class="card" data-id="misha-na-arene">
+            <a class="card__media" href="igrushki/misha-na-arene/">
+              <img src="img/igrushki/misha-na-arene/cover-600.jpg"
+                   srcset="img/igrushki/misha-na-arene/cover-600.jpg 600w, img/igrushki/misha-na-arene/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Миша на арене», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/misha-na-arene/"><b>Миша на арене</b>, <span class="size">13 см</span></a>
+            </p>
+            <p class="card__price">4500 руб.</p>
+            <a class="card__buy" href="igrushki/misha-na-arene/">Купить</a>
+          </article>
+          <article class="card" data-id="rozhdestvenskiy-vagonchik-7-sm">
+            <a class="card__media" href="igrushki/rozhdestvenskiy-vagonchik-7-sm/">
+              <img src="img/igrushki/rozhdestvenskiy-vagonchik-7-sm/cover-600.jpg"
+                   srcset="img/igrushki/rozhdestvenskiy-vagonchik-7-sm/cover-600.jpg 600w, img/igrushki/rozhdestvenskiy-vagonchik-7-sm/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Рождественский вагончик», высота 7 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/rozhdestvenskiy-vagonchik-7-sm/"><b>Рождественский вагончик</b>, <span class="size">7 см</span></a>
+            </p>
+            <p class="card__price">4000 руб.</p>
+            <a class="card__buy" href="igrushki/rozhdestvenskiy-vagonchik-7-sm/">Купить</a>
+          </article>
+          <article class="card" data-id="rozhdestvenskiy-vagonchik-9-sm">
+            <a class="card__media" href="igrushki/rozhdestvenskiy-vagonchik-9-sm/">
+              <img src="img/igrushki/rozhdestvenskiy-vagonchik-9-sm/cover-600.jpg"
+                   srcset="img/igrushki/rozhdestvenskiy-vagonchik-9-sm/cover-600.jpg 600w, img/igrushki/rozhdestvenskiy-vagonchik-9-sm/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Рождественский вагончик», высота 9 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/rozhdestvenskiy-vagonchik-9-sm/"><b>Рождественский вагончик</b>, <span class="size">9 см</span></a>
+            </p>
+            <p class="card__price">4000 руб.</p>
+            <a class="card__buy" href="igrushki/rozhdestvenskiy-vagonchik-9-sm/">Купить</a>
+          </article>
+          <article class="card" data-id="rozhdestvenskiy-vagonchik-zelenyy">
+            <a class="card__media" href="igrushki/rozhdestvenskiy-vagonchik-zelenyy/">
+              <img src="img/igrushki/rozhdestvenskiy-vagonchik-zelenyy/cover-600.jpg"
+                   srcset="img/igrushki/rozhdestvenskiy-vagonchik-zelenyy/cover-600.jpg 600w, img/igrushki/rozhdestvenskiy-vagonchik-zelenyy/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Рождественский вагончик (зеленый)», высота 9 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/rozhdestvenskiy-vagonchik-zelenyy/"><b>Рождественский вагончик (зеленый)</b>, <span class="size">9 см</span></a>
+            </p>
+            <p class="card__price">4000 руб.</p>
+            <a class="card__buy" href="igrushki/rozhdestvenskiy-vagonchik-zelenyy/">Купить</a>
+          </article>
+          <article class="card" data-id="rozhdestvenskiy-vagonchik-siniy">
+            <a class="card__media" href="igrushki/rozhdestvenskiy-vagonchik-siniy/">
+              <img src="img/igrushki/rozhdestvenskiy-vagonchik-siniy/cover-600.jpg"
+                   srcset="img/igrushki/rozhdestvenskiy-vagonchik-siniy/cover-600.jpg 600w, img/igrushki/rozhdestvenskiy-vagonchik-siniy/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Рождественский вагончик (синий)», высота 9 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/rozhdestvenskiy-vagonchik-siniy/"><b>Рождественский вагончик (синий)</b>, <span class="size">9 см</span></a>
+            </p>
+            <p class="card__price">4000 руб.</p>
+            <a class="card__buy" href="igrushki/rozhdestvenskiy-vagonchik-siniy/">Купить</a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="repeat">
+    <div class="section-head">
+      <div class="wrap">
+        <h2 class="is-red"><b>Реализованные игрушки</b> (нет в наличии). МОЖНО ЗАКАЗАТЬ ПОВТОР!</h2>
+        <p>Срок изготовления игрушки от 14 до 30 дней, в зависимости от сложности.</p>
+      </div>
+    </div>
+
+    <div class="catalog">
+      <div class="wrap">
+        <div class="grid">
+          <article class="card" data-id="koshka-balerina">
+            <a class="card__media" href="igrushki/koshka-balerina/">
+              <img src="img/igrushki/koshka-balerina/cover-600.jpg"
+                   srcset="img/igrushki/koshka-balerina/cover-600.jpg 600w, img/igrushki/koshka-balerina/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Кошка Балерина», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/koshka-balerina/"><b>Кошка Балерина</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="golubaya-loshad">
+            <a class="card__media" href="igrushki/golubaya-loshad/">
+              <img src="img/igrushki/golubaya-loshad/cover-600.jpg"
+                   srcset="img/igrushki/golubaya-loshad/cover-600.jpg 600w, img/igrushki/golubaya-loshad/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Голубая лошадь», высота 10 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/golubaya-loshad/"><b>Голубая лошадь</b>, <span class="size">10 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="devochka-na-konkah">
+            <a class="card__media" href="igrushki/devochka-na-konkah/">
+              <img src="img/igrushki/devochka-na-konkah/cover-600.jpg"
+                   srcset="img/igrushki/devochka-na-konkah/cover-600.jpg 600w, img/igrushki/devochka-na-konkah/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Девочка на коньках», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/devochka-na-konkah/"><b>Девочка на коньках</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="devochka-na-loshadke">
+            <a class="card__media" href="igrushki/devochka-na-loshadke/">
+              <img src="img/igrushki/devochka-na-loshadke/cover-600.jpg"
+                   srcset="img/igrushki/devochka-na-loshadke/cover-600.jpg 600w, img/igrushki/devochka-na-loshadke/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Девочка на лошадке», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/devochka-na-loshadke/"><b>Девочка на лошадке</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="devochka-v-kostyume-ovechki">
+            <a class="card__media" href="igrushki/devochka-v-kostyume-ovechki/">
+              <img src="img/igrushki/devochka-v-kostyume-ovechki/cover-600.jpg"
+                   srcset="img/igrushki/devochka-v-kostyume-ovechki/cover-600.jpg 600w, img/igrushki/devochka-v-kostyume-ovechki/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Девочка в костюме овечки», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/devochka-v-kostyume-ovechki/"><b>Девочка в костюме овечки</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="zayac-na-sankah">
+            <a class="card__media" href="igrushki/zayac-na-sankah/">
+              <img src="img/igrushki/zayac-na-sankah/cover-600.jpg"
+                   srcset="img/igrushki/zayac-na-sankah/cover-600.jpg 600w, img/igrushki/zayac-na-sankah/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Заяц на санках», высота 10 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/zayac-na-sankah/"><b>Заяц на санках</b>, <span class="size">10 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="loshadka-s-igrushkami">
+            <a class="card__media" href="igrushki/loshadka-s-igrushkami/">
+              <img src="img/igrushki/loshadka-s-igrushkami/cover-600.jpg"
+                   srcset="img/igrushki/loshadka-s-igrushkami/cover-600.jpg 600w, img/igrushki/loshadka-s-igrushkami/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Лошадка с игрушками», высота 10 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/loshadka-s-igrushkami/"><b>Лошадка с игрушками</b>, <span class="size">10 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="malchik-zaychik">
+            <a class="card__media" href="igrushki/malchik-zaychik/">
+              <img src="img/igrushki/malchik-zaychik/cover-600.jpg"
+                   srcset="img/igrushki/malchik-zaychik/cover-600.jpg 600w, img/igrushki/malchik-zaychik/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Мальчик-зайчик», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/malchik-zaychik/"><b>Мальчик-зайчик</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="malchik-s-sobakoy">
+            <a class="card__media" href="igrushki/malchik-s-sobakoy/">
+              <img src="img/igrushki/malchik-s-sobakoy/cover-600.jpg"
+                   srcset="img/igrushki/malchik-s-sobakoy/cover-600.jpg 600w, img/igrushki/malchik-s-sobakoy/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Мальчик с собакой», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/malchik-s-sobakoy/"><b>Мальчик с собакой</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="kot-matroskin">
+            <a class="card__media" href="igrushki/kot-matroskin/">
+              <img src="img/igrushki/kot-matroskin/cover-600.jpg"
+                   srcset="img/igrushki/kot-matroskin/cover-600.jpg 600w, img/igrushki/kot-matroskin/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Кот Матроскин», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/kot-matroskin/"><b>Кот Матроскин</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="mushketer">
+            <a class="card__media" href="igrushki/mushketer/">
+              <img src="img/igrushki/mushketer/cover-600.jpg"
+                   srcset="img/igrushki/mushketer/cover-600.jpg 600w, img/igrushki/mushketer/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Мушкетер», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/mushketer/"><b>Мушкетер</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="snegovik-s-balalaykoy">
+            <a class="card__media" href="igrushki/snegovik-s-balalaykoy/">
+              <img src="img/igrushki/snegovik-s-balalaykoy/cover-600.jpg"
+                   srcset="img/igrushki/snegovik-s-balalaykoy/cover-600.jpg 600w, img/igrushki/snegovik-s-balalaykoy/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Снеговик с балалайкой», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/snegovik-s-balalaykoy/"><b>Снеговик с балалайкой</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="snegovik-s-loshadkoy">
+            <a class="card__media" href="igrushki/snegovik-s-loshadkoy/">
+              <img src="img/igrushki/snegovik-s-loshadkoy/cover-600.jpg"
+                   srcset="img/igrushki/snegovik-s-loshadkoy/cover-600.jpg 600w, img/igrushki/snegovik-s-loshadkoy/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Снеговик с лошадкой», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/snegovik-s-loshadkoy/"><b>Снеговик с лошадкой</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="malchik-na-loshadke">
+            <a class="card__media" href="igrushki/malchik-na-loshadke/">
+              <img src="img/igrushki/malchik-na-loshadke/cover-600.jpg"
+                   srcset="img/igrushki/malchik-na-loshadke/cover-600.jpg 600w, img/igrushki/malchik-na-loshadke/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Мальчик на лошадке», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/malchik-na-loshadke/"><b>Мальчик на лошадке</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="sveta">
+            <a class="card__media" href="igrushki/sveta/">
+              <img src="img/igrushki/sveta/cover-600.jpg"
+                   srcset="img/igrushki/sveta/cover-600.jpg 600w, img/igrushki/sveta/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Света», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/sveta/"><b>Света</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="kavaler-s-buketom">
+            <a class="card__media" href="igrushki/kavaler-s-buketom/">
+              <img src="img/igrushki/kavaler-s-buketom/cover-600.jpg"
+                   srcset="img/igrushki/kavaler-s-buketom/cover-600.jpg 600w, img/igrushki/kavaler-s-buketom/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Кавалер с букетом», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/kavaler-s-buketom/"><b>Кавалер с букетом</b>, <span class="size">15 см</span></a>
+<span class="note">На магнитной подставке (есть подвес, можно использовать без подставки)</span>            </p>
+          </article>
+          <article class="card" data-id="druzya">
+            <a class="card__media" href="igrushki/druzya/">
+              <img src="img/igrushki/druzya/cover-600.jpg"
+                   srcset="img/igrushki/druzya/cover-600.jpg 600w, img/igrushki/druzya/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Друзья», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/druzya/"><b>Друзья</b>, <span class="size">15 см</span></a>
+<span class="note">На магнитной подставке (есть подвес, можно использовать без подставки)</span>            </p>
+          </article>
+          <article class="card" data-id="volk-snegurochka">
+            <a class="card__media" href="igrushki/volk-snegurochka/">
+              <img src="img/igrushki/volk-snegurochka/cover-600.jpg"
+                   srcset="img/igrushki/volk-snegurochka/cover-600.jpg 600w, img/igrushki/volk-snegurochka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Волк &#34;Снегурочка&#34;», высота 14 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/volk-snegurochka/"><b>Волк &#34;Снегурочка&#34;</b>, <span class="size">14 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="svidanie">
+            <a class="card__media" href="igrushki/svidanie/">
+              <img src="img/igrushki/svidanie/cover-600.jpg"
+                   srcset="img/igrushki/svidanie/cover-600.jpg 600w, img/igrushki/svidanie/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Свидание», высота 14 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/svidanie/"><b>Свидание</b>, <span class="size">14 см</span></a>
+<span class="note">На магнитной подставке (есть подвес, можно использовать без подставки)</span>            </p>
+          </article>
+          <article class="card" data-id="nastenka">
+            <a class="card__media" href="igrushki/nastenka/">
+              <img src="img/igrushki/nastenka/cover-600.jpg"
+                   srcset="img/igrushki/nastenka/cover-600.jpg 600w, img/igrushki/nastenka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Настенька», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/nastenka/"><b>Настенька</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="york-klaus">
+            <a class="card__media" href="igrushki/york-klaus/">
+              <img src="img/igrushki/york-klaus/cover-600.jpg"
+                   srcset="img/igrushki/york-klaus/cover-600.jpg 600w, img/igrushki/york-klaus/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Йорк-Клаус», высота 15 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/york-klaus/"><b>Йорк-Клаус</b>, <span class="size">15 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="belaya-myshka">
+            <a class="card__media" href="igrushki/belaya-myshka/">
+              <img src="img/igrushki/belaya-myshka/cover-600.jpg"
+                   srcset="img/igrushki/belaya-myshka/cover-600.jpg 600w, img/igrushki/belaya-myshka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Белая мышка», высота 9 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/belaya-myshka/"><b>Белая мышка</b>, <span class="size">9 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="seraya-myshka">
+            <a class="card__media" href="igrushki/seraya-myshka/">
+              <img src="img/igrushki/seraya-myshka/cover-600.jpg"
+                   srcset="img/igrushki/seraya-myshka/cover-600.jpg 600w, img/igrushki/seraya-myshka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Серая мышка», высота 9 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/seraya-myshka/"><b>Серая мышка</b>, <span class="size">9 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="figuristka">
+            <a class="card__media" href="igrushki/figuristka/">
+              <img src="img/igrushki/figuristka/cover-600.jpg"
+                   srcset="img/igrushki/figuristka/cover-600.jpg 600w, img/igrushki/figuristka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Фигуристка», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/figuristka/"><b>Фигуристка</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="custom">
+    <div class="section-head">
+      <div class="wrap">
+        <h2 class="is-red"><b>Игрушки сделанные под заказ</b> (нет в наличии). МОЖНО ЗАКАЗАТЬ ПО КАРТИНКЕ ИЛИ ФОТОГРАФИИ</h2>
+        <p>Срок изготовления игрушки от 14 до 30 дней, в зависимости от сложности.</p>
+      </div>
+    </div>
+
+    <div class="catalog">
+      <div class="wrap">
+        <div class="grid">
+          <article class="card" data-id="pudel-token">
+            <a class="card__media" href="igrushki/pudel-token/">
+              <img src="img/igrushki/pudel-token/cover-600.jpg"
+                   srcset="img/igrushki/pudel-token/cover-600.jpg 600w, img/igrushki/pudel-token/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Пудель Токен», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/pudel-token/"><b>Пудель Токен</b>, <span class="size">13 см</span></a>
+<span class="note">Сувенирная игрушка на магнитной световой подставке</span>            </p>
+          </article>
+          <article class="card" data-id="murka">
+            <a class="card__media" href="igrushki/murka/">
+              <img src="img/igrushki/murka/cover-600.jpg"
+                   srcset="img/igrushki/murka/cover-600.jpg 600w, img/igrushki/murka/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Мурка», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/murka/"><b>Мурка</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="spartanec">
+            <a class="card__media" href="igrushki/spartanec/">
+              <img src="img/igrushki/spartanec/cover-600.jpg"
+                   srcset="img/igrushki/spartanec/cover-600.jpg 600w, img/igrushki/spartanec/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Спартанец», высота 17 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/spartanec/"><b>Спартанец</b>, <span class="size">17 см</span></a>
+<span class="note">Сувенирная игрушка на магнитной световой подставке</span>            </p>
+          </article>
+          <article class="card" data-id="vsadnica">
+            <a class="card__media" href="igrushki/vsadnica/">
+              <img src="img/igrushki/vsadnica/cover-600.jpg"
+                   srcset="img/igrushki/vsadnica/cover-600.jpg 600w, img/igrushki/vsadnica/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Всадница», высота 17 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/vsadnica/"><b>Всадница</b>, <span class="size">17 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="anyuta">
+            <a class="card__media" href="igrushki/anyuta/">
+              <img src="img/igrushki/anyuta/cover-600.jpg"
+                   srcset="img/igrushki/anyuta/cover-600.jpg 600w, img/igrushki/anyuta/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Анюта», высота 9 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/anyuta/"><b>Анюта</b>, <span class="size">9 см</span></a>
+<span class="note">Портретная игрушка на деревянной подставке</span>            </p>
+          </article>
+          <article class="card" data-id="pasha">
+            <a class="card__media" href="igrushki/pasha/">
+              <img src="img/igrushki/pasha/cover-600.jpg"
+                   srcset="img/igrushki/pasha/cover-600.jpg 600w, img/igrushki/pasha/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Пасха», высота 13 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/pasha/"><b>Пасха</b>, <span class="size">13 см</span></a>
+            </p>
+          </article>
+          <article class="card" data-id="georgiy-pobedonosec">
+            <a class="card__media" href="igrushki/georgiy-pobedonosec/">
+              <img src="img/igrushki/georgiy-pobedonosec/cover-600.jpg"
+                   srcset="img/igrushki/georgiy-pobedonosec/cover-600.jpg 600w, img/igrushki/georgiy-pobedonosec/cover-300.jpg 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="Ватная ёлочная игрушка «Георгий Победоносец», высота 18 см">
+            </a>
+            <p class="card__title">
+              <a href="igrushki/georgiy-pobedonosec/"><b>Георгий Победоносец</b>, <span class="size">18 см</span></a>
+<span class="note">Сувенирная игрушка на подставке</span>            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>cotton wool creativity — ватные авторские игрушки ручной работы</span>
+    <a href="oplata/">Как оплатить и получить</a>
+  </div>
+</footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/main.js" defer></script>
+<script type="module" src="assets/js/admin.js"></script>
+</body>
+</html>

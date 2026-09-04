@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero" style="background-image:url('{{ root }}img/hero.jpg')">
+  <div class="wrap">
+    <img class="hero__logo" src="{{ root }}img/logo.png" width="270" height="270"
+         alt="Ватная игрушка «Пёс с тюльпанами» — работа мастерской">
+    <div class="hero__body">
+      <p class="hero__tagline">{{ site.tagline_big }} <small>{{ site.tagline_small }}</small></p>
+      <h1 class="hero__title">{{ site.title }}</h1>
+      <p class="hero__subtitle">{{ site.subtitle }}</p>
+
+      <div class="hero__text">
+        <p>Наши ватные ёлочные украшения — <strong>это возрождение древнего ремесла</strong>, где каждая
+          деталь лепится из натуральной хлопковой и льняной ваты. Никакой химии — только экологически
+          чистые материалы, бережные к вашему здоровью и природе.</p>
+        <p><strong>Каждая фигурка — единственная в своём роде.</strong> Лёгкие, прочные и невероятно
+          душевные — они превратят вашу ёлку в центр праздничного волшебства.</p>
+      </div>
+
+      <p class="hero__call">
+        Подарите себе роскошь ручной работы и тепло ушедшей эпохи.<br>
+        Добавьте в свой дом неповторимый шарм, который запомнится надолго!
+      </p>
+    </div>
+  </div>
+</section>
+
+<main>
+{% for section in sections %}
+  {% set items = toys | selectattr('section', 'equalto', section.id) | list %}
+  {% if items %}
+  <section id="{{ section.id }}">
+    <div class="section-head">
+      <div class="wrap">
+        <h2{% if section.red %} class="is-red"{% endif %}><b>{{ section.strong }}</b>{{ section.rest }}</h2>
+        {% if section.sub_strong or section.sub_rest %}
+        <p{% if section.subtitle_red %} class="is-red"{% endif %}>{% if section.sub_strong %}<b>{{ section.sub_strong }}</b>{% endif %}{{ section.sub_rest }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="catalog">
+      <div class="wrap">
+        <div class="grid">
+          {% for toy in items %}
+          <article class="card" data-id="{{ toy.slug }}">
+            <a class="card__media" href="{{ root }}igrushki/{{ toy.slug }}/">
+              <img src="{{ root }}{{ toy.cover_img }}"
+                   srcset="{{ root }}{{ toy.cover_img }} 600w, {{ root }}{{ toy.cover_img_sm }} 300w"
+                   sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
+                   width="600" height="600" loading="lazy" decoding="async"
+                   alt="{{ toy.alt }}">
+            </a>
+            <p class="card__title">
+              <a href="{{ root }}igrushki/{{ toy.slug }}/"><b>{{ toy.name }}</b>{% if toy.size %}, <span class="size">{{ toy.size }}</span>{% endif %}</a>
+              {% if toy.note %}<span class="note">{{ toy.note }}</span>{% endif %}
+            </p>
+            {% if toy.price %}
+            <p class="card__price">{{ toy.price_text }}</p>
+            <a class="card__buy" href="{{ root }}igrushki/{{ toy.slug }}/">Купить</a>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+{% endfor %}
+</main>
+{% endblock %}

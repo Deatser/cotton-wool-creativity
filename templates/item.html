@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Игрушка — cotton wool creativity{% endblock %}
+{% block description %}Ватная ёлочная игрушка ручной работы.{% endblock %}
+
+{% block content %}
+{# Страница для игрушек, добавленных через админку: содержимое берётся из базы по ?id=.
+   У игрушек из статического каталога есть свои адреса вида /igrushki/<имя>/. #}
+<main class="toy" data-item-page>
+  <div class="wrap">
+    <p class="crumbs">
+      <a href="{{ root }}">Главная страница</a> / <span data-item-name>Игрушка</span>
+    </p>
+
+    <div class="toy__layout">
+      <div class="gallery" data-item-gallery></div>
+
+      <aside class="toy__info">
+        <h1 data-item-title>Загружаем...</h1>
+        <p class="toy__meta" data-item-size hidden></p>
+        <p class="toy__note" data-item-note hidden></p>
+        <p class="toy__price" data-item-price hidden></p>
+        <p class="toy__status" data-item-status></p>
+        <a class="btn" href="{{ root }}oplata/" data-item-buy hidden>Купить</a>
+      </aside>
+    </div>
+  </div>
+</main>
+{% endblock %}

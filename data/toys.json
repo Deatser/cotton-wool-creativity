@@ -1,0 +1,1407 @@
+{
+ "site": {
+  "title": "cotton wool creativity",
+  "tagline_small": "по забытой технологии XIX века",
+  "tagline_big": "творчество из ваты",
+  "subtitle": "Ватные авторские игрушки"
+ },
+ "sections": [
+  {
+   "id": "in_stock",
+   "title": "Игрушки в наличии"
+  },
+  {
+   "id": "repeat",
+   "title": "Реализованные игрушки (нет в наличии). МОЖНО ЗАКАЗАТЬ ПОВТОР!"
+  },
+  {
+   "id": "custom",
+   "title": "Игрушки сделанные под заказ (нет в наличии). МОЖНО ЗАКАЗАТЬ ПО КАРТИНКЕ ИЛИ ФОТОГРАФИИ"
+  }
+ ],
+ "toys": [
+  {
+   "slug": "vodoley",
+   "name": "Водолей",
+   "size": "10 см",
+   "note": "",
+   "price": 5000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Водолей"
+   ],
+   "cover": "vodoley.jpg",
+   "photos": [
+    "Карточка водолей_1.jpg",
+    "Карточка водолей_2.jpg",
+    "Карточка водолей_3.jpg"
+   ],
+   "source_slug": "водолей",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true,
+   "coverUrl": "img/igrushki/vodoley/cover-600.jpg",
+   "media": [
+    {
+     "type": "image",
+     "url": "img/igrushki/vodoley/2-900.jpg"
+    },
+    {
+     "type": "image",
+     "url": "img/igrushki/vodoley/3-900.jpg"
+    },
+    {
+     "type": "image",
+     "url": "img/igrushki/vodoley/1-900.jpg"
+    }
+   ]
+  },
+  {
+   "slug": "kozerog",
+   "name": "Козерог",
+   "size": "13 см",
+   "note": "",
+   "price": 5000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Козерог"
+   ],
+   "cover": "cn0-AGTyNKVnEPW7wjN3iHaMdI0TAVUIk9CZUM8i7R-KWiDcixv0SHhWvVX7Q7a7wAsCZrFisn3j8f2u95Yo86IK.jpg",
+   "photos": [
+    "козерог _1.jpg",
+    "козерог _2.jpg",
+    "козерог _3.jpg"
+   ],
+   "source_slug": "козерог",
+   "cover_folder": [
+    "в продаже",
+    "Козерог"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "devochka-sinichka",
+   "name": "Девочка-синичка",
+   "size": "13 см",
+   "note": "",
+   "price": 5000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Девочка-синичка"
+   ],
+   "cover": "devochka-sinichka.jpg",
+   "photos": [
+    "Девочка синичка_1.jpg",
+    "Девочка синичка_2.jpg"
+   ],
+   "source_slug": "девочка-синичка",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "zayac-sadovod",
+   "name": "Заяц-садовод",
+   "size": "15 см",
+   "note": "",
+   "price": 5000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Заяц-садовод"
+   ],
+   "cover": "zayac-sadovod.jpg",
+   "photos": [
+    "Заяц_1-1.jpg",
+    "Заяц_2-1.jpg",
+    "коробка.jpg"
+   ],
+   "source_slug": "заяц-садовод",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "kot-v-sapogah",
+   "name": "Кот в сапогах",
+   "size": "15 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Кот в сапогах"
+   ],
+   "cover": "kot-v-sapogah.jpg",
+   "photos": [
+    "Кот в сапогах  1.jpg",
+    "Кот в сапогах  2.jpg"
+   ],
+   "source_slug": "кот-в-сапогах",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "druzya-na-sankah",
+   "name": "Друзья на санках",
+   "size": "13 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Мальчик на санках"
+   ],
+   "cover": "ДМ 1.jpg",
+   "photos": [
+    "Мальчик на санках_1.jpg",
+    "Мальчик на санках_2.jpg"
+   ],
+   "source_slug": "друзья-на-санках",
+   "cover_folder": [
+    "в продаже",
+    "Мальчик на санках"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "volk-i-zayac",
+   "name": "Волк и заяц",
+   "size": "13 см",
+   "note": "",
+   "price": 6000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Ну погоди"
+   ],
+   "cover": "12412.jpg",
+   "photos": [
+    "Ну погоди_1.jpg",
+    "Ну погоди_2.jpg"
+   ],
+   "source_slug": "волк-и-заяц",
+   "cover_folder": [
+    "в продаже",
+    "Ну погоди"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "misha-na-kachelyah",
+   "name": "Миша на качелях",
+   "size": "15 см",
+   "note": "",
+   "price": 3500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Мишка на качелях"
+   ],
+   "cover": "Мишка на качелях.jpg",
+   "photos": [
+    "Мишка на качелях -1_1.jpg",
+    "Мишка на качелях -1_2.jpg",
+    "Мишка на качелях -2.jpg"
+   ],
+   "source_slug": "миша-на-качелях",
+   "cover_folder": [
+    "в продаже",
+    "Мишка на качелях"
+   ],
+   "cover_from_site": false,
+   "extra_folders": [
+    [
+     "в продаже",
+     "Мишка на качелях _2"
+    ]
+   ]
+  },
+  {
+   "slug": "angelochek",
+   "name": "Ангелочек",
+   "size": "13 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Рождественский ангелочек"
+   ],
+   "cover": "W7A8TnjauAvSgezdEIMtTcqFFUKVVU8Ny6r2OgeE8YU8bIlO-bYTH7sGV2jeYH-Afh6RJHu0k2d6oUT53gAoawoJ.jpg",
+   "photos": [
+    "Ангелочек_1.jpg",
+    "Ангелочек_2.jpg"
+   ],
+   "source_slug": "ангелочек",
+   "cover_folder": [
+    "в продаже",
+    "Рождественский ангелочек"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "ovechka",
+   "name": "Овечка",
+   "size": "13 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Овечка -символ 2027 года"
+   ],
+   "cover": ",fhfitr.jpg",
+   "photos": [
+    "Девочка овечка_1.jpg",
+    "Девочка овечка_2.jpg"
+   ],
+   "source_slug": "овечка",
+   "cover_folder": [
+    "в продаже",
+    "Овечка -символ 2027 года"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "trubachka",
+   "name": "Трубачка",
+   "size": "9 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Трубачка"
+   ],
+   "cover": "Трубачка_сайт (1).jpg",
+   "photos": [
+    "Трубачка_сайт (2).jpg",
+    "Трубачка_сайт (3).jpg"
+   ],
+   "source_slug": "трубачка",
+   "cover_folder": [
+    "в продаже",
+    "Трубачка"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "snegurochka",
+   "name": "Снегурочка",
+   "size": "13 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Снегурочка"
+   ],
+   "cover": "Снегурочка.jpg",
+   "photos": [
+    "Снегурочка_1.jpg",
+    "Снегурочка_2.jpg"
+   ],
+   "source_slug": "снегурочка",
+   "cover_folder": [
+    "в продаже",
+    "Снегурочка"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "buratino",
+   "name": "Буратино",
+   "size": "13 см",
+   "note": "",
+   "price": 4000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Буратино"
+   ],
+   "cover": "buratino.jpg",
+   "photos": [
+    "Буратино_1.jpg",
+    "Буратино_2.jpg"
+   ],
+   "source_slug": "буратино",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "simvol-2027-goda-kozlik",
+   "name": "Символ 2027 года - Козлик",
+   "size": "13 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Козлик- символ 2027 года"
+   ],
+   "cover": "simvol-2027-goda-kozlik.jpg",
+   "photos": [
+    "Козлик_1.jpg",
+    "Козлик_2.jpg"
+   ],
+   "source_slug": "козлик",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "mopsik-holmsik",
+   "name": "Мопсик-Холмсик",
+   "size": "13 см",
+   "note": "",
+   "price": 4000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Мопсик-Холмсик"
+   ],
+   "cover": "mopsik-holmsik.jpg",
+   "photos": [
+    "Мопс_1.jpg",
+    "Мопс_2.jpg"
+   ],
+   "source_slug": "мопсик-холмсик",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "zayac",
+   "name": "Заяц",
+   "size": "13 см",
+   "note": "",
+   "price": 3000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Заяц в шубе Деда мороза"
+   ],
+   "cover": "zayac.jpg",
+   "photos": [
+    "Заяц в шубе деда мороза .jpg",
+    "Заяц в шубе деда мороза_2.jpg"
+   ],
+   "source_slug": "заяц",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "ded-moroz-i-zayac",
+   "name": "Дед мороз и заяц",
+   "size": "13 см",
+   "note": "",
+   "price": 5000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Дед мороз и заяц"
+   ],
+   "cover": "Дед мороз и заяц.jpg",
+   "photos": [
+    "Дед мороз и заяц_1.jpg",
+    "Дед мороз и заяц_2.jpg"
+   ],
+   "source_slug": "дед-мороз-и-заяц",
+   "cover_folder": [
+    "в продаже",
+    "Дед мороз и заяц"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "ded-moroz",
+   "name": "Дед мороз",
+   "size": "15 см",
+   "note": "",
+   "price": 3000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Дед мороз"
+   ],
+   "cover": "ДМ 1.jpg",
+   "photos": [
+    "дЕД МОРОЗ_1.jpg",
+    "дЕД МОРОЗ_2.jpg"
+   ],
+   "source_slug": "дед-мороз",
+   "cover_folder": [
+    "в продаже",
+    "Дед мороз"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "vlyublennye-kotiki",
+   "name": "Влюбленные котики",
+   "size": "14 см",
+   "note": "",
+   "price": 4000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Котики"
+   ],
+   "cover": "ДМ 1.jpg",
+   "photos": [
+    "Котики_1.jpg",
+    "Котики_2.jpg"
+   ],
+   "source_slug": "влюбленные-котики",
+   "cover_folder": [
+    "в продаже",
+    "Котики"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "snegovik-s-malyshami",
+   "name": "Снеговик с малышами",
+   "size": "13 см",
+   "note": "",
+   "price": 3000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Снеговик с малышами"
+   ],
+   "cover": "cytujdbr.jpg",
+   "photos": [
+    "Снеговик с малышами_1.jpg",
+    "Снеговик с малышами_2.jpg"
+   ],
+   "source_slug": "снеговик-с-малышами",
+   "cover_folder": [
+    "в продаже",
+    "Снеговик с малышами"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "mihail-arhangel",
+   "name": "Михаил Архангел",
+   "size": "16 см",
+   "note": "статуэтка на подставке",
+   "price": 7000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Михаил Архангел"
+   ],
+   "cover": "Михаил Архангел_сайт.jpg",
+   "photos": [
+    "Михаил Архангел_1.jpg",
+    "Михаил Архангел_2.jpg",
+    "Михаил Архангел_3.jpg"
+   ],
+   "source_slug": "михаил-архангел",
+   "cover_folder": [
+    "в продаже",
+    "Михаил Архангел"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "rozhdestvo",
+   "name": "Рождество",
+   "size": "15 см",
+   "note": "(из 3-х фигур)",
+   "price": 9000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Рождество"
+   ],
+   "cover": "Рождество.jpg",
+   "photos": [
+    "Рождество_1.jpg",
+    "Рождество_2.jpg"
+   ],
+   "source_slug": "рождество",
+   "cover_folder": [
+    "в продаже",
+    "Рождество"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "cirkachka",
+   "name": "Циркачка",
+   "size": "16 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "На арене цирка"
+   ],
+   "cover": "На арене цирка_сайт.jpg",
+   "photos": [
+    "На арене цирка.jpg",
+    "На арене цирка_1.jpg"
+   ],
+   "source_slug": "циркачка",
+   "cover_folder": [
+    "в продаже",
+    "На арене цирка"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "misha-na-arene",
+   "name": "Миша на арене",
+   "size": "13 см",
+   "note": "",
+   "price": 4500,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Миша на арене"
+   ],
+   "cover": "Миша на арене_сайт.jpg",
+   "photos": [
+    "Миша на арене.jpg",
+    "Миша на арене 1.jpg"
+   ],
+   "source_slug": "миша-на-арене",
+   "cover_folder": [
+    "в продаже",
+    "Миша на арене"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "rozhdestvenskiy-vagonchik-7-sm",
+   "name": "Рождественский вагончик",
+   "size": "7 см",
+   "note": "",
+   "price": 4000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Рождественский вагончик бирюзовый"
+   ],
+   "cover": "Вагончик бирюзовый  (1).jpg",
+   "photos": [
+    "Вагончик бирюзовый  (2).jpg",
+    "Вагончик бирюзовый  (3).jpg"
+   ],
+   "source_slug": "рождественский-вагончик_1",
+   "cover_folder": [
+    "в продаже",
+    "Рождественский вагончик бирюзовый"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "rozhdestvenskiy-vagonchik-9-sm",
+   "name": "Рождественский вагончик",
+   "size": "9 см",
+   "note": "",
+   "price": 4000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Рождественский вагончик бордовый"
+   ],
+   "cover": "Рождественский вагончик бордовый (4).jpg",
+   "photos": [
+    "Рождественский вагончик бордовый (5).jpg",
+    "Рождественский вагончик бордовый (3).jpg"
+   ],
+   "source_slug": "рождественский-вагончик",
+   "cover_folder": [
+    "в продаже",
+    "Рождественский вагончик бордовый"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "rozhdestvenskiy-vagonchik-zelenyy",
+   "name": "Рождественский вагончик (зеленый)",
+   "size": "9 см",
+   "note": "",
+   "price": 4000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Рождественский вагончик зеленый"
+   ],
+   "cover": "Вагончик _сайт.jpg",
+   "photos": [
+    "Вагончик 1_1.jpg",
+    "Вагончик 1_2.jpg"
+   ],
+   "source_slug": "рождественский-вагончик-зеленый",
+   "cover_folder": [
+    "в продаже",
+    "Рождественский вагончик зеленый"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "rozhdestvenskiy-vagonchik-siniy",
+   "name": "Рождественский вагончик (синий)",
+   "size": "9 см",
+   "note": "",
+   "price": 4000,
+   "section": "in_stock",
+   "folder": [
+    "в продаже",
+    "Рождественский вагончик синий"
+   ],
+   "cover": "Рождественский вагончик синий (1).jpg",
+   "photos": [
+    "Рождественский вагончик синий (1).png",
+    "Рождественский вагончик синий (2).png"
+   ],
+   "source_slug": "рождественский-вагончик-синий",
+   "cover_folder": [
+    "в продаже",
+    "Рождественский вагончик синий"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "koshka-balerina",
+   "name": "Кошка Балерина",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Кошка Балерина"
+   ],
+   "cover": "для сайта.jpg",
+   "photos": [
+    "Балерина_1.jpg",
+    "Балерина_2.jpg",
+    "Балерина_3.jpg"
+   ],
+   "source_slug": "кошка-балерина",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Кошка Балерина"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "golubaya-loshad",
+   "name": "Голубая лошадь",
+   "size": "10 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Лошадка"
+   ],
+   "cover": "Лошадка (1).jpg",
+   "photos": [
+    "Лошадка (2).jpg",
+    "Лошадка (3).jpg"
+   ],
+   "source_slug": "голубая-лошадь",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Лошадка"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "devochka-na-konkah",
+   "name": "Девочка на коньках",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Девочка на коньках"
+   ],
+   "cover": "Девочка на коньках _сайт.jpg",
+   "photos": [
+    "Девочка на коньках 1.jpg",
+    "Девочка на коньках 2.jpg"
+   ],
+   "source_slug": "девочка-на-коньках",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Девочка на коньках"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "devochka-na-loshadke",
+   "name": "Девочка на лошадке",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Девочка на лошадке"
+   ],
+   "cover": "Девочка на лошадке_сайт.jpg",
+   "photos": [
+    "Девочка на лошадке_1.jpg",
+    "Девочка на лошадке_2.jpg"
+   ],
+   "source_slug": "девочка-на-лошадке",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Девочка на лошадке"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "devochka-v-kostyume-ovechki",
+   "name": "Девочка в костюме овечки",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Девочка-овечка"
+   ],
+   "cover": "Девочка овечка_сайт.jpg",
+   "photos": [
+    "Девочка овечка_1.jpg",
+    "Девочка овечка_2.jpg"
+   ],
+   "source_slug": "девочка-в-костюме-овечки",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Девочка-овечка"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "zayac-na-sankah",
+   "name": "Заяц на санках",
+   "size": "10 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Заяц на санках"
+   ],
+   "cover": "Заяц на санках_сайт.jpg",
+   "photos": [
+    "Заяц на санках_1.jpg",
+    "Заяц на санках_2.jpg"
+   ],
+   "source_slug": "заяц-на-санках",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Заяц на санках"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "loshadka-s-igrushkami",
+   "name": "Лошадка с игрушками",
+   "size": "10 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Лошадка с игрушками"
+   ],
+   "cover": "Лошадка с игрушками_сайт.jpg",
+   "photos": [
+    "Лошадка с игрушками_1.jpg",
+    "Лошадка с игрушками_2.jpg"
+   ],
+   "source_slug": "лошадка-с-игрушками"
+  },
+  {
+   "slug": "malchik-zaychik",
+   "name": "Мальчик-зайчик",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мальчик-Зайчик"
+   ],
+   "cover": "Мальчик зайчик_сайт.jpg",
+   "photos": [
+    "Мальчик зайчик_2.jpg",
+    "Мальчик зайчик_1.jpg"
+   ],
+   "source_slug": "мальчик-зайчик",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мальчик-Зайчик"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "malchik-s-sobakoy",
+   "name": "Мальчик с собакой",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "мальчик с собакой"
+   ],
+   "cover": "Мальчик с собакой_1.jpg",
+   "photos": [
+    "Мальчик с собакой_1-1.jpg",
+    "Мальчик с собакой_2-1.jpg"
+   ],
+   "source_slug": "мальчик-с-собакой",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "мальчик с собакой"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "kot-matroskin",
+   "name": "Кот Матроскин",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Кот матроскин"
+   ],
+   "cover": "Матроскин_сайт.jpg",
+   "photos": [
+    "Матроскин_1_1.jpg",
+    "Матроскин_2_2.jpg",
+    "Мотроскин_3_3.jpg"
+   ],
+   "source_slug": "кот-матроскин",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Кот матроскин"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "mushketer",
+   "name": "Мушкетер",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мушкитер"
+   ],
+   "cover": "мушкитер _сайт.jpg",
+   "photos": [
+    "мушкитер 1.jpg",
+    "мушкитер 2.jpg"
+   ],
+   "source_slug": "мушкетер",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мушкитер"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "snegovik-s-balalaykoy",
+   "name": "Снеговик с балалайкой",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Снеговик с балалайкой"
+   ],
+   "cover": "Снеговик с балалайкой (5).jpg",
+   "photos": [
+    "Снеговик с балалайкой (3).jpg",
+    "Снеговик с балалайкой (6).jpg",
+    "Снеговик с балалайкой (4).jpg"
+   ],
+   "source_slug": "снеговик-с-балалайкой",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Снеговик с балалайкой"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "snegovik-s-loshadkoy",
+   "name": "Снеговик с лошадкой",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Снеговик с лошадкой"
+   ],
+   "cover": "Снеговик с лошадкой (1).jpg",
+   "photos": [
+    "Снеговик с лошадкой (2).jpg"
+   ],
+   "source_slug": "снеговик-с-лошадкой",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Снеговик с лошадкой"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "malchik-na-loshadke",
+   "name": "Мальчик на лошадке",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мальчик на лошадке"
+   ],
+   "cover": "Мальчик на лошадке (1).jpg",
+   "photos": [
+    "Мальчик на лошадке (2).jpg",
+    "Мальчик на лошадке (3).jpg",
+    "Мальчик на лошадке (4).jpg"
+   ],
+   "source_slug": "мальчик-на-лошадке",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мальчик на лошадке"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "sveta",
+   "name": "Света",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Светлана"
+   ],
+   "cover": "Светлана (4).jpg",
+   "photos": [
+    "Светлана (1).jpg"
+   ],
+   "source_slug": "света",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Светлана"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "kavaler-s-buketom",
+   "name": "Кавалер с букетом",
+   "size": "15 см",
+   "note": "На магнитной подставке (есть подвес, можно использовать без подставки)",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Ковалер"
+   ],
+   "cover": "Ковалер (1).jpg",
+   "photos": [
+    "Ковалер (1).png",
+    "Ковалер (2).png",
+    "Ковалер (3).png"
+   ],
+   "source_slug": "кавалер-с-букетом",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Ковалер"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "druzya",
+   "name": "Друзья",
+   "size": "15 см",
+   "note": "На магнитной подставке (есть подвес, можно использовать без подставки)",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Друзья"
+   ],
+   "cover": "Друзья (1).jpg",
+   "photos": [
+    "Друзья (3).jpg",
+    "Друзья (4).jpg",
+    "Друзья (2).jpg"
+   ],
+   "source_slug": "друзья",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Друзья"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "volk-snegurochka",
+   "name": "Волк \"Снегурочка\"",
+   "size": "14 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Волк Снегурочка"
+   ],
+   "cover": "volk-snegurochka.jpg",
+   "photos": [
+    "Волк Снегурочка (1).jpg",
+    "Волк Снегурочка (2).jpg",
+    "Волк Снегурочка (3).jpg"
+   ],
+   "source_slug": "волк-снегурочка",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  },
+  {
+   "slug": "svidanie",
+   "name": "Свидание",
+   "size": "14 см",
+   "note": "На магнитной подставке (есть подвес, можно использовать без подставки)",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Свидание"
+   ],
+   "cover": "Свидание (1).jpg",
+   "photos": [
+    "Свидание (2).jpg",
+    "Свидание (1).png"
+   ],
+   "source_slug": "свидание",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Свидание"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "nastenka",
+   "name": "Настенька",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Настенька"
+   ],
+   "cover": "Настенька (1).jpg",
+   "photos": [
+    "Настенька (2).jpg",
+    "Настенька (3).jpg",
+    "Настенька (1).png"
+   ],
+   "source_slug": "настенька",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Настенька"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "york-klaus",
+   "name": "Йорк-Клаус",
+   "size": "15 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "ЙорКлаус"
+   ],
+   "cover": "ЙорКлаус (1).jpg",
+   "photos": [
+    "ЙорКлаус (2).jpg"
+   ],
+   "source_slug": "йорк-клаус",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "ЙорКлаус"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "belaya-myshka",
+   "name": "Белая мышка",
+   "size": "9 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мышка белая"
+   ],
+   "cover": "Мышка белая (1).jpg",
+   "photos": [
+    "Мышка белая (1).png",
+    "Мышка белая (3).png"
+   ],
+   "source_slug": "белая-мышка",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мышка белая"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "seraya-myshka",
+   "name": "Серая мышка",
+   "size": "9 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мышка серая"
+   ],
+   "cover": "Мышка серая (1).jpg",
+   "photos": [
+    "Мышка серая (2).jpg",
+    "Мышка серая (3).jpg"
+   ],
+   "source_slug": "серая-мышка",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Мышка серая"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "figuristka",
+   "name": "Фигуристка",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "repeat",
+   "folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Фигуристка"
+   ],
+   "cover": "Фигуристка_сайт.jpg",
+   "photos": [
+    "Фигуристка_2.jpg",
+    "Фигуристка_1.jpg"
+   ],
+   "source_slug": "фигуристка_1",
+   "cover_folder": [
+    "Нет в продаже, можно заказать повтор",
+    "Фигуристка"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "pudel-token",
+   "name": "Пудель Токен",
+   "size": "13 см",
+   "note": "Сувенирная игрушка на магнитной световой подставке",
+   "price": null,
+   "section": "custom",
+   "folder": [
+    "Индивидуальный заказ",
+    "Токен"
+   ],
+   "cover": "Токен (2).jpg",
+   "photos": [
+    "Токен (1).jpg"
+   ],
+   "source_slug": "токен",
+   "cover_folder": [
+    "Индивидуальный заказ",
+    "Токен"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "murka",
+   "name": "Мурка",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "custom",
+   "folder": [
+    "Индивидуальный заказ",
+    "Мурка"
+   ],
+   "cover": "Мурка (2).jpg",
+   "photos": [
+    "Мурка (3).jpg",
+    "Мурка (1).jpg"
+   ],
+   "source_slug": "мурка",
+   "cover_folder": [
+    "Индивидуальный заказ",
+    "Мурка"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "spartanec",
+   "name": "Спартанец",
+   "size": "17 см",
+   "note": "Сувенирная игрушка на магнитной световой подставке",
+   "price": null,
+   "section": "custom",
+   "folder": [
+    "Индивидуальный заказ",
+    "Спартанец"
+   ],
+   "cover": "Спартанец 3.jpg",
+   "photos": [
+    "Спартанец фото (2).jpg",
+    "Спартанец 2.jpg",
+    "Спартанец.jpg",
+    "Спартанец 1.jpg"
+   ],
+   "source_slug": "спартанец",
+   "cover_folder": [
+    "Индивидуальный заказ",
+    "Спартанец"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "vsadnica",
+   "name": "Всадница",
+   "size": "17 см",
+   "note": "",
+   "price": null,
+   "section": "custom",
+   "folder": [
+    "Индивидуальный заказ",
+    "Всадница"
+   ],
+   "cover": "Всадница (4).jpg",
+   "photos": [
+    "Всадница (5).jpg",
+    "Всадница (1).jpg",
+    "Всадница (6).jpg",
+    "Всадница (3).jpg",
+    "Всадница (2).jpg"
+   ],
+   "source_slug": "всадница",
+   "cover_folder": [
+    "Индивидуальный заказ",
+    "Всадница"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "anyuta",
+   "name": "Анюта",
+   "size": "9 см",
+   "note": "Портретная игрушка на деревянной подставке",
+   "price": null,
+   "section": "custom",
+   "folder": [
+    "Индивидуальный заказ",
+    "Анюта"
+   ],
+   "cover": "Анюта  (5).jpg",
+   "photos": [
+    "Анюта  (2).jpg",
+    "Анюта  (3).jpg",
+    "Анюта  (4).jpg",
+    "Анюта  (1).jpg"
+   ],
+   "source_slug": "анюта",
+   "cover_folder": [
+    "Индивидуальный заказ",
+    "Анюта"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "pasha",
+   "name": "Пасха",
+   "size": "13 см",
+   "note": "",
+   "price": null,
+   "section": "custom",
+   "folder": [
+    "Индивидуальный заказ",
+    "пасха"
+   ],
+   "cover": "Пасха (1).jpg",
+   "photos": [
+    "Пасха (2).jpg",
+    "Пасха (4).jpg",
+    "Пасха (5).jpg"
+   ],
+   "source_slug": "пасха",
+   "cover_folder": [
+    "Индивидуальный заказ",
+    "пасха"
+   ],
+   "cover_from_site": false
+  },
+  {
+   "slug": "georgiy-pobedonosec",
+   "name": "Георгий Победоносец",
+   "size": "18 см",
+   "note": "Сувенирная игрушка на подставке",
+   "price": null,
+   "section": "custom",
+   "folder": [
+    "Индивидуальный заказ",
+    "Георгий Победоносец"
+   ],
+   "cover": "georgiy-pobedonosec.jpg",
+   "photos": [
+    "Георгий Победоносец (1).jpg",
+    "Георгий Победоносец (1).png",
+    "Георгий Победоносец (2).png",
+    "Георгий Победоносец (3).png",
+    "Георгий Победоносец (4).png"
+   ],
+   "source_slug": "георгий-победоносец",
+   "cover_folder": [
+    "с-сайта"
+   ],
+   "cover_from_site": true
+  }
+ ]
+}
