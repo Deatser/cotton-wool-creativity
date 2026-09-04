@@ -17,9 +17,12 @@ import unicodedata
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(BASE, 'site')
-DATA = os.path.join(BASE, 'data', 'toys.json')
+BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
+# На хостинге данные обязаны лежать на постоянном диске: папка с кодом
+# пересобирается при каждом деплое, и всё, что в ней создано, теряется.
+STORAGE = os.environ.get('STORAGE_DIR') or BASE
+ROOT = os.path.join(STORAGE, 'site')
+DATA = os.path.join(STORAGE, 'data', 'toys.json')
 UPLOAD_DIR = os.path.join(ROOT, 'img', 'upload')
 UPLOAD_PREFIX = 'img/upload/'
 MAX_BYTES = 200 * 1024 * 1024          # с запасом под видео
@@ -302,11 +305,31 @@ class Server(ThreadingHTTPServer):
     allow_reuse_address = False
 
 
+def prepare_storage():
+    """Первый запуск на хостинге: переносим стартовый сайт и каталог из кода
+    на постоянный диск. Уже существующее не трогаем, иначе деплой затирал бы
+    то, что добавила заказчица."""
+    if STORAGE == BASE:
+        return
+    for name in ('site', 'data'):
+        src = os.path.join(BASE, name)
+        dst = os.path.join(STORAGE, name)
+        if os.path.isdir(src) and not os.path.exists(dst):
+            print('первый запуск: переношу ' + name + ' на постоянный диск')
+            shutil.copytree(src, dst)
+
+
 def main():
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+    # на хостинге приложение обязано слушать порт из amvera.yaml (по умолчанию 80),
+    # на своём компьютере удобнее 8000
+    default_port = 80 if os.environ.get('STORAGE_DIR') else 8000
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', default_port))
+    prepare_storage()
     os.makedirs(UPLOAD_DIR, exist_ok=True)
+    os.makedirs(os.path.dirname(DATA), exist_ok=True)
     try:
-        server = Server(('127.0.0.1', port), Handler)
+        host = '0.0.0.0' if os.environ.get('STORAGE_DIR') else '127.0.0.1'
+        server = Server((host, port), Handler)
     except OSError as e:
         print('')
         print('Порт ' + str(port) + ' уже занят другой программой (' + str(e) + ').')
@@ -316,6 +339,7 @@ def main():
         print('')
         sys.exit(1)
 
+    print('Хранилище: ' + STORAGE)
     print('Сайт:      http://127.0.0.1:' + str(port) + '/')
     print('Каталог:   ' + DATA)
     print('Загрузки:  ' + UPLOAD_DIR)

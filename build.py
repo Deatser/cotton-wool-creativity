@@ -17,10 +17,14 @@ from datetime import date
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
-PHOTOS = os.path.join(ROOT, 'photos')
-OUT = os.path.join(ROOT, 'site')
+ROOT = os.path.dirname(os.path.abspath(__file__))   # где лежит код
+# На хостинге готовый сайт и каталог живут на постоянном диске, иначе
+# их затрёт при первой же пересборке приложения. Локально это та же папка.
+STORAGE = os.environ.get('STORAGE_DIR') or ROOT
+PHOTOS = os.path.join(ROOT, 'photos')               # оригиналы, только на моём компьютере
+OUT = os.path.join(STORAGE, 'site')
 IMG = os.path.join(OUT, 'img')
+CATALOG_FILE = os.path.join(STORAGE, 'data', 'toys.json')
 
 # адрес будущего сайта: нужен для canonical и sitemap
 BASE_URL = 'https://cotton-wool-creativity.ru'
@@ -195,13 +199,26 @@ def build_toy(toy):
         gallery.append(item)
 
     for i, name in enumerate(toy['photos'] if not toy.get('media') else [], 1):
+        mid = os.path.join(dst_dir, f'{i}-{PHOTO_MID}.jpg')
+        big = os.path.join(dst_dir, f'{i}-{PHOTO_BIG}.jpg')
+
+        # готовые картинки уже лежат - оригинал не нужен. Так сборка работает
+        # на хостинге, куда папку photos/ мы не возим.
+        if os.path.exists(mid) and os.path.exists(big):
+            with Image.open(mid) as done:
+                w, h = done.size
+            gallery.append({
+                'mid': slug_path('img', 'igrushki', toy['slug'], os.path.basename(mid)),
+                'big': slug_path('img', 'igrushki', toy['slug'], os.path.basename(big)),
+                'w': w, 'h': h,
+            })
+            continue
+
         src = next((os.path.join(d, name) for d in search_dirs
                     if os.path.exists(os.path.join(d, name))), None)
         if not src:
             print('  нет файла:', name, 'в', toy['folder'])
             continue
-        mid = os.path.join(dst_dir, f'{i}-{PHOTO_MID}.jpg')
-        big = os.path.join(dst_dir, f'{i}-{PHOTO_BIG}.jpg')
         w, h = make_wide(src, mid, PHOTO_MID)
         make_wide(src, big, PHOTO_BIG)
         gallery.append({
@@ -249,7 +266,7 @@ def build_toy(toy):
 
 
 def main():
-    data = json.load(open(os.path.join(ROOT, 'data', 'toys.json'), encoding='utf-8'))
+    data = json.load(open(CATALOG_FILE, encoding='utf-8'))
 
     if os.path.isdir(os.path.join(OUT, 'assets')):
         shutil.rmtree(os.path.join(OUT, 'assets'))
