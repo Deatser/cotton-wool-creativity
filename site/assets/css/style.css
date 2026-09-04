@@ -510,13 +510,17 @@ a { color: inherit; text-decoration: none; }
   background: #e6e6e6;
 }
 
-.card__media img {
+.card__media img,
+.card__media video {
   width: 100%; height: 100%;
   object-fit: cover;
   transition: transform .45s ease;
 }
 
 .card__media:hover img { transform: scale(1.04); }
+
+/* ролик в карточке кликается как ссылка, а не как плеер */
+.card__media video { pointer-events: none; }
 
 .card__title {
   flex: 1 0 auto;          /* длинные названия не сбивают ряд: цена и кнопка держат низ */
@@ -590,6 +594,14 @@ a { color: inherit; text-decoration: none; }
   display: block;
 }
 .gallery img { width: 100%; height: auto; border-radius: 10px; }
+
+.gallery__video {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  background: #000;
+  display: block;
+}
 
 .toy__info {
   position: sticky;

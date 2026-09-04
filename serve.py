@@ -7,6 +7,7 @@
 
 Запуск:  py serve.py        (по умолчанию http://127.0.0.1:8000)
 """
+import io
 import json
 import os
 import re
@@ -18,6 +19,8 @@ import unicodedata
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
+from PIL import Image, ImageOps
+
 BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
 # На хостинге данные обязаны лежать на постоянном диске: папка с кодом
 # пересобирается при каждом деплое, и всё, что в ней создано, теряется.
@@ -26,13 +29,22 @@ ROOT = os.path.join(STORAGE, 'site')
 DATA = os.path.join(STORAGE, 'data', 'toys.json')
 UPLOAD_DIR = os.path.join(ROOT, 'img', 'upload')
 UPLOAD_PREFIX = 'img/upload/'
-MAX_BYTES = 200 * 1024 * 1024          # с запасом под видео
-ALLOWED = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.mp4', '.webm', '.mov', '.m4v'}
+MAX_IMAGE_BYTES = 60 * 1024 * 1024     # картинку читаем в память, поэтому скромнее
+MAX_VIDEO_BYTES = 1024 * 1024 * 1024   # ролик пишем на диск потоком
+IMAGE_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+VIDEO_EXT = {'.mp4', '.webm', '.mov', '.m4v'}
+ALLOWED = IMAGE_EXT | VIDEO_EXT
+
+# те же размеры и качество, что у остальных игрушек в build.py:
+# иначе новые карточки выбивались бы из общего вида
+COVER_SIZES = (600, 300)        # обложка каталога, квадрат
+PHOTO_SIZES = (900, 1600)       # фото на странице и оно же при увеличении
+JPEG_Q = 82
 SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 4
+API_VERSION = 6
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -103,9 +115,12 @@ def to_admin(toy, order):
     """Запись каталога в том виде, в каком её ждёт админка в браузере."""
     slug = toy['slug']
     cover = toy.get('coverUrl') or ('img/igrushki/' + slug + '/cover-600.jpg')
+    small = toy.get('coverUrlSmall') or ('img/igrushki/' + slug + '/cover-300.jpg')
     media = toy.get('media')
     if not media:
-        media = [{'type': 'image', 'url': 'img/igrushki/' + slug + '/' + str(i) + '-900.jpg'}
+        media = [{'type': 'image',
+                  'url': 'img/igrushki/' + slug + '/' + str(i) + '-900.jpg',
+                  'full': 'img/igrushki/' + slug + '/' + str(i) + '-1600.jpg'}
                  for i in range(1, len(toy.get('photos') or []) + 1)]
     return {
         'id': slug,
@@ -115,7 +130,7 @@ def to_admin(toy, order):
         'price': toy.get('price'),
         'section': toy['section'],
         'order': order,
-        'cover': {'url': cover},
+        'cover': {'url': cover, 'small': small, 'type': toy.get('coverType') or 'image'},
         'media': media,
         'staticUrl': 'igrushki/' + slug + '/',
     }
@@ -131,8 +146,11 @@ def from_admin(item, existing):
     toy['note'] = (item.get('note') or '').strip()
     toy['price'] = item.get('price')
     toy['section'] = item.get('section') if item.get('section') in SECTIONS else 'in_stock'
-    toy['coverUrl'] = (item.get('cover') or {}).get('url')
-    toy['media'] = [{'type': m.get('type', 'image'), 'url': m['url']}
+    cover = item.get('cover') or {}
+    toy['coverUrl'] = cover.get('url')
+    toy['coverUrlSmall'] = cover.get('small')
+    toy['coverType'] = cover.get('type') or 'image'
+    toy['media'] = [{'type': m.get('type', 'image'), 'url': m['url'], 'full': m.get('full')}
                     for m in (item.get('media') or []) if m.get('url')]
     toy.setdefault('folder', None)
     toy.setdefault('cover', None)
@@ -216,28 +234,100 @@ class Handler(SimpleHTTPRequestHandler):
                          '. Похоже, serve.py запущен старой версии: '
                          'остановите его (Ctrl+C) и запустите заново'})
 
+    @staticmethod
+    def prepare_image(raw, folder, stem, kind):
+        """Готовим картинку под веб: разворот по метке телефона, сжатие
+        до нужных размеров и удаление служебных данных.
+
+        Заодно из снимка пропадают координаты съёмки: телефон записывает
+        в файл место, где он сделан, и без пересохранения они уехали бы
+        на сайт вместе с фотографией.
+        """
+        im = Image.open(io.BytesIO(raw))
+        im = ImageOps.exif_transpose(im)          # снимок с телефона часто лежит боком
+        if im.mode in ('RGBA', 'LA', 'P'):
+            bg = Image.new('RGB', im.size, (255, 255, 255))
+            im = im.convert('RGBA')
+            bg.paste(im, mask=im.split()[-1])
+            im = bg
+        im = im.convert('RGB')
+
+        out = {}
+        if kind == 'cover':
+            for side, key in zip(COVER_SIZES, ('url', 'small')):
+                cut = ImageOps.fit(im, (side, side), Image.LANCZOS, centering=(0.5, 0.42))
+                name = stem + '-' + str(side) + '.jpg'
+                cut.save(os.path.join(folder, name), 'JPEG',
+                         quality=JPEG_Q, optimize=True, progressive=True)
+                out[key] = name
+        else:
+            for width, key in zip(PHOTO_SIZES, ('url', 'full')):
+                cut = im
+                if cut.width > width:
+                    cut = cut.resize((width, round(cut.height * width / cut.width)), Image.LANCZOS)
+                name = stem + '-' + str(width) + '.jpg'
+                cut.save(os.path.join(folder, name), 'JPEG',
+                         quality=JPEG_Q, optimize=True, progressive=True)
+                out[key] = name
+        return out
+
     def upload(self, query):
         length = int(self.headers.get('Content-Length') or 0)
         if not length:
             return self.reply(400, {'error': 'пустой файл'})
-        if length > MAX_BYTES:
-            return self.reply(413, {'error': 'файл больше 200 МБ'})
 
         name = safe_name((query.get('name') or [''])[0])
-        if os.path.splitext(name)[1] not in ALLOWED:
+        ext = os.path.splitext(name)[1]
+        if ext not in ALLOWED:
             return self.reply(415, {'error': 'такой тип файла не принимаем'})
+
+        limit = MAX_VIDEO_BYTES if ext in VIDEO_EXT else MAX_IMAGE_BYTES
+        if length > limit:
+            return self.reply(413, {'error': 'файл больше ' + str(limit // 1024 // 1024) + ' МБ'})
 
         toy_id = safe_id((query.get('id') or [''])[0])
         folder = os.path.join(UPLOAD_DIR, toy_id)
         os.makedirs(folder, exist_ok=True)
 
-        fname = str(int(time.time() * 1000)) + '-' + name
-        with open(os.path.join(folder, fname), 'wb') as f:
-            f.write(self.rfile.read(length))
+        stem = str(int(time.time() * 1000)) + '-' + os.path.splitext(name)[0]
+        here = UPLOAD_PREFIX + toy_id + '/'
 
-        rel = UPLOAD_PREFIX + toy_id + '/' + fname
-        print('  принят файл: ' + rel + ' (' + str(length // 1024) + ' КБ)')
-        self.reply(200, {'url': rel, 'path': rel})
+        if ext in VIDEO_EXT:
+            # Ролики не пережимаем, для этого нужен ffmpeg. Пишем потоком:
+            # целиком в память большой файл класть нельзя, памяти на тарифе мало.
+            fname = stem + ext
+            left = length
+            with open(os.path.join(folder, fname), 'wb') as f:
+                while left > 0:
+                    chunk = self.rfile.read(min(1024 * 1024, left))
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    left -= len(chunk)
+            print('  принято видео: ' + here + fname + ' (' + str(length // 1024) + ' КБ)')
+            return self.reply(200, {'url': here + fname, 'path': here + fname, 'type': 'video'})
+
+        raw = self.rfile.read(length)
+        kind = (query.get('kind') or ['photo'])[0]
+        try:
+            made = self.prepare_image(raw, folder, stem, kind)
+        except Exception as e:
+            # Предохранитель: не смогли обработать - кладём как есть.
+            # Лучше тяжёлая, но живая фотография, чем отказ на пустом месте.
+            fname = stem + ext
+            with open(os.path.join(folder, fname), 'wb') as f:
+                f.write(raw)
+            print('  сжать не вышло (' + str(e) + '), сохранил как есть: ' + here + fname)
+            return self.reply(200, {'url': here + fname, 'path': here + fname,
+                                    'type': 'image', 'raw': True})
+
+        result = {key: here + fname for key, fname in made.items()}
+        result['path'] = result['url']
+        result['type'] = 'image'
+        was = length // 1024
+        now = os.path.getsize(os.path.join(folder, made['url'])) // 1024
+        print('  принято фото: ' + result['url'] + ' (' + str(was) + ' КБ -> ' + str(now) + ' КБ)')
+        self.reply(200, result)
 
     def remove(self, query):
         rel = (query.get('path') or [''])[0].lstrip('/')

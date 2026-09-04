@@ -15,11 +15,19 @@
     <div class="toy__layout">
       <div class="gallery">
         {% for ph in toy.gallery %}
+        {% if ph.type == 'video' %}
+        {# играет сразу и по кругу, но с пультом: можно поставить на паузу
+           и включить звук. Без muted браузер автозапуск не разрешит. #}
+        <video class="gallery__video" src="{{ root }}{{ ph.mid }}"
+               autoplay muted loop playsinline controls preload="metadata"
+               aria-label="{{ toy.alt }}, видео"></video>
+        {% else %}
         <button type="button" data-full="{{ root }}{{ ph.big }}" data-alt="{{ toy.alt }}">
           <img src="{{ root }}{{ ph.mid }}" width="{{ ph.w }}" height="{{ ph.h }}"
                loading="{{ 'eager' if loop.first else 'lazy' }}" decoding="async"
                alt="{{ toy.alt }}{% if not loop.first %} — фото {{ loop.index }}{% endif %}">
         </button>
+        {% endif %}
         {% endfor %}
       </div>
 

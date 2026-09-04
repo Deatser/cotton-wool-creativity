@@ -46,11 +46,17 @@
           {% for toy in items %}
           <article class="card" data-id="{{ toy.slug }}">
             <a class="card__media" href="{{ root }}igrushki/{{ toy.slug }}/">
+              {% if toy.cover_type == 'video' %}
+              {# ролик вместо снимка: без звука, по кругу, без пульта - карточка должна оставаться ссылкой #}
+              <video src="{{ root }}{{ toy.cover_img }}" autoplay muted loop playsinline
+                     preload="metadata" aria-label="{{ toy.alt }}"></video>
+              {% else %}
               <img src="{{ root }}{{ toy.cover_img }}"
                    srcset="{{ root }}{{ toy.cover_img }} 600w, {{ root }}{{ toy.cover_img_sm }} 300w"
                    sizes="(max-width: 560px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 30vw, 270px"
                    width="600" height="600" loading="lazy" decoding="async"
                    alt="{{ toy.alt }}">
+              {% endif %}
             </a>
             <p class="card__title">
               <a href="{{ root }}igrushki/{{ toy.slug }}/"><b>{{ toy.name }}</b>{% if toy.size %}, <span class="size">{{ toy.size }}</span>{% endif %}</a>

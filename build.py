@@ -172,7 +172,7 @@ def build_toy(toy):
     ready_cover = toy.get('coverUrl')
     if ready_cover:
         cover_web = ready_cover
-        cover_web_sm = ready_cover
+        cover_web_sm = toy.get('coverUrlSmall') or ready_cover
     else:
         cover_dir = os.path.join(PHOTOS, *toy.get('cover_folder', toy['folder']))
         cover_src = os.path.join(cover_dir, toy['cover'])
@@ -187,8 +187,8 @@ def build_toy(toy):
 
     gallery = []
     for m in toy.get('media') or []:
-        item = {'mid': m['url'], 'big': m['url'], 'type': m.get('type', 'image'),
-                'w': 900, 'h': 900}
+        item = {'mid': m['url'], 'big': m.get('full') or m['url'],
+                'type': m.get('type', 'image'), 'w': 900, 'h': 900}
         real = os.path.join(OUT, *m['url'].split('/'))
         if m.get('type') != 'video' and os.path.exists(real):
             try:
@@ -234,6 +234,7 @@ def build_toy(toy):
     toy = dict(toy)
     toy['cover_img'] = cover_web
     toy['cover_img_sm'] = cover_web_sm
+    toy['cover_type'] = toy.get('coverType') or 'image'
     toy['gallery'] = gallery
     toy['alt'] = alt
     toy['price_text'] = price_text(toy['price']) if toy['price'] else ''

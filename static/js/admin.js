@@ -9,7 +9,7 @@
    висела «загружается» по десять-пятнадцать секунд. */
 
 const SDK = 'https://www.gstatic.com/firebasejs/12.18.0/';
-const API_VERSION = 4;   // должно совпадать с API_VERSION в serve.py
+const API_VERSION = 6;   // должно совпадать с API_VERSION в serve.py
 const ROOT = document.body.getAttribute('data-root') || '';
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {
@@ -150,11 +150,15 @@ function cardHtml(toy) {
     ? '<p class="card__price">' + esc(priceText(toy.price)) + '</p>' +
       '<a class="card__buy" href="' + href + '">Купить</a>'
     : '';
+  const cover = toy.cover || {};
+  const alt = 'Ватная ёлочная игрушка «' + esc(toy.name) + '»';
+  const media = cover.type === 'video'
+    ? '<video src="' + esc(url(cover.url)) + '" autoplay muted loop playsinline ' +
+      'preload="metadata" aria-label="' + alt + '"></video>'
+    : '<img src="' + esc(url(cover.url)) + '" width="600" height="600" ' +
+      'loading="lazy" decoding="async" alt="' + alt + '">';
   return '<article class="card" data-id="' + esc(toy.id) + '">' +
-      '<a class="card__media" href="' + href + '">' +
-        '<img src="' + esc(url(toy.cover && toy.cover.url)) + '" width="600" height="600" ' +
-        'loading="lazy" decoding="async" alt="Ватная ёлочная игрушка «' + esc(toy.name) + '»">' +
-      '</a>' +
+      '<a class="card__media" href="' + href + '">' + media + '</a>' +
       '<p class="card__title"><a href="' + href + '"><b>' + esc(toy.name) + '</b>' + size + '</a>' + note + '</p>' +
       price +
     '</article>';
@@ -325,7 +329,8 @@ function openEditor(toy, section) {
     '<div class="field"><label>Примечание, необязательно</label>',
     '<textarea name="note" maxlength="200">' + esc(toy ? toy.note || '' : '') + '</textarea></div>',
     '<div class="field"><label>Обложка для каталога</label>',
-      '<label class="upload">Выбрать фото<input type="file" accept="image/*" data-cover></label>',
+      '<label class="upload">Выбрать файл',
+      '<input type="file" accept="image/*,video/*" data-cover></label>',
       '<div class="media" data-cover-box></div></div>',
     '<div class="field"><label>Фото и видео на странице игрушки</label>',
       '<label class="upload">Добавить файлы',
@@ -350,7 +355,14 @@ function openEditor(toy, section) {
 
   box.querySelector('[data-cover]').addEventListener('change', (e) => {
     const f = e.target.files[0];
-    if (f) editorState.cover = { file: f, url: URL.createObjectURL(f), local: true };
+    if (f) {
+      editorState.cover = {
+        file: f,
+        url: URL.createObjectURL(f),
+        type: f.type.startsWith('video') ? 'video' : 'image',
+        local: true,
+      };
+    }
     e.target.value = '';
     drawMedia();
   });
@@ -379,19 +391,20 @@ function drawMedia() {
   const coverBox = box.querySelector('[data-cover-box]');
   const mediaBox = box.querySelector('[data-media-box]');
 
-  coverBox.innerHTML = editorState.cover ? tile(editorState.cover, -1, 'обложка') : '';
+  coverBox.innerHTML = editorState.cover
+    ? tile(editorState.cover, -1, editorState.cover.type === 'video' ? 'обложка, видео' : 'обложка')
+    : '';
   mediaBox.innerHTML = editorState.media.map((m, i) => tile(m, i)).join('');
 
   coverBox.querySelector('.media__del')?.addEventListener('click', () => {
-    if (editorState.cover && editorState.cover.path) editorState.removed.push(editorState.cover.path);
+    forget(editorState.cover);
     editorState.cover = null;
     drawMedia();
   });
 
   mediaBox.querySelectorAll('.media__item').forEach((el, i) => {
     el.querySelector('.media__del').addEventListener('click', () => {
-      const gone = editorState.media.splice(i, 1)[0];
-      if (gone && gone.path) editorState.removed.push(gone.path);
+      forget(editorState.media.splice(i, 1)[0]);
       drawMedia();
     });
     el.addEventListener('dragstart', (e) => {
@@ -413,6 +426,14 @@ function drawMedia() {
   });
 
   validate();
+}
+
+/** Каждый снимок лежит на диске в двух размерах, стираем оба. */
+function forget(item) {
+  if (!item || item.local) return;
+  for (const u of [item.url, item.full, item.small]) {
+    if (u) editorState.removed.push(u);
+  }
 }
 
 function tile(m, i, tag) {
@@ -460,17 +481,25 @@ async function saveToy() {
     }
 
     // новые файлы уезжают на сервер, уже загруженные остаются как есть
-    const cover = editorState.cover.local
-      ? await upload(id, editorState.cover.file)
-      : { url: editorState.cover.url };
+    let cover;
+    if (editorState.cover.local) {
+      const up = await upload(id, editorState.cover.file, 'cover');
+      cover = { url: up.url, small: up.small, type: up.type || 'image' };
+    } else {
+      cover = {
+        url: editorState.cover.url,
+        small: editorState.cover.small,
+        type: editorState.cover.type || 'image',
+      };
+    }
 
     const media = [];
     for (const m of editorState.media) {
       if (m.local) {
-        const up = await upload(id, m.file);
-        media.push({ url: up.url, type: m.type });
+        const up = await upload(id, m.file, 'photo');
+        media.push({ url: up.url, full: up.full, type: m.type });
       } else {
-        media.push({ url: m.url, type: m.type });
+        media.push({ url: m.url, full: m.full, type: m.type });
       }
     }
 
@@ -498,11 +527,44 @@ async function saveToy() {
   }
 }
 
-/* Файлы не уходят в облако: их принимает локальный serve.py и кладёт
-   в site/img/upload/. В базе хранится только путь относительно сайта. */
-async function upload(id, file) {
-  const q = '?id=' + encodeURIComponent(id) + '&name=' + encodeURIComponent(file.name);
-  return api('/api/upload' + q, { method: 'POST', body: file });   // { url, path }
+/* Файлы не уходят в облако: их принимает serve.py, пережимает и кладёт
+   в site/img/upload/. В каталоге хранится только путь относительно сайта. */
+
+/** Уменьшаем снимок прямо в браузере, до отправки.
+    Кадр с телефона весит 5-8 МБ, а на сайте нужен максимум 1600 px.
+    Без этого каждая фотография ехала бы по мобильному интернету минуту. */
+async function shrink(file) {
+  if (!file.type.startsWith('image/')) return file;
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch (e) {
+    return file;                       // не смогли - отправим как есть
+  }
+  const max = 2000;
+  const k = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * k);
+  const h = Math.round(bitmap.height * k);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+  bitmap.close();
+
+  const blob = await new Promise((done) => canvas.toBlob(done, 'image/jpeg', 0.92));
+  if (!blob) return file;
+  // именно File, а не Blob: имя нужно, чтобы сервер понял расширение
+  return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+}
+
+async function upload(id, file, kind) {
+  const small = await shrink(file);
+  const name = small.name || file.name;
+  const q = '?id=' + encodeURIComponent(id) +
+            '&name=' + encodeURIComponent(name) +
+            '&kind=' + encodeURIComponent(kind || 'photo');
+  return api('/api/upload' + q, { method: 'POST', body: small });
 }
 
 /** Стираем только то, что лежит в папке загрузок: файлы статики трогать нельзя. */
