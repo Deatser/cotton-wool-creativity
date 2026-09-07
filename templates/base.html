@@ -6,7 +6,8 @@
 <title>{% block title %}{{ site.title }}{% endblock %}</title>
 <meta name="description" content="{% block description %}Ватные ёлочные игрушки ручной работы по забытой технологии XIX века. Каждая игрушка в единственном экземпляре.{% endblock %}">
 <link rel="icon" href="{{ root }}img/logo.png">
-<link rel="canonical" href="{{ canonical }}">
+{% if canonical %}<link rel="canonical" href="{{ canonical }}">{% endif %}
+{% block robots %}{% endblock %}
 <meta property="og:type" content="{% block ogtype %}website{% endblock %}">
 <meta property="og:title" content="{{ self.title() }}">
 <meta property="og:description" content="{{ self.description() }}">

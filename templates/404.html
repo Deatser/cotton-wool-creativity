@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Страница не найдена — cotton wool creativity{% endblock %}
+{% block description %}Такой страницы на сайте нет. Вернитесь на главную, к каталогу ватных ёлочных игрушек ручной работы.{% endblock %}
+{# страницу ошибки поисковикам показывать незачем #}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<main class="notfound">
+  <div class="wrap">
+    <p class="notfound__code" aria-hidden="true">404</p>
+    <h1>Такой страницы нет</h1>
+    <p class="notfound__text">
+      Возможно, игрушку уже забрали и её карточку сняли с сайта,
+      а возможно, в адресе опечатка.
+    </p>
+    <a class="btn notfound__btn" href="{{ root }}">Вернуться на главную</a>
+  </div>
+</main>
+{% endblock %}

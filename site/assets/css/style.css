@@ -866,3 +866,52 @@ a { color: inherit; text-decoration: none; }
   .payment__row { flex-direction: row; justify-content: center; }
   .payment__btn { width: auto; min-width: 220px; }
 }
+
+/* ------------------------------------------------------------ страница 404 */
+.notfound {
+  margin-top: var(--header-h);
+  padding: 70px 0 90px;
+  text-align: center;
+  /* body это флекс-колонка с подвалом внизу: растягиваем блок на остаток
+     высоты и ставим текст посередине, иначе на высоком экране он висит
+     под шапкой, а ниже пустое поле до подвала */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* крупная цифра фоном: она про настроение, читателю её озвучивать не надо */
+.notfound__code {
+  font-family: var(--font-head);
+  font-size: clamp(76px, 16vw, 140px);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--blue);
+  opacity: .16;
+  letter-spacing: .02em;
+  margin: 0 0 -6px;
+}
+
+.notfound h1 {
+  font-family: var(--font-head);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+.notfound__text {
+  margin: 0 auto 30px;
+  max-width: 44ch;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* .btn растянут на всю ширину: на странице ошибки это ни к чему */
+.notfound__btn { display: inline-block; width: auto; min-width: 240px; }
+
+@media (max-width: 480px) {
+  .notfound { padding: 48px 0 64px; }
+  .notfound__btn { width: 100%; min-width: 0; }
+}

@@ -451,6 +451,12 @@ def main():
               site=data['site'], root='../', page='toy',
               canonical=BASE_URL + '/tovar/'))
 
+    # --- страница 404. Отдаётся по любому неизвестному адресу, поэтому
+    #     все ссылки внутри неё абсолютные: root это '/'.
+    write(os.path.join(OUT, '404.html'),
+          env.get_template('404.html').render(
+              site=data['site'], root='/', page='404', canonical=''))
+
     # --- тексты документов. Это не страница, а кусок разметки: его
     #     подгружает legal.js и показывает окном на любой странице.
     write(os.path.join(OUT, 'assets', 'legal.html'),

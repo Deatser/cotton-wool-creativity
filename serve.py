@@ -255,6 +255,33 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
 
+    def list_directory(self, path):
+        """Содержимое папок наружу не отдаём.
+
+        Страница входа лежит по секретному адресу вида /login/<длинный ключ>/.
+        SimpleHTTPRequestHandler по умолчанию рисует список файлов для любой
+        папки без index.html, поэтому по адресу /login/ посторонний читал бы
+        этот ключ обычной ссылкой.
+        """
+        self.send_error(404)
+        return None
+
+    def send_error(self, code, message=None, explain=None):
+        """На 404 показываем свою страницу вместо служебной заглушки."""
+        page = os.path.join(ROOT, '404.html')
+        if code == 404 and self.command in ('GET', 'HEAD') and os.path.exists(page):
+            with open(page, 'rb') as f:
+                body = f.read()
+            self.send_response(404)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Cache-Control', 'no-store')
+            self.end_headers()
+            if self.command == 'GET':
+                self.wfile.write(body)
+            return
+        return super().send_error(code, message, explain)
+
     def log_message(self, fmt, *args):
         if '/api/' in (self.path or ''):
             super().log_message(fmt, *args)
