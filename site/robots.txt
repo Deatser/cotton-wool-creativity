@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /assets/legal.html
 
-Sitemap: https://cotton-wool-creativity.ru/sitemap.xml
+Sitemap: https://xn-----8kchczebbr9d6ae4euc.xn--p1ai/sitemap.xml

@@ -1,0 +1,271 @@
+/* Всплывающие окна с документами и карточка контактов.
+   Отдельной страницы документов нет: тексты показываются только окном.
+   Тёплая песочная гамма: она ближе к обложке сайта, чем белый лист. */
+
+:root {
+  --legal-bg: #f7f2ea;
+  --legal-ink: #4a3f33;
+  --legal-accent: #8b7355;
+  --legal-line: #e2d7c6;
+}
+
+/* ------------------------------------------------- содержимое документов */
+/* Подзаголовок документа: что это за бумага. */
+.legal__kicker {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--legal-accent);
+  font-weight: 700;
+  letter-spacing: .01em;
+  margin: 0 0 6px !important;
+}
+
+.legal__updated {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 18px !important;
+}
+
+/* Реквизиты в конце документа: тот же вид, что у карточки контактов. */
+.legal__req {
+  padding: 14px 16px;
+  background: rgba(139, 115, 85, .09);
+  border-radius: 8px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------- блок контактов */
+.contacts {
+  border-left: 3px solid var(--legal-accent);
+  padding: 4px 0 4px 18px;
+}
+
+.contacts__name {
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--legal-accent);
+  margin-bottom: 14px !important;
+}
+
+.contacts__list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 18px;
+  margin: 0 0 16px;
+  font-size: 15px;
+}
+.contacts__list dt { color: var(--legal-accent); font-weight: 700; }
+.contacts__list dd { margin: 0; }
+
+.contacts__note {
+  padding: 12px 14px;
+  background: rgba(139, 115, 85, .09);
+  border-radius: 8px;
+  font-size: 14.5px;
+  margin: 0 !important;
+}
+
+@media (max-width: 520px) {
+  .contacts__list { grid-template-columns: 1fr; gap: 2px; }
+  .contacts__list dd { margin-bottom: 8px; }
+}
+
+/* --------------------------------------------- согласия на странице игрушки */
+.agree {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  background: var(--legal-bg);
+  border: 1px solid var(--legal-line);
+  border-radius: 10px;
+}
+
+.agree__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--legal-ink);
+  cursor: pointer;
+}
+.agree__row + .agree__row { margin-top: 10px; }
+
+.agree__row input {
+  flex: none;
+  width: 17px; height: 17px;
+  margin-top: 1px;
+  accent-color: var(--legal-accent);
+  cursor: pointer;
+}
+
+.agree__link {
+  color: var(--legal-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  /* это кнопка, а у кнопки текст по умолчанию по центру: длинное название
+     переносится на вторую строку и уезжает от края */
+  text-align: left;
+}
+.agree__link:hover { color: var(--blue); }
+
+/* кнопка гаснет, пока не отмечены обе строки */
+.btn.is-locked {
+  background: #c3ccd2;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------ всплывающее окно */
+.legal-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(40, 32, 24, .55);
+  backdrop-filter: blur(3px);
+}
+.legal-modal[hidden] { display: none; }
+
+.legal-modal__box {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #fdfaf5, var(--legal-bg));
+  border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(40, 30, 20, .38);
+  color: var(--legal-ink);
+}
+
+.legal-modal__close {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: var(--legal-accent);
+  color: #fff;
+  font-size: 19px; line-height: 1;
+  cursor: pointer;
+  transition: background-color .2s ease;
+}
+.legal-modal__close:hover { background: #6f5b42; }
+
+.legal-modal__head {
+  padding: 26px 26px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--legal-line);
+}
+.legal-modal__icon { font-size: 26px; line-height: 1; }
+.legal-modal__head h2 {
+  margin: 8px 0 0;
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--legal-ink);
+}
+
+.legal-modal__body {
+  padding: 20px 26px 26px;
+  overflow-y: auto;
+}
+.legal-modal__body h2 { display: none; }      /* заголовок уже в шапке окна */
+.legal-modal__body h3 {
+  font-size: 15.5px;
+  font-weight: 700;
+  margin: 20px 0 8px;
+}
+.legal-modal__body h3:first-of-type { margin-top: 0; }
+.legal-modal__body p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.7; }
+
+@media (max-width: 560px) {
+  .legal-modal { padding: 12px; }
+  .legal-modal__head { padding: 22px 20px 14px; }
+  .legal-modal__body { padding: 18px 20px 22px; }
+}
+
+
+/* ---------------------------------------------------------------- подвал */
+.site-footer .footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+  justify-content: initial;
+}
+
+.footer-col__title {
+  margin: 0 0 14px;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.footer-col__text { margin: 0 0 10px; font-size: 15.5px; line-height: 1.65; }
+/* строки в колонке «Связь» идут с тем же шагом, что пункты «Покупателю»:
+   там 14px и промежуток 8px между ссылками */
+.footer-contact { line-height: 1.82; }
+.footer-col__text a { color: #fff; }
+.footer-col__text a:hover { color: var(--orange); }
+.footer-req { color: #b9b9b9; }
+
+.footer-social { display: flex; gap: 10px; margin: 14px 0 0; }
+.footer-social a {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff;
+  transition: border-color .2s ease, color .2s ease;
+}
+.footer-social a:hover { border-color: var(--orange); color: var(--orange); }
+
+.footer-bottom {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #3a3a3a;
+}
+.footer-bottom p { margin: 0; font-size: 14.5px; color: #9d9d9d; }
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+@media (max-width: 820px) {
+  .site-footer .footer-grid { grid-template-columns: 1fr; gap: 26px; }
+}
+
+.footer-links button,
+.footer-links a {
+  font: inherit;
+  font-size: 15.5px;
+  color: #fff;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  /* пункты-окна это кнопки: без этого длинное название при переносе
+     на вторую строку встаёт по центру, а не по левому краю */
+  text-align: left;
+  transition: color .2s ease;
+}
+.footer-links button:hover,
+.footer-links a:hover { color: var(--orange); }
+
+.site-footer__about { max-width: 46ch; }

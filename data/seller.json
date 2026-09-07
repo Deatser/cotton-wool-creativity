@@ -1,0 +1,25 @@
+{
+  "_": "Данные продавца из письма заказчицы. Отсюда они подставляются в подвал, контакты и документы. Исходник письма: materials/dannye-prodavtsa.docx",
+
+  "name": "Кириченко Оксана Николаевна",
+  "first_name": "Оксана",
+  "inn": "631216264846",
+
+  "email": "Ocsana2002@yandex.ru",
+  "phone": "+7 (902) 375-48-04",
+  "phone_href": "+79023754804",
+  "hours": "с 8:00 до 20:00",
+
+  "vk": "https://vk.ru/studyruk",
+  "max": "https://max.ru/u/f9LHodD0cOI0ZkCXcyzFHrHHYTEUzDGymHN097n0QmNUgO1koxMiXwWxJkk",
+  "max_label": "Написать в MAX",
+  "pay": "https://t.tb.ru/c2c-qr-choose-bank?requisiteNumber=+79023754804&bankCode=100000000004",
+
+  "updated": "07.09.2026",
+
+  "otkaz": {
+    "file": "assets/docs/otkaznoe-pismo-784.pdf",
+    "title": "Заключение № 784 от 09.06.2026",
+    "subject": "ёлочные украшения"
+  }
+}

@@ -39,11 +39,25 @@
         {% if toy.price %}
           <p class="toy__price">{{ toy.price_text }}</p>
           <p class="toy__status">В наличии, в единственном экземпляре.<br>Отправляем в течение 1-2 дней после оплаты.</p>
-          <a class="btn" href="{{ root }}oplata/">Купить</a>
+          <a class="btn is-locked" href="{{ root }}oplata/" data-buy aria-disabled="true">Купить</a>
         {% else %}
           <p class="toy__status">{{ toy.status_text }}</p>
-          <a class="btn" href="{{ root }}oplata/">Заказать повтор</a>
+          <a class="btn is-locked" href="{{ root }}oplata/" data-buy aria-disabled="true">Заказать повтор</a>
         {% endif %}
+
+        {# кнопка не сработает, пока не отмечены обе строки #}
+        <div class="agree">
+          <label class="agree__row">
+            <input type="checkbox" name="agree-terms">
+            <span>Я соглашаюсь с
+              <button type="button" class="agree__link" data-legal="terms">Условиями использования</button></span>
+          </label>
+          <label class="agree__row">
+            <input type="checkbox" name="agree-privacy">
+            <span>Я соглашаюсь с
+              <button type="button" class="agree__link" data-legal="privacy">Политикой конфиденциальности</button></span>
+          </label>
+        </div>
       </aside>
     </div>
   </div>

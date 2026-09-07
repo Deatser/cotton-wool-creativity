@@ -10,6 +10,7 @@ import html
 import json
 import os
 import re
+import hashlib
 import shutil
 import sys
 from datetime import date
@@ -25,9 +26,15 @@ PHOTOS = os.path.join(ROOT, 'photos')               # оригиналы, тол
 OUT = os.path.join(STORAGE, 'site')
 IMG = os.path.join(OUT, 'img')
 CATALOG_FILE = os.path.join(STORAGE, 'data', 'toys.json')
+# реквизиты, телефон, почта и ссылки продавца: подставляются во все страницы
+SELLER_FILE = os.path.join(ROOT, 'data', 'seller.json')
 
 # адрес будущего сайта: нужен для canonical и sitemap
-BASE_URL = 'https://cotton-wool-creativity.ru'
+# Домен кириллический, поэтому адресов два. В canonical, sitemap и robots идёт
+# punycode: его одинаково понимают все машины. Людям в документах показывается
+# обычная кириллическая запись.
+BASE_URL = 'https://xn-----8kchczebbr9d6ae4euc.xn--p1ai'
+SITE_URL = 'https://игрушки-из-ваты.рф'
 
 COVER_BIG, COVER_SM = 600, 300     # обложка в каталоге, квадрат
 PHOTO_MID, PHOTO_BIG = 900, 1600   # фото на странице игрушки
@@ -150,6 +157,21 @@ def load_env(path=os.path.join(ROOT, '.env')):
     return env
 
 
+def assets_version():
+    """Короткий отпечаток стилей и скриптов.
+
+    Меняется только когда меняется сам файл, поэтому лишних сбросов кэша нет.
+    """
+    h = hashlib.md5()
+    for sub in ('css', 'js'):
+        folder = os.path.join(ROOT, 'static', sub)
+        for name in sorted(os.listdir(folder)):
+            with open(os.path.join(folder, name), 'rb') as f:
+                h.update(name.encode('utf-8'))
+                h.update(f.read())
+    return h.hexdigest()[:8]
+
+
 def slug_path(*parts):
     return '/'.join(parts)
 
@@ -268,6 +290,9 @@ def build_toy(toy):
 
 def main():
     data = json.load(open(CATALOG_FILE, encoding='utf-8'))
+    seller = json.load(open(SELLER_FILE, encoding='utf-8'))
+    # в документах адрес сайта пишется целиком, ссылкой
+    seller['site_url'] = SITE_URL
 
     if os.path.isdir(os.path.join(OUT, 'assets')):
         shutil.rmtree(os.path.join(OUT, 'assets'))
@@ -279,6 +304,10 @@ def main():
     shutil.copytree(os.path.join(ROOT, 'static', 'js'), os.path.join(OUT, 'assets', 'js'))
     shutil.copytree(os.path.join(ROOT, 'static', 'fonts'), os.path.join(OUT, 'assets', 'fonts'),
                     ignore=shutil.ignore_patterns('google.css'))
+    # документы, которые скачивает покупатель: отказное письмо и всё, что добавится позже
+    docs = os.path.join(ROOT, 'static', 'docs')
+    if os.path.isdir(docs):
+        shutil.copytree(docs, os.path.join(OUT, 'assets', 'docs'))
 
     # --- логотип, обложка, экраны оплаты
     make_logo(os.path.join(PHOTOS, 'круг.png'), os.path.join(IMG, 'logo.png'), 400)
@@ -327,6 +356,11 @@ def main():
     env = Environment(loader=FileSystemLoader(os.path.join(ROOT, 'templates')),
                       autoescape=select_autoescape(['html']), trim_blocks=True, lstrip_blocks=True)
     env.filters['price'] = price_text
+    # Версия статики: короткий отпечаток содержимого css и js. Подставляется
+    # в адреса файлов, иначе после пересборки браузер отдаёт старый кэш.
+    env.globals['v'] = assets_version()
+    # подвал стоит на каждой странице, поэтому данные продавца нужны везде
+    env.globals['seller'] = seller
 
     def write(path, text):
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -417,6 +451,11 @@ def main():
               site=data['site'], root='../', page='toy',
               canonical=BASE_URL + '/tovar/'))
 
+    # --- тексты документов. Это не страница, а кусок разметки: его
+    #     подгружает legal.js и показывает окном на любой странице.
+    write(os.path.join(OUT, 'assets', 'legal.html'),
+          env.get_template('docs.html').render(root='../'))
+
     # --- sitemap и robots
     today = date.today().isoformat()
     urls = [BASE_URL + '/', BASE_URL + '/oplata/'] + \
@@ -428,7 +467,8 @@ def main():
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           f'{body}\n</urlset>\n')
     write(os.path.join(OUT, 'robots.txt'),
-          f'User-agent: *\nAllow: /\n\nSitemap: {BASE_URL}/sitemap.xml\n')
+          'User-agent: *\nAllow: /\nDisallow: /assets/legal.html\n\n'
+          f'Sitemap: {BASE_URL}/sitemap.xml\n')
 
     print(f'\nстраниц: {len(toys) + 2}, адресов в sitemap: {len(urls)}')
 
