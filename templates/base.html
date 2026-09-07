@@ -44,7 +44,6 @@
       <a class="nav__link" href="{{ root }}#custom">Игрушки под заказ</a>
       {# отдельной страницы контактов нет: и в шапке, и в подвале открывается одно окно #}
       <a class="nav__link" href="#" data-legal="contacts">Контакты</a>
-      <a class="nav__link" href="{{ root }}oplata/"{% if page == 'payment' %} aria-current="page"{% endif %}>Оплата</a>
     </nav>
 
     <button class="search-toggle" type="button" aria-expanded="false" aria-controls="search" aria-label="Поиск по сайту">
@@ -112,7 +111,6 @@
       <p class="footer-col__title">Покупателю</p>
       {# ссылки открывают те же окна, что и на странице игрушки #}
       <nav class="footer-links">
-        <a href="{{ root }}oplata/">Оплата и доставка</a>
         <button type="button" data-legal="terms">Условия использования</button>
         <button type="button" data-legal="privacy">Политика конфиденциальности</button>
         <button type="button" data-legal="contacts">Контакты</button>
