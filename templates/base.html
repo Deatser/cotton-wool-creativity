@@ -15,6 +15,9 @@
 <link rel="stylesheet" href="{{ root }}assets/css/style.css?v={{ v }}">
 <link rel="stylesheet" href="{{ root }}assets/css/admin.css?v={{ v }}">
 <link rel="stylesheet" href="{{ root }}assets/css/legal.css?v={{ v }}">
+{# страницы со своим оформлением подключают свой файл сами:
+   тащить его на все остальные страницы незачем #}
+{% block head %}{% endblock %}
 </head>
 <body data-root="{{ root }}">
 
@@ -100,9 +103,7 @@
           </svg>
         </a>
         <a href="{{ seller.max }}" target="_blank" rel="noopener" aria-label="Написать в MAX">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 3.2c-5 0-9.1 3.3-9.1 7.4 0 2.3 1.3 4.4 3.4 5.7-.2.9-.8 2.3-1.6 3.4 0 0 2.7-.4 4.8-2 .8.2 1.6.3 2.5.3 5 0 9.1-3.3 9.1-7.4S17 3.2 12 3.2z"/>
-          </svg>
+          {% include "icon-max.html" %}
         </a>
       </p>
     </div>

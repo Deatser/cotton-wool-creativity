@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Журнал действий — cotton wool creativity{% endblock %}
+{% block description %}Служебная страница.{% endblock %}
+
+{# страница служебная: в поиск не пускаем и в sitemap не кладём #}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block head %}<link rel="stylesheet" href="{{ root }}assets/css/logs.css?v={{ v }}">{% endblock %}
+
+{% block content %}
+{# Пока Firebase не подтвердил вход, на странице пусто. Не администратора
+   logs.js уводит на главную, поэтому содержимое сразу скрыто. #}
+<main class="logs" data-logs-page>
+
+  <div class="wrap logs__gate" data-logs-gate>
+    <p class="logs__checking">Проверяем доступ...</p>
+  </div>
+
+  <div class="wrap logs__body" data-logs-body hidden>
+    <p class="crumbs"><a href="{{ root }}">Главная страница</a> / Журнал действий</p>
+
+    <div class="logs__head">
+      <h1>Журнал действий</h1>
+      <button type="button" class="btn logs__refresh" data-logs-refresh>Обновить</button>
+    </div>
+
+    <p class="logs__hint" data-logs-hint></p>
+    <p class="logs__error" data-logs-error hidden></p>
+
+    <div class="logs__list" data-logs-list></div>
+  </div>
+
+</main>
+
+<script type="module" src="{{ root }}assets/js/logs.js?v={{ v }}"></script>
+{% endblock %}

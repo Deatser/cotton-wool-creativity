@@ -24,6 +24,8 @@ import jwt
 from cryptography.x509 import load_pem_x509_certificate
 from PIL import Image, ImageOps
 
+import logs
+
 BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
 # На хостинге данные обязаны лежать на постоянном диске: папка с кодом
 # пересобирается при каждом деплое, и всё, что в ней создано, теряется.
@@ -47,7 +49,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 7
+API_VERSION = 10
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -252,6 +254,8 @@ def rebuild():
 
 
 class Handler(SimpleHTTPRequestHandler):
+    who = ''          # почта вошедшего, заполняется в allowed()
+
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
 
@@ -311,6 +315,15 @@ class Handler(SimpleHTTPRequestHandler):
             current = (query.get('id') or [''])[0]
             taken = {t['slug'] for t in read_data()['toys'] if t['slug'] != current}
             return self.reply(200, {'slug': unique_slug(slugify(name), taken)})
+        if urlparse(self.path).path == '/api/logs':
+            # журнал действий видит только вошедший администратор
+            if not self.allowed():
+                return
+            try:
+                return self.reply(200, {'entries': logs.recent(),
+                                        'keep': logs.ARCHIVE_KEEP})
+            except Exception as e:
+                return self.reply(500, {'error': str(e)})
         if urlparse(self.path).path == '/api/catalog':
             try:
                 data = read_data()
@@ -359,6 +372,8 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.delete_toy()
             if parsed.path == '/api/reorder':
                 return self.reorder()
+            if parsed.path == '/api/restore':
+                return self.restore_entry()
         except Exception as e:
             return self.reply(500, {'error': str(e)})
         self.reply(404, {'error': 'сервер не знает адрес ' + parsed.path +
@@ -489,12 +504,17 @@ class Handler(SimpleHTTPRequestHandler):
             section = item.get('section')
             at = next((i for i, t in enumerate(toys) if t['section'] == section), len(toys))
             toys.insert(at, from_admin(item, None))
+            was, action = None, 'add'
             print('  добавлена игрушка: ' + item['name'])
         else:
+            was, action = to_admin(toys[at], at), 'edit'
             toys[at] = from_admin(item, toys[at])
             print('  изменена игрушка: ' + item['name'])
 
         write_data(data)
+        # Журнал пишем до пересборки: старые файлы ещё на месте, и с них
+        # успевает сняться копия для страницы /logs/.
+        logs.add(self.who, action, was, to_admin(toys[at], at))
         rebuild()
         self.reply(200, {'ok': True, 'slug': item['id']})
 
@@ -514,6 +534,9 @@ class Handler(SimpleHTTPRequestHandler):
         toys = data['toys']
         spots = [i for i, t in enumerate(toys) if t['section'] == section]
         by_id = {t['slug']: t for t in toys if t['section'] == section}
+        # прежний порядок запоминаем до перестановки: только по нему журнал
+        # сможет вернуть раздел к тому, как было
+        was_order = [toys[i]['slug'] for i in spots]
 
         ordered = [by_id[s] for s in ids if s in by_id]
         # если что-то не пришло с клиента, дописываем в конец, чтобы не потерять
@@ -527,6 +550,8 @@ class Handler(SimpleHTTPRequestHandler):
             toys[pos] = toy
 
         write_data(data)
+        logs.add(self.who, 'reorder', extra=logs.SECTION_NAMES.get(section, section),
+                 restore={'kind': 'order', 'section': section, 'order': was_order})
         rebuild()
         print('  новый порядок в разделе ' + section)
         self.reply(200, {'ok': True})
@@ -535,24 +560,113 @@ class Handler(SimpleHTTPRequestHandler):
         item = self.body_json()
         slug = item.get('id')
         data = read_data()
-        before = len(data['toys'])
-        data['toys'] = [t for t in data['toys'] if t['slug'] != slug]
-        if len(data['toys']) == before:
+        was = next(((i, t) for i, t in enumerate(data['toys']) if t['slug'] == slug), None)
+        if was is None:
             return self.reply(404, {'error': 'такой игрушки в каталоге нет'})
+        data['toys'] = [t for t in data['toys'] if t['slug'] != slug]
 
         write_data(data)
+        # запись в журнал делаем раньше уборки: обложку удаляемой игрушки
+        # нужно успеть скопировать, иначе в журнале останется битая картинка
+        logs.add(self.who, 'delete', before=to_admin(was[1], was[0]))
 
-        # убираем за собой: страницу, картинки и загруженные файлы,
-        # иначе адрес удалённой игрушки продолжает отвечать
+        self.sweep_toy(slug)
+        rebuild()
+        print('  удалена игрушка: ' + str(slug))
+        self.reply(200, {'ok': True})
+
+    @staticmethod
+    def sweep_toy(slug):
+        """Убираем за собой: страницу, картинки и загруженные файлы,
+        иначе адрес удалённой игрушки продолжает отвечать."""
         safe = safe_id(slug)
         for folder in (os.path.join(ROOT, 'igrushki', safe),
                        os.path.join(ROOT, 'img', 'igrushki', safe),
                        os.path.join(UPLOAD_DIR, safe)):
             shutil.rmtree(folder, ignore_errors=True)
 
+    def restore_entry(self):
+        """Возврат к прежней версии по записи журнала.
+
+        Сам возврат тоже попадает в журнал: история остаётся правдивой,
+        и откат можно откатить.
+        """
+        entry = logs.find((self.body_json() or {}).get('id'))
+        if not entry:
+            return self.reply(404, {'error': 'такой записи в журнале нет'})
+        can, why = logs.can_restore(entry)
+        if not can:
+            return self.reply(400, {'error': why})
+
+        plan = entry['restore']
+        data = read_data()
+        toys = data['toys']
+
+        if plan['kind'] == 'order':
+            return self.restore_order(data, plan)
+
+        if plan['kind'] == 'remove':
+            # откат добавления: товар надо убрать
+            slug = plan.get('id')
+            at = next((i for i, t in enumerate(toys) if t['slug'] == slug), None)
+            if at is None:
+                return self.reply(400, {'error': 'этот товар уже удалён'})
+            was = to_admin(toys[at], at)
+            data['toys'] = [t for t in toys if t['slug'] != slug]
+            write_data(data)
+            logs.add(self.who, 'restore', before=was,
+                     extra='отменил добавление')
+            self.sweep_toy(slug)
+            rebuild()
+            print('  откат: убрана игрушка ' + str(slug))
+            return self.reply(200, {'ok': True, 'kind': 'remove'})
+
+        # откат правки или удаления: возвращаем карточку целиком
+        logs.restore_files(entry)
+        toy = plan['toy']
+        at = next((i for i, t in enumerate(toys) if t['slug'] == toy['id']), None)
+        if at is None:
+            at = max(0, min(int(toy.get('order') or 0), len(toys)))
+            toys.insert(at, from_admin(toy, None))
+            was = None
+            print('  откат: игрушка ' + toy['name'] + ' возвращена в каталог')
+        else:
+            was = to_admin(toys[at], at)
+            toys[at] = from_admin(toy, toys[at])
+            print('  откат: игрушка ' + toy['name'] + ' возвращена к прежнему виду')
+
+        write_data(data)
+        logs.add(self.who, 'restore', was, to_admin(toys[at], at))
         rebuild()
-        print('  удалена игрушка: ' + str(slug))
-        self.reply(200, {'ok': True})
+        self.reply(200, {'ok': True, 'slug': toy['id']})
+
+    def restore_order(self, data, plan):
+        """Возврат прежнего порядка карточек в разделе."""
+        toys = data['toys']
+        section = plan['section']
+        spots = [i for i, t in enumerate(toys) if t['section'] == section]
+        by_id = {t['slug']: t for t in toys if t['section'] == section}
+        was_order = [toys[i]['slug'] for i in spots]
+
+        ordered = [by_id[s] for s in plan['order'] if s in by_id]
+        known = {t['slug'] for t in ordered}
+        ordered += [toys[i] for i in spots if toys[i]['slug'] not in known]
+        if len(ordered) != len(spots):
+            return self.reply(400, {'error': 'состав раздела с тех пор изменился, '
+                                             'прежний порядок не восстановить'})
+        if was_order == [t['slug'] for t in ordered]:
+            return self.reply(400, {'error': 'порядок и так этот'})
+
+        for pos, toy in zip(spots, ordered):
+            toys[pos] = toy
+        write_data(data)
+        logs.add(self.who, 'restore',
+                 extra='вернул порядок в разделе «' +
+                       logs.SECTION_NAMES.get(section, section) + '»',
+                 restore={'kind': 'order', 'section': section, 'order': was_order})
+        rebuild()
+        print('  откат: прежний порядок в разделе ' + section)
+        self.reply(200, {'ok': True, 'kind': 'order'})
 
 
 class Server(ThreadingHTTPServer):

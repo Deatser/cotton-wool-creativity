@@ -439,6 +439,9 @@ def main():
         'url': f"igrushki/{t['slug']}/",
         'img': t['cover_img_sm'],
         'cover': t['cover_img'],
+        # нужен админке: без него сохранение из запасного каталога
+        # превратило бы обложку-ролик в обычную картинку
+        'coverType': t['cover_type'],
         'media': [{'type': 'image', 'url': ph['mid'], 'full': ph['big']}
                   for ph in t['gallery']],
     } for i, t in enumerate(toys)]
@@ -450,6 +453,13 @@ def main():
           env.get_template('item.html').render(
               site=data['site'], root='../', page='toy',
               canonical=BASE_URL + '/tovar/'))
+
+    # --- журнал действий администратора. Разметка пустая: записи подгружает
+    #     logs.js по пропуску, а того, кто не вошёл, уводит на главную.
+    #     В sitemap страницы нет, в robots.txt она закрыта.
+    write(os.path.join(OUT, 'logs', 'index.html'),
+          env.get_template('logs.html').render(
+              site=data['site'], root='../', page='logs', canonical=''))
 
     # --- страница 404. Отдаётся по любому неизвестному адресу, поэтому
     #     все ссылки внутри неё абсолютные: root это '/'.
@@ -473,7 +483,9 @@ def main():
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           f'{body}\n</urlset>\n')
     write(os.path.join(OUT, 'robots.txt'),
-          'User-agent: *\nAllow: /\nDisallow: /assets/legal.html\n\n'
+          'User-agent: *\nAllow: /\n'
+          'Disallow: /assets/legal.html\n'
+          'Disallow: /logs/\nDisallow: /img/logs/\n\n'
           f'Sitemap: {BASE_URL}/sitemap.xml\n')
 
     print(f'\nстраниц: {len(toys) + 2}, адресов в sitemap: {len(urls)}')
