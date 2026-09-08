@@ -7,7 +7,7 @@
 {# страница служебная: в поиск не пускаем и в sitemap не кладём #}
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="{{ root }}img/logo.png">
-<link rel="stylesheet" href="{{ root }}assets/css/login.css">
+<link rel="stylesheet" href="{{ root }}assets/css/login.css?v={{ v }}">
 </head>
 <body data-root="{{ root }}">
 
@@ -22,8 +22,10 @@
           <div class="inputBox">
             <input type="email" name="email" placeholder="Почта" autocomplete="username" required>
           </div>
-          <div class="inputBox">
+          <div class="inputBox inputBox--pass">
             <input type="password" name="password" placeholder="Пароль" autocomplete="current-password" required>
+            {# пароль точками легко набрать с опечаткой: даём посмотреть текстом #}
+            <button type="button" class="pass-toggle" aria-label="Показать пароль">Показать</button>
           </div>
 
           <label class="remember">
@@ -53,6 +55,6 @@
   </div>
 </main>
 
-<script type="module" src="{{ root }}assets/js/auth.js"></script>
+<script type="module" src="{{ root }}assets/js/auth.js?v={{ v }}"></script>
 </body>
 </html>

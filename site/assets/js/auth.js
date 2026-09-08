@@ -36,6 +36,19 @@ if (form) {
     document.querySelector('.signed-in__email').textContent = user.email || '';
   });
 
+  // Пароль точками нельзя перечитать: даём переключить на текст.
+  const passField = form.querySelector('input[name="password"]');
+  const passToggle = form.querySelector('.pass-toggle');
+  if (passToggle) {
+    passToggle.addEventListener('click', () => {
+      const shown = passField.type === 'text';
+      passField.type = shown ? 'password' : 'text';
+      passToggle.textContent = shown ? 'Показать' : 'Скрыть';
+      passToggle.setAttribute('aria-label', shown ? 'Показать пароль' : 'Скрыть пароль');
+      passField.focus();
+    });
+  }
+
   document.querySelector('.signed-in__out').addEventListener('click', async () => {
     await signOut(auth);
     location.reload();
