@@ -20,7 +20,7 @@
     <div class="payment__links">
       <div class="payment__row">
         <a class="btn payment__btn" href="{{ seller.pay }}" target="_blank" rel="noopener">Перевести по QR</a>
-        <a class="btn payment__btn payment__btn--ghost" href="{{ seller.max }}" target="_blank" rel="noopener">Написать в MAX</a>
+        <a class="btn payment__btn payment__btn--ghost" href="{{ seller.max }}" target="_blank" rel="noopener">{% with icon_size = 20 %}{% include "icon-max.html" %}{% endwith %}Написать в MAX</a>
       </div>
     </div>
   </div>

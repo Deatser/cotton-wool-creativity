@@ -57,6 +57,8 @@
 }
 .contacts__list dt { color: var(--legal-accent); font-weight: 700; }
 .contacts__list dd { margin: 0; }
+/* знак MAX идёт вровень со строкой ссылки */
+.contacts__max { display: inline-flex; align-items: center; gap: 6px; }
 
 .contacts__note {
   padding: 12px 14px;

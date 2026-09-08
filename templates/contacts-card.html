@@ -6,7 +6,7 @@
     <dt>Владелец:</dt><dd>{{ seller.name }}</dd>
     <dt>ИНН:</dt><dd>{{ seller.inn }}</dd>
     <dt>Почта:</dt><dd><a href="mailto:{{ seller.email }}">{{ seller.email }}</a></dd>
-    <dt>MAX:</dt><dd><a href="{{ seller.max }}" target="_blank" rel="noopener">{{ seller.max_label }}</a></dd>
+    <dt>MAX:</dt><dd><a class="contacts__max" href="{{ seller.max }}" target="_blank" rel="noopener">{% with icon_size = 16 %}{% include "icon-max.html" %}{% endwith %}{{ seller.max_label }}</a></dd>
   </dl>
   <p class="contacts__note">
     По всем вопросам обращайтесь на указанную почту или в MAX
