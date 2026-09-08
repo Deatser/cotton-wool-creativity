@@ -8,8 +8,9 @@
    DOMContentLoaded до ответа gstatic. Если тот отвечал медленно, страница
    висела «загружается» по десять-пятнадцать секунд. */
 
-const SDK = 'https://www.gstatic.com/firebasejs/12.18.0/';
-const API_VERSION = 7;   // должно совпадать с API_VERSION в serve.py
+import { firebase, whoAmI, call } from './fb.js';
+
+const API_VERSION = 11;   // должно совпадать с API_VERSION в serve.py
 const ROOT = document.body.getAttribute('data-root') || '';
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {
@@ -32,22 +33,8 @@ const url = (u) => (!u ? '' : /^https?:/.test(u) ? u : ROOT + u);
 
 const priceText = (v) => (v || v === 0 ? v + ' руб.' : '');
 
-/** Подключаем Firebase один раз и только когда он действительно нужен. */
-async function firebase() {
-  if (fb) return fb;
-  const [appMod, authMod, cfg] = await Promise.all([
-    import(SDK + 'firebase-app.js'),
-    import(SDK + 'firebase-auth.js'),
-    import('./firebase-config.js'),
-  ]);
-  const app = appMod.initializeApp(cfg.firebaseConfig);
-  fb = {
-    auth: authMod.getAuth(app),
-    onAuthStateChanged: authMod.onAuthStateChanged,
-    signOut: authMod.signOut,
-  };
-  return fb;
-}
+/* Подключение к Firebase и обёртка над запросами живут в fb.js: тем же
+   кодом пользуется страница журнала. */
 
 /* ============================================================ вход и плашка */
 
@@ -59,6 +46,8 @@ function renderHud(user) {
   hud.className = 'admin-hud';
   hud.innerHTML =
     '<span class="admin-hud__text">Вы вошли как администратор</span>' +
+    // ссылку на журнал видит только админ: у гостя плашки нет вовсе
+    '<a class="admin-hud__link" href="' + esc(ROOT + 'logs/') + '">Журнал</a>' +
     '<button type="button" class="admin-hud__out">Выйти</button>';
   hud.querySelector('.admin-hud__out').addEventListener('click', async () => {
     await fb.signOut(fb.auth);
@@ -89,36 +78,9 @@ async function checkServer(hud) {
 
 /* ================================================== загрузка и вывод каталога */
 
-/** Разговор со своим сервером. Отдельная обёртка, чтобы у падений
-    была понятная причина, а не голое «Failed to fetch». */
-async function api(path, options) {
-  const opts = Object.assign({}, options);
-
-  // Всё, что меняет данные, сервер принимает только с пропуском от Firebase.
-  // Пропуск живёт около часа, getIdToken сам обновляет его при надобности.
-  if (opts.auth) {
-    delete opts.auth;
-    if (!me) throw new Error('вы не вошли в админку');
-    let token;
-    try {
-      token = await me.getIdToken();
-    } catch (e) {
-      throw new Error('не удалось подтвердить вход, обновите страницу');
-    }
-    opts.headers = Object.assign({}, opts.headers, { Authorization: 'Bearer ' + token });
-  }
-
-  let res;
-  try {
-    res = await fetch(path, opts);
-  } catch (e) {
-    throw new Error('локальный сервер не отвечает. Запустите его командой ' +
-      '«py serve.py» в папке проекта и откройте сайт по адресу, который он покажет');
-  }
-  let data = null;
-  try { data = await res.json(); } catch (e) { /* тело может быть пустым */ }
-  if (!res.ok) throw new Error((data && data.error) || 'сервер ответил ' + res.status);
-  return data;
+/** Запрос к своему серверу от имени вошедшего администратора. */
+function api(path, options) {
+  return call(path, options, me);
 }
 
 /** Запасной каталог из статики, в том же виде, что отдаёт сервер.
@@ -132,8 +94,12 @@ function staticToys() {
     price: t.priceValue || null,
     section: t.sectionId,
     order: t.order,
-    cover: { url: t.cover },
-    media: (t.media || []).map((m) => ({ type: m.type, url: m.url })),
+    // Переносим ВСЕ размеры. Если тут потерять small или full, то сохранение
+    // из этого запасного каталога запишет в базу null, и карточка навсегда
+    // лишится большой картинки: на странице товара увеличение покажет
+    // средний размер вместо крупного.
+    cover: { url: t.cover, small: t.img, type: t.coverType || 'image' },
+    media: (t.media || []).map((m) => ({ type: m.type, url: m.url, full: m.full })),
     staticUrl: t.url,
   }));
 }
@@ -695,7 +661,10 @@ function renderItemPage() {
   page.querySelector('[data-item-status]').textContent = toy.price
     ? 'В наличии, в единственном экземпляре. Отправляем в течение 1-2 дней после оплаты.'
     : 'Можно заказать повтор: срок изготовления от 14 до 30 дней, в зависимости от сложности.';
-  if (toy.price) page.querySelector('[data-item-buy]').hidden = false;
+  const buy = page.querySelector('[data-item-buy]');
+  buy.href = url('order/?t=' + encodeURIComponent(toy.id));
+  buy.textContent = toy.price ? 'Купить' : 'Заказать повтор';
+  buy.hidden = false;
 
   page.querySelector('[data-item-gallery]').innerHTML = (toy.media || []).map((m) =>
     m.type === 'video'
@@ -707,23 +676,16 @@ function renderItemPage() {
 
 /* ==================================================================== старт */
 
-/** Ждём первый ответ Firebase о том, вошёл пользователь или нет. */
-function whoAmI() {
-  return new Promise((resolve) => {
-    const stop = fb.onAuthStateChanged(fb.auth, (user) => { stop(); resolve(user); });
-  });
-}
-
 async function boot() {
   try {
-    await firebase();
+    fb = await firebase();
   } catch (e) {
     // gstatic недоступен - сайт продолжает работать на статическом каталоге
     console.warn('Firebase не подключился:', e.message);
     return;
   }
 
-  const user = await whoAmI();
+  const user = await whoAmI(fb);
   me = user;
   isAdmin = !!user;
   renderHud(user);

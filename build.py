@@ -385,6 +385,19 @@ def main():
               site=data['site'], payments=payments, root='../', page='payment',
               canonical=BASE_URL + '/oplata/'))
 
+    # --- оформление заказа. Своего адреса у страницы нет: она открывается
+    #     как /order/<номер заказа>/, поэтому все ссылки внутри абсолютные.
+    write(os.path.join(OUT, 'order', 'index.html'),
+          env.get_template('order.html').render(
+              site=data['site'], root='/', page='order', canonical='',
+              delivery=seller.get('delivery') or [],
+              hold_hours=seller.get('hold_hours') or 48))
+
+    # --- проверка заказа: одна страница и покупателю, и мастеру
+    write(os.path.join(OUT, 'proverit-zakaz', 'index.html'),
+          env.get_template('check.html').render(
+              site=data['site'], root='../', page='check', canonical=''))
+
     # --- настройки Firebase из .env в отдельный модуль
     #     Внимание: web-конфиг Firebase не секрет, он в любом случае уходит в браузер.
     #     .env нужен, чтобы значения не лежали в репозитории. Реально доступ
@@ -484,8 +497,9 @@ def main():
           f'{body}\n</urlset>\n')
     write(os.path.join(OUT, 'robots.txt'),
           'User-agent: *\nAllow: /\n'
-          'Disallow: /assets/legal.html\n'
-          'Disallow: /logs/\nDisallow: /img/logs/\n\n'
+          'Disallow: /assets/legal.html\nDisallow: /order/\n'
+          'Disallow: /logs/\nDisallow: /img/logs/\n'
+          'Disallow: /proverit-zakaz/\n\n'
           f'Sitemap: {BASE_URL}/sitemap.xml\n')
 
     print(f'\nстраниц: {len(toys) + 2}, адресов в sitemap: {len(urls)}')

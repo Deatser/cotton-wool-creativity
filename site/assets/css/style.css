@@ -18,6 +18,11 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Атрибут hidden обязан прятать элемент всегда. Без этой строки его
+   перебивает любой класс со своим display: на значке состояния заказа
+   так и вышло - скрипт ставил hidden, а .badge продолжал его показывать. */
+[hidden] { display: none !important; }
+
 html {
   scroll-behavior: smooth;
   /* место под полосу прокрутки резервируется всегда,
@@ -634,6 +639,61 @@ a { color: inherit; text-decoration: none; }
   margin: 0 0 18px;
 }
 
+/* ------------------------------------------------------------ поля форм
+
+   Одна и та же разметка полей стоит и в оформлении заказа, и на странице
+   проверки заказа. Стили лежат здесь, а не в файле одной страницы: иначе
+   на второй странице те же классы оказывались без оформления. */
+
+.field { display: block; margin-top: 16px; }
+.order__block > .field:first-of-type { margin-top: 6px; }
+
+.field__label {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.field__label b { color: var(--red); font-weight: 700; }
+
+.field__input {
+  width: 100%;
+  font: inherit;
+  font-size: 16px;               /* меньше 16px - и телефон приближает страницу */
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px 13px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.field__input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(30, 108, 147, .12);
+}
+.field__input--area { resize: vertical; min-height: 84px; }
+
+.field__input.is-bad { border-color: var(--red); }
+.field__input.is-bad:focus { box-shadow: 0 0 0 3px rgba(255, 0, 0, .1); }
+
+.field__hint {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.field__hint--wide { margin: 10px 0 0; }
+
+.field__error {
+  display: none;
+  font-size: 13px;
+  color: var(--red);
+  margin-top: 5px;
+}
+.field__error.is-on { display: block; }
+.field__error--wide { margin: 10px 0 0; }
+
 .btn {
   display: block;
   width: 100%;
@@ -648,6 +708,8 @@ a { color: inherit; text-decoration: none; }
   transition: background-color .2s ease;
 }
 .btn:hover { background: var(--blue-dark); }
+/* знак MAX внутри кнопки: подпирается к тексту, не ломая центрирование */
+.btn .icon-max { vertical-align: -4px; margin-right: 8px; }
 
 /* --------------------------------------------------------------- оплата */
 .payment { margin-top: var(--header-h); padding: 34px 0 60px; }

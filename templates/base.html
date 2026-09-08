@@ -46,6 +46,7 @@
       <a class="nav__link" href="{{ root }}#repeat">Реализованные игрушки</a>
       <a class="nav__link" href="{{ root }}#custom">Игрушки под заказ</a>
       {# отдельной страницы контактов нет: и в шапке, и в подвале открывается одно окно #}
+      <a class="nav__link" href="{{ root }}proverit-zakaz/"{% if page == "check" %} aria-current="page"{% endif %}>Проверить заказ</a>
       <a class="nav__link" href="#" data-legal="contacts">Контакты</a>
     </nav>
 
@@ -112,6 +113,7 @@
       <p class="footer-col__title">Покупателю</p>
       {# ссылки открывают те же окна, что и на странице игрушки #}
       <nav class="footer-links">
+        <a href="{{ root }}proverit-zakaz/">Проверить заказ</a>
         <button type="button" data-legal="terms">Условия использования</button>
         <button type="button" data-legal="privacy">Политика конфиденциальности</button>
         <button type="button" data-legal="contacts">Контакты</button>

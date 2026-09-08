@@ -83,20 +83,4 @@
     open(link.getAttribute('data-legal'));
   });
 
-  /* ---------------- согласия на странице игрушки ---------------- */
-  var agree = document.querySelector('.agree');
-  if (agree) {
-    var boxes = agree.querySelectorAll('input[type="checkbox"]');
-    var buy = document.querySelector('[data-buy]');
-
-    var refresh = function () {
-      var all = true;
-      boxes.forEach(function (c) { if (!c.checked) all = false; });
-      buy.classList.toggle('is-locked', !all);
-      buy.setAttribute('aria-disabled', all ? 'false' : 'true');
-    };
-
-    boxes.forEach(function (c) { c.addEventListener('change', refresh); });
-    refresh();
-  }
 })();

@@ -32,6 +32,20 @@
   line-height: 1.45;
 }
 
+.admin-hud__link {
+  flex: none;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--blue);
+  font: inherit;
+  font-size: 12.5px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.admin-hud__link:hover { border-color: var(--blue); background: #f2f7fa; }
+
 .admin-hud__out {
   font: inherit;
   font-size: 13px;
@@ -208,13 +222,18 @@ body.is-reordering .card__tools { opacity: 1; }
   border-top: 1px solid var(--line);
 }
 
-/* ------------------------------------------------------------------- поля */
-.field { margin-bottom: 16px; }
-.field label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--muted); }
-.field input[type="text"],
-.field input[type="number"],
-.field select,
-.field textarea {
+/* ------------------------------------------------------------------- поля
+
+   Только внутри окна правки. Без этой привязки правила доставали до полей
+   на других страницах: у формы заказа и у проверки заказа те же классы,
+   и правило .field input[type="text"] перебивало их собственный шрифт,
+   а шрифт мельче 16px заставляет телефон приближать страницу. */
+.modal .field { margin-bottom: 16px; }
+.modal .field label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--muted); }
+.modal .field input[type="text"],
+.modal .field input[type="number"],
+.modal .field select,
+.modal .field textarea {
   width: 100%;
   font: inherit;
   font-size: 14.5px;
@@ -226,11 +245,11 @@ body.is-reordering .card__tools { opacity: 1; }
   outline: none;
   transition: border-color .18s ease, box-shadow .18s ease;
 }
-.field input:focus, .field select:focus, .field textarea:focus {
+.modal .field input:focus, .modal .field select:focus, .modal .field textarea:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(30, 108, 147, .12);
 }
-.field textarea { resize: vertical; min-height: 62px; }
+.modal .field textarea { resize: vertical; min-height: 62px; }
 
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }

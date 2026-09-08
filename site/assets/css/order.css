@@ -1,0 +1,319 @@
+/* Оформление заказа. Файл подключается только на странице /order/,
+   на остальных страницах он не грузится. */
+
+.order {
+  margin-top: var(--header-h);
+  padding: 26px 0 70px;
+}
+
+.order h1 {
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 1.15;
+  margin: 0 0 10px;
+}
+
+.order__lead {
+  margin: 0 0 26px;
+  color: var(--muted);
+  max-width: 640px;
+}
+
+.order__wait {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.order__back {
+  color: var(--blue);
+  font-weight: 700;
+}
+.order__back:hover { text-decoration: underline; }
+
+.order__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 40px;
+  align-items: start;
+}
+
+/* ------------------------------------------------------------------ форма */
+
+.order__form { min-width: 0; }
+
+.order__block {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px 22px;
+  margin: 0 0 20px;
+}
+
+.order__block legend {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 500;
+  padding: 0 8px;
+  margin-left: -8px;
+}
+
+.order__block > .field:first-of-type { margin-top: 6px; }
+
+.order__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.order__pair--zip { grid-template-columns: 160px 1fr; }
+
+/* ---------------------------------------------------------- способ доставки */
+
+.order__ways {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.way {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 15px;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.way:hover { border-color: #c9d7df; }
+.way:has(input:checked) { border-color: var(--blue); background: #f4f9fc; }
+
+.way input {
+  width: 18px; height: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--blue);
+  flex: 0 0 auto;
+}
+
+.way__body { display: block; }
+.way__name { display: block; font-weight: 700; }
+.way__note { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+/* Единственный способ доставки: строкой, без переключателя */
+.order__way-one {
+  margin: 6px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 15px;
+  background: #f7fafc;
+}
+.order__way-one b { display: block; }
+.order__way-one span { font-size: 13px; color: var(--muted); }
+
+.order__address { margin-top: 4px; }
+.order__address[hidden] { display: none; }
+
+/* поле-приманка для роботов: с экрана убрано, но заполнить его можно */
+.order__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+
+.order__agree { margin: 4px 0 20px; }
+
+.order__send { cursor: pointer; border: 0; font-family: inherit; }
+.order__send:disabled { opacity: .55; cursor: default; }
+
+.order__note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+.order__fail {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #f3c2c2;
+  background: #fdf3f3;
+  border-radius: 9px;
+  color: #a11;
+  font-size: 14px;
+}
+
+/* --------------------------------------------------------------- сводка */
+
+.order__summary {
+  position: sticky;
+  top: calc(var(--header-h) + 20px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  background: #fafafa;
+}
+
+.order__summary-title {
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 14px;
+}
+
+.order__toy { display: flex; gap: 13px; align-items: flex-start; }
+
+.order__thumb {
+  width: 84px; height: 84px;
+  object-fit: cover;
+  border-radius: 9px;
+  flex: 0 0 auto;
+  background: var(--grid-bg);
+}
+
+.order__toy-name { margin: 0; font-weight: 700; line-height: 1.25; }
+.order__toy-meta { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.order__toy-note { margin: 12px 0 0; font-size: 13px; }
+
+.order__sum {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+.order__sum > div { display: flex; justify-content: space-between; gap: 12px; }
+.order__sum > div + div { margin-top: 7px; }
+.order__sum dt { color: var(--muted); }
+.order__sum dd { margin: 0; text-align: right; }
+
+.order__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 14px 0 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+.order__total b { font-size: 22px; }
+
+.order__summary-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------- заказ принят */
+
+.done__badges {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 5px 13px;
+  white-space: nowrap;
+}
+.badge--wait { background: #fff3e0; color: #8a5300; }
+.badge--ok   { background: #e8f4ea; color: #1f6b34; }
+.badge--off  { background: #f3f3f3; color: var(--muted); }
+
+/* Номер заказа - единственное подтверждение: писем сайт не шлёт.
+   Поэтому блок заметный, а не сноской внизу. */
+.done__save {
+  border: 1px solid #cfe0ea;
+  background: #f4f9fc;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 0 0 22px;
+}
+.done__save p { margin: 0 0 8px; }
+.done__save p:last-child { margin-bottom: 0; font-size: 14px; color: var(--muted); }
+.done__save a { color: var(--blue); text-decoration: underline; }
+
+.done__receipt {
+  margin: 14px 0 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+.done__receipt a { color: var(--blue); text-decoration: underline; }
+
+.done__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+
+.done__pay, .done__card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+}
+.done__card { background: #fafafa; }
+
+.done__pay h2, .done__card h2 {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 500;
+  margin: 0 0 14px;
+}
+
+.done__steps { margin: 0 0 18px; padding-left: 20px; }
+.done__steps li { margin-bottom: 8px; }
+
+.done__buttons { display: grid; gap: 10px; }
+
+.btn--ghost {
+  background: #fff;
+  color: var(--blue);
+  border: 1px solid var(--blue);
+}
+.btn--ghost:hover { background: #f2f7fb; }
+
+.done__hold {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.done__list { margin: 0; font-size: 14px; }
+.done__list > div { display: flex; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line); }
+.done__list > div:first-child { border-top: 0; padding-top: 0; }
+.done__list dt { flex: 0 0 116px; color: var(--muted); }
+.done__list dd { margin: 0; min-width: 0; word-break: break-word; }
+
+.done__link {
+  margin: 26px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.done__link code {
+  font-size: 13px;
+  background: var(--grid-bg);
+  padding: 3px 7px;
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+/* ------------------------------------------------------------- телефоны */
+
+@media (max-width: 900px) {
+  .order__layout { grid-template-columns: 1fr; gap: 24px; }
+  /* на телефоне сводка нужна первой: сначала что покупаю, потом куда везти */
+  .order__summary { position: static; order: -1; }
+  .done__grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .order h1 { font-size: 26px; }
+  .order__block { padding: 16px 15px 18px; }
+  .order__pair, .order__pair--zip { grid-template-columns: 1fr; gap: 0; }
+  .done__list > div { flex-direction: column; gap: 2px; }
+  .done__list dt { flex: none; }
+}

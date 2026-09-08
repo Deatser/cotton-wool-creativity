@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /assets/legal.html
+Disallow: /order/
+Disallow: /logs/
+Disallow: /img/logs/
+Disallow: /proverit-zakaz/
 
 Sitemap: https://xn-----8kchczebbr9d6ae4euc.xn--p1ai/sitemap.xml

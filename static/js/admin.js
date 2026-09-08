@@ -10,7 +10,7 @@
 
 import { firebase, whoAmI, call } from './fb.js';
 
-const API_VERSION = 10;   // должно совпадать с API_VERSION в serve.py
+const API_VERSION = 11;   // должно совпадать с API_VERSION в serve.py
 const ROOT = document.body.getAttribute('data-root') || '';
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {
@@ -661,7 +661,10 @@ function renderItemPage() {
   page.querySelector('[data-item-status]').textContent = toy.price
     ? 'В наличии, в единственном экземпляре. Отправляем в течение 1-2 дней после оплаты.'
     : 'Можно заказать повтор: срок изготовления от 14 до 30 дней, в зависимости от сложности.';
-  if (toy.price) page.querySelector('[data-item-buy]').hidden = false;
+  const buy = page.querySelector('[data-item-buy]');
+  buy.href = url('order/?t=' + encodeURIComponent(toy.id));
+  buy.textContent = toy.price ? 'Купить' : 'Заказать повтор';
+  buy.hidden = false;
 
   page.querySelector('[data-item-gallery]').innerHTML = (toy.media || []).map((m) =>
     m.type === 'video'

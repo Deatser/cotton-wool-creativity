@@ -1,0 +1,326 @@
+/* Страница проверки заказа и панель мастера. Файл подключается только здесь. */
+
+.check {
+  margin-top: var(--header-h);
+  padding: 26px 0 70px;
+}
+
+.check h1 {
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 32px;
+  margin: 0 0 10px;
+}
+
+.check__lead {
+  margin: 0 0 22px;
+  color: var(--muted);
+  max-width: 620px;
+}
+
+.check__form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 14px;
+  align-items: end;
+  max-width: 720px;
+}
+
+.check__send {
+  width: auto;
+  cursor: pointer;
+  border: 0;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.check__send:disabled { opacity: .55; cursor: default; }
+
+.check__fail {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #f3c2c2;
+  background: #fdf3f3;
+  border-radius: 9px;
+  color: #a11;
+  font-size: 14px;
+  max-width: 720px;
+}
+
+.check__help {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------- найденный заказ */
+
+.found {
+  margin: 30px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 720px;
+}
+
+.found__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.found__head h2 {
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 24px;
+  margin: 0;
+}
+.found__badges { margin: 0; display: flex; gap: 8px; }
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 4px 11px;
+  white-space: nowrap;
+}
+.badge--wait { background: #fff3e0; color: #8a5300; }
+.badge--ok   { background: #e8f4ea; color: #1f6b34; }
+.badge--off  { background: #f3f3f3; color: var(--muted); }
+
+.found__next {
+  background: #f6f9fb;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+.found__next p { margin: 0 0 10px; }
+.found__next p:last-child { margin-bottom: 0; }
+.found__hold { font-size: 13px; color: var(--muted); }
+
+.found__buttons { display: grid; gap: 10px; max-width: 320px; }
+
+.btn--ghost {
+  background: #fff;
+  color: var(--blue);
+  border: 1px solid var(--blue);
+}
+.btn--ghost:hover { background: #f2f7fb; }
+
+.found__list, .card__list { margin: 0; font-size: 14px; }
+.found__list > div, .card__list > div {
+  display: flex;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+}
+.found__list > div:first-child, .card__list > div:first-child { border-top: 0; padding-top: 0; }
+.found__list dt, .card__list dt { flex: 0 0 116px; color: var(--muted); }
+.found__list dd, .card__list dd { margin: 0; min-width: 0; word-break: break-word; }
+
+.found__receipt { margin: 14px 0 0; font-size: 14px; }
+.found__receipt a, .found__link a { color: var(--blue); text-decoration: underline; }
+
+.found__link {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+/* -------------------------------------------------------- панель мастера */
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 40px;
+  background: #fafafa;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+.panel__head h2 {
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 24px;
+  margin: 0;
+}
+
+.panel__refresh, .filter__reset {
+  font: inherit;
+  font-size: 14px;
+  background: #fff;
+  color: var(--blue);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.panel__refresh:hover, .filter__reset:hover { border-color: var(--blue); }
+
+.panel__sum { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
+
+.panel__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.filter { display: block; }
+.filter--wide { flex: 1 1 240px; }
+.filter > span {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.filter input, .filter select {
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 11px;
+  width: 100%;
+}
+.filter input:focus, .filter select:focus { outline: none; border-color: var(--blue); }
+
+.panel__error {
+  margin: 0 0 14px;
+  padding: 11px 13px;
+  border: 1px solid #f3c2c2;
+  background: #fdf3f3;
+  border-radius: 9px;
+  color: #a11;
+  font-size: 14px;
+}
+
+.panel__empty { color: var(--muted); font-size: 14px; margin: 0; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.card__line {
+  display: grid;
+  grid-template-columns: 92px 92px minmax(0, 1fr) minmax(0, 1fr) 92px auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  background: none;
+  border: 0;
+  padding: 13px 15px;
+  cursor: pointer;
+}
+.card__line:hover { background: #f7fafc; }
+
+.card__num { font-weight: 700; }
+.card__date, .card__price { color: var(--muted); }
+.card__toy, .card__who {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card__badges { display: flex; gap: 6px; }
+
+.card__body {
+  padding: 4px 15px 16px;
+  border-top: 1px solid var(--line);
+}
+.card__body .card__list { padding-top: 12px; }
+
+.story {
+  margin: 14px 0 0;
+  padding: 0 0 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.story li { margin-bottom: 3px; }
+.story span { color: var(--ink); }
+
+.acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+
+.act {
+  font: inherit;
+  font-size: 14px;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+.act:hover { border-color: var(--blue); }
+.act:disabled { opacity: .55; cursor: default; }
+.act--go { background: var(--blue); border-color: var(--blue); color: #fff; }
+.act--go:hover { background: var(--blue-dark); }
+.act--off { color: #a11; border-color: #f0cccc; }
+.act--off:hover { border-color: #a11; }
+
+.act-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+.act-row__input {
+  flex: 1 1 220px;
+  font: inherit;
+  font-size: 15px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 11px;
+  min-width: 0;
+}
+.act-row__input:focus { outline: none; border-color: var(--blue); }
+.act-row__note { font-size: 14px; color: var(--muted); }
+
+.card__error {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #a11;
+}
+
+/* ------------------------------------------------------------- телефоны */
+
+@media (max-width: 900px) {
+  .check__form { grid-template-columns: 1fr; }
+  .check__send { width: 100%; }
+  .card__line {
+    grid-template-columns: 1fr auto;
+    row-gap: 4px;
+  }
+  .card__date { text-align: right; }
+  .card__toy, .card__who, .card__price { grid-column: 1 / -1; white-space: normal; }
+  .card__badges { grid-column: 1 / -1; }
+}
+
+@media (max-width: 560px) {
+  .check h1 { font-size: 26px; }
+  .panel { padding: 16px 14px; }
+  .found { padding: 18px 15px; }
+  .found__list > div, .card__list > div { flex-direction: column; gap: 2px; }
+  .found__list dt, .card__list dt { flex: none; }
+  .filter { flex: 1 1 100%; }
+}

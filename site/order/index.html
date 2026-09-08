@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Оформление заказа — cotton wool creativity</title>
+<meta name="description" content="Оформление заказа ватной ёлочной игрушки ручной работы: данные получателя, адрес доставки и оплата переводом.">
+<link rel="icon" href="/img/logo.png">
+<meta name="robots" content="noindex, nofollow"><meta property="og:type" content="website">
+<meta property="og:title" content="Оформление заказа — cotton wool creativity">
+<meta property="og:description" content="Оформление заказа ватной ёлочной игрушки ручной работы: данные получателя, адрес доставки и оплата переводом.">
+<meta property="og:image" content="/img/hero.jpg">
+<link rel="stylesheet" href="/assets/css/style.css?v=565fba7f">
+<link rel="stylesheet" href="/assets/css/admin.css?v=565fba7f">
+<link rel="stylesheet" href="/assets/css/legal.css?v=565fba7f">
+<link rel="stylesheet" href="/assets/css/order.css?v=565fba7f"></head>
+<body data-root="/">
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <img class="brand__logo" src="/img/logo.png" width="34" height="34" alt="">
+      <span class="brand__name">cotton wool creativity</span>
+    </a>
+
+    <button class="burger" type="button" aria-expanded="false" aria-controls="nav" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" id="nav">
+      <div class="nav__item nav__item--drop">
+        <a class="nav__link" href="/">
+          Главная страница
+          <svg class="nav__chev" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </a>
+        <div class="nav__drop"><ul class="nav__drop-list" data-toy-list></ul></div>
+      </div>
+
+      <a class="nav__link" href="/#in_stock">Игрушки в наличии</a>
+      <a class="nav__link" href="/#repeat">Реализованные игрушки</a>
+      <a class="nav__link" href="/#custom">Игрушки под заказ</a>
+      <a class="nav__link" href="/proverit-zakaz/">Проверить заказ</a>
+      <a class="nav__link" href="#" data-legal="contacts">Контакты</a>
+    </nav>
+
+    <button class="search-toggle" type="button" aria-expanded="false" aria-controls="search" aria-label="Поиск по сайту">
+      <svg width="19" height="19" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M13 13l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="search" id="search" hidden>
+    <div class="search__inner">
+      <div class="search__box">
+        <svg class="search__icon" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M13 13l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <input class="search__input" type="search" placeholder="Найти игрушку" autocomplete="off"
+               aria-label="Поиск по каталогу">
+        <button class="search__clear" type="button" aria-label="Очистить">&times;</button>
+      </div>
+      <div class="search__results" role="listbox" hidden></div>
+    </div>
+  </div>
+</header>
+
+<main class="order" data-order-page
+      data-hold-hours="48"
+      data-pay="https://t.tb.ru/c2c-qr-choose-bank?requisiteNumber=+79023754804&amp;bankCode=100000000004"
+      data-max="https://max.ru/u/f9LHodD0cOI0ZkCXcyzFHrHHYTEUzDGymHN097n0QmNUgO1koxMiXwWxJkk"
+      data-owner="Оксана"
+      data-phone="+7 (902) 375-48-04"
+      data-email="Ocsana2002@yandex.ru">
+  <div class="wrap">
+
+    <div class="order__pane" data-pane="loading">
+      <p class="order__wait">Открываем заказ...</p>
+    </div>
+
+    <div class="order__pane" data-pane="error" hidden>
+      <h1>Заказ не открылся</h1>
+      <p class="order__lead" data-error-text>
+        Похоже, ссылка неполная. Вернитесь в каталог и нажмите «Купить» на нужной игрушке.
+      </p>
+      <p><a class="order__back" href="/">Вернуться в каталог</a></p>
+    </div>
+
+    <div class="order__pane" data-pane="form" hidden>
+      <p class="crumbs">
+        <a href="/">Главная страница</a> /
+        <a data-toy-link href="/">Игрушка</a> / <span>Оформление заказа</span>
+      </p>
+
+      <h1>Оформление заказа</h1>
+      <p class="order__lead">
+        Осталось сказать, кому и куда везти. Номер заказа и реквизиты для перевода
+        появятся сразу после отправки. Оплату ждём <span data-hold-text>двое суток</span>,
+        дальше заказ закрывается сам, и его можно оформить заново.
+      </p>
+
+      <div class="order__layout">
+        <form class="order__form" novalidate>
+
+          <fieldset class="order__block">
+            <legend>Кто получает</legend>
+
+            <label class="field">
+              <span class="field__label">Фамилия, имя и отчество получателя <b>*</b></span>
+              <input class="field__input" name="name" type="text" autocomplete="name"
+                     placeholder="Иванова Мария Петровна" required>
+              <span class="field__error" data-error-for="name"></span>
+              <span class="field__hint">Так, как в паспорте: посылку выдают по документу.</span>
+            </label>
+
+            <div class="order__pair">
+              <label class="field">
+                <span class="field__label">Телефон <b>*</b></span>
+                <input class="field__input" name="phone" type="tel" autocomplete="tel"
+                       inputmode="tel" placeholder="+7 900 000-00-00" required>
+                <span class="field__error" data-error-for="phone"></span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Электронная почта <b>*</b></span>
+                <input class="field__input" name="email" type="email" autocomplete="email"
+                       inputmode="email" placeholder="pochta@example.ru" required>
+                <span class="field__error" data-error-for="email"></span>
+              </label>
+            </div>
+            <p class="field__hint field__hint--wide">
+              Почта и телефон нужны, чтобы мастер мог с вами связаться по заказу.
+              Номер заказа вы увидите на этой же странице сразу после отправки.
+            </p>
+          </fieldset>
+
+          <fieldset class="order__block">
+            <legend>Куда отправить</legend>
+
+            <p class="order__way-one">
+              <b>Доставка по России</b><br>
+              <span>Почтой России или СДЭК, сумму скажем после расчёта</span>
+            </p>
+            <input type="hidden" name="delivery" value="post"
+                   data-address="yes" data-note="Почтой России или СДЭК, сумму скажем после расчёта">
+
+            <div class="order__address" data-address-block>
+              <div class="order__pair order__pair--zip">
+                <label class="field">
+                  <span class="field__label">Индекс <b>*</b></span>
+                  <input class="field__input" name="zip" type="text" inputmode="numeric"
+                         autocomplete="postal-code" maxlength="6" placeholder="443001">
+                  <span class="field__error" data-error-for="zip"></span>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Область, край или республика</span>
+                  <input class="field__input" name="region" type="text"
+                         autocomplete="address-level1" placeholder="Самарская область">
+                </label>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Город или населённый пункт <b>*</b></span>
+                <input class="field__input" name="city" type="text"
+                       autocomplete="address-level2" placeholder="Самара">
+                <span class="field__error" data-error-for="city"></span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Улица, дом, корпус, квартира <b>*</b></span>
+                <input class="field__input" name="street" type="text"
+                       autocomplete="street-address" placeholder="ул. Ленинградская, д. 12, кв. 5">
+                <span class="field__error" data-error-for="street"></span>
+                <span class="field__hint">Одной строкой, как пишете на конверте.</span>
+              </label>
+            </div>
+
+            <label class="field">
+              <span class="field__label">Комментарий к заказу</span>
+              <textarea class="field__input field__input--area" name="comment" rows="3"
+                        maxlength="1000" placeholder="Например: подарочная упаковка или удобное время звонка"></textarea>
+            </label>
+          </fieldset>
+
+          <div class="order__trap" aria-hidden="true">
+            <label>Не заполняйте это поле
+              <input type="text" name="podpis" tabindex="-1" autocomplete="off"></label>
+          </div>
+
+          <div class="agree order__agree">
+            <label class="agree__row">
+              <input type="checkbox" name="agree-terms">
+              <span>Я соглашаюсь с
+                <button type="button" class="agree__link" data-legal="terms">Условиями использования</button></span>
+            </label>
+            <label class="agree__row">
+              <input type="checkbox" name="agree-privacy">
+              <span>Я соглашаюсь с
+                <button type="button" class="agree__link" data-legal="privacy">Политикой конфиденциальности</button>
+                и на обработку моих данных для доставки заказа</span>
+            </label>
+            <p class="field__error field__error--wide" data-error-for="agree"></p>
+          </div>
+
+          <button class="btn order__send" type="submit">Отправить заказ</button>
+          <p class="order__note">
+            Деньги на сайте не списываются. После отправки здесь появится номер заказа
+            и реквизиты для перевода.
+          </p>
+          <p class="order__fail" data-form-error hidden></p>
+        </form>
+
+        <aside class="order__summary">
+          <p class="order__summary-title">Ваш заказ</p>
+          <div class="order__toy">
+            <img class="order__thumb" data-toy-img src="" alt="" width="96" height="96">
+            <div>
+              <p class="order__toy-name" data-toy-name></p>
+              <p class="order__toy-meta" data-toy-meta></p>
+            </div>
+          </div>
+          <p class="order__toy-note" data-toy-note hidden></p>
+          <dl class="order__sum">
+            <div><dt>Игрушка</dt><dd data-toy-price>-</dd></div>
+            <div><dt>Доставка</dt><dd data-sum-delivery>по тарифу перевозчика</dd></div>
+          </dl>
+          <p class="order__total"><span>Итого</span> <b data-toy-total>-</b></p>
+          <p class="order__summary-note" data-toy-status></p>
+        </aside>
+      </div>
+    </div>
+
+    <div class="order__pane" data-pane="done" hidden>
+      <p class="done__badges">
+        <span class="badge" data-badge-pay></span>
+        <span class="badge" data-badge-ship></span>
+      </p>
+      <h1>Заказ <span data-done-number></span></h1>
+      <p class="order__lead" data-done-lead></p>
+
+      <div class="done__save">
+        <p><b>Запишите номер заказа: <span data-done-number-3></span></b></p>
+        <p>По нему и вашему телефону состояние заказа всегда видно на странице
+          <a data-done-check href="#">Проверить заказ</a>: оплачен он, собран
+          или уже отправлен, и с каким трек-номером.</p>
+      </div>
+
+      <div class="done__grid">
+        <section class="done__pay">
+          <h2>Как оплатить</h2>
+          <ol class="done__steps">
+            <li>Переведите <b data-done-total></b> по кнопке ниже или по номеру
+              <b data-done-phone></b>, получатель <b data-done-owner></b>.</li>
+            <li>В сообщении к переводу укажите номер заказа <b data-done-number-2></b>.</li>
+            <li>Пришлите чек об оплате в MAX, и мы соберём посылку.</li>
+          </ol>
+          <div class="done__buttons">
+            <a class="btn" data-done-pay href="#" target="_blank" rel="noopener">Перейти к переводу</a>
+            <a class="btn btn--ghost" data-done-max href="#" target="_blank" rel="noopener">Написать в MAX</a>
+          </div>
+          <p class="done__hold" data-done-hold></p>
+        </section>
+
+        <section class="done__card">
+          <h2>Что и куда едет</h2>
+          <dl class="done__list" data-done-list></dl>
+          <p class="done__receipt" data-done-receipt hidden></p>
+        </section>
+      </div>
+
+      <p class="done__link">
+        Эта страница и есть ваш заказ. Сохраните ссылку, по ней он открывается без номера:
+        <br><code data-done-url></code>
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<script src="/assets/js/order.js?v=565fba7f" defer></script>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-col">
+      <p class="footer-col__title">Cotton Wool Creativity</p>
+      <p class="footer-col__text">
+        Ватные ёлочные игрушки ручной работы по забытой технологии XIX века.
+        Каждая игрушка в единственном экземпляре.
+      </p>
+      <p class="footer-col__text footer-req">
+        Кириченко Оксана Николаевна<br>
+        ИНН 631216264846
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <p class="footer-col__title">Связь</p>
+      <p class="footer-col__text footer-contact">
+        <a href="tel:+79023754804">+7 (902) 375-48-04</a><br>
+        <a href="mailto:Ocsana2002@yandex.ru">Ocsana2002@yandex.ru</a><br>
+        Отвечаю с 8:00 до 20:00
+      </p>
+      <p class="footer-social">
+        <a href="https://vk.ru/studyruk" target="_blank" rel="noopener" aria-label="ВКонтакте">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12.8 17.2c-5.5 0-8.9-3.9-9-10.2h2.8c.1 4.7 2.3 6.7 3.9 7.1V7h2.6v4c1.6-.2 3.3-2 3.9-4h2.6c-.4 2.5-2.1 4.3-3.3 5 1.2.6 3.1 2.2 3.9 5h-2.9c-.6-1.9-2.1-3.4-4.2-3.6v3.6h-.3z"/>
+          </svg>
+        </a>
+        <a href="https://max.ru/u/f9LHodD0cOI0ZkCXcyzFHrHHYTEUzDGymHN097n0QmNUgO1koxMiXwWxJkk" target="_blank" rel="noopener" aria-label="Написать в MAX">
+<svg class="icon-max" width="18" height="18"
+     viewBox="0 0 100 100" fill="currentColor" aria-hidden="true" focusable="false">
+  <path d="M50.7571 0.261719C78.2929 0.261719 99.8857 22.5974 99.8857 50.1474C99.8857 77.6974 77.6071 99.4903 51.0214 99.4903C41.5857 99.4903 37.0143 98.1617 29.65 92.9474C29.1429 92.5903 28.45 92.6831 28.0214 93.1403C22.3571 99.1831 7.85 103.426 7.18571 95.176C7.18571 80.7903 0 71.4474 0 49.876C0 21.5546 23.2214 0.261719 50.7571 0.261719ZM51.5286 24.8117C38.4643 24.126 28.2643 33.1974 26.0143 47.3831C24.15 59.1332 27.45 73.4546 30.2786 74.176C31.4786 74.4832 34.3571 72.276 36.4571 70.2974C36.85 69.926 37.45 69.8617 37.9071 70.1474C41.1786 72.1474 44.8786 73.6474 48.9571 73.8617C62.3714 74.5617 74.2571 64.0617 74.9643 50.6474C75.6643 37.2331 64.9429 25.5046 51.5286 24.8046V24.8117Z"/>
+</svg>        </a>
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <p class="footer-col__title">Покупателю</p>
+      <nav class="footer-links">
+        <a href="/proverit-zakaz/">Проверить заказ</a>
+        <button type="button" data-legal="terms">Условия использования</button>
+        <button type="button" data-legal="privacy">Политика конфиденциальности</button>
+        <button type="button" data-legal="contacts">Контакты</button>
+        <a href="/assets/docs/otkaznoe-pismo-784.pdf" target="_blank" rel="noopener">Отказное письмо</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="wrap footer-bottom">
+    <p>
+      Информация на сайте носит справочный характер и не является публичной офертой.
+      Наличие игрушки и срок изготовления уточняйте у продавца.
+    </p>
+  </div>
+</footer>
+
+<script src="/assets/js/catalog.js?v=565fba7f"></script>
+<script src="/assets/js/main.js?v=565fba7f" defer></script>
+<script src="/assets/js/legal.js?v=565fba7f" defer></script>
+<script type="module" src="/assets/js/admin.js?v=565fba7f"></script>
+</body>
+</html>

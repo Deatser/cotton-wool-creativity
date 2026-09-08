@@ -21,7 +21,9 @@
         <p class="toy__note" data-item-note hidden></p>
         <p class="toy__price" data-item-price hidden></p>
         <p class="toy__status" data-item-status></p>
-        <a class="btn" href="{{ root }}oplata/" data-item-buy hidden>Купить</a>
+        {# адрес заказа дописывает admin.js: он же знает, какая это игрушка #}
+        <a class="btn" href="{{ root }}order/" data-item-buy hidden>Купить</a>
+
       </aside>
     </div>
   </div>

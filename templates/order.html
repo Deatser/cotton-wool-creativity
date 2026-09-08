@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Оформление заказа — cotton wool creativity{% endblock %}
+{% block description %}Оформление заказа ватной ёлочной игрушки ручной работы: данные получателя, адрес доставки и оплата переводом.{% endblock %}
+{# страница личная, у каждого заказа свой адрес: поисковикам её показывать нельзя #}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ root }}assets/css/order.css?v={{ v }}">{% endblock %}
+
+{% block content %}
+{# Страница одна, а видов у неё три: форма, «заказ принят» и ошибка.
+   Какой показать, решает order.js по адресу /order/<номер заказа>/ #}
+<main class="order" data-order-page
+      data-hold-hours="{{ hold_hours }}"
+      data-pay="{{ seller.pay }}"
+      data-max="{{ seller.max }}"
+      data-owner="{{ seller.first_name }}"
+      data-phone="{{ seller.phone }}"
+      data-email="{{ seller.email }}">
+  <div class="wrap">
+
+    {# ------------------------------------------------------- пока грузится #}
+    <div class="order__pane" data-pane="loading">
+      <p class="order__wait">Открываем заказ...</p>
+    </div>
+
+    {# --------------------------------------------------- заказ не собрался #}
+    <div class="order__pane" data-pane="error" hidden>
+      <h1>Заказ не открылся</h1>
+      <p class="order__lead" data-error-text>
+        Похоже, ссылка неполная. Вернитесь в каталог и нажмите «Купить» на нужной игрушке.
+      </p>
+      <p><a class="order__back" href="{{ root }}">Вернуться в каталог</a></p>
+    </div>
+
+    {# ------------------------------------------------------------- форма #}
+    <div class="order__pane" data-pane="form" hidden>
+      <p class="crumbs">
+        <a href="{{ root }}">Главная страница</a> /
+        <a data-toy-link href="{{ root }}">Игрушка</a> / <span>Оформление заказа</span>
+      </p>
+
+      <h1>Оформление заказа</h1>
+      <p class="order__lead">
+        Осталось сказать, кому и куда везти. Номер заказа и реквизиты для перевода
+        появятся сразу после отправки. Оплату ждём <span data-hold-text>двое суток</span>,
+        дальше заказ закрывается сам, и его можно оформить заново.
+      </p>
+
+      <div class="order__layout">
+        <form class="order__form" novalidate>
+
+          <fieldset class="order__block">
+            <legend>Кто получает</legend>
+
+            <label class="field">
+              <span class="field__label">Фамилия, имя и отчество получателя <b>*</b></span>
+              <input class="field__input" name="name" type="text" autocomplete="name"
+                     placeholder="Иванова Мария Петровна" required>
+              <span class="field__error" data-error-for="name"></span>
+              <span class="field__hint">Так, как в паспорте: посылку выдают по документу.</span>
+            </label>
+
+            <div class="order__pair">
+              <label class="field">
+                <span class="field__label">Телефон <b>*</b></span>
+                <input class="field__input" name="phone" type="tel" autocomplete="tel"
+                       inputmode="tel" placeholder="+7 900 000-00-00" required>
+                <span class="field__error" data-error-for="phone"></span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Электронная почта <b>*</b></span>
+                <input class="field__input" name="email" type="email" autocomplete="email"
+                       inputmode="email" placeholder="pochta@example.ru" required>
+                <span class="field__error" data-error-for="email"></span>
+              </label>
+            </div>
+            <p class="field__hint field__hint--wide">
+              Почта и телефон нужны, чтобы мастер мог с вами связаться по заказу.
+              Номер заказа вы увидите на этой же странице сразу после отправки.
+            </p>
+          </fieldset>
+
+          <fieldset class="order__block">
+            <legend>Куда отправить</legend>
+
+            {% if delivery|length > 1 %}
+            <div class="order__ways" data-ways>
+              {% for way in delivery %}
+              <label class="way">
+                <input type="radio" name="delivery" value="{{ way.id }}"
+                       data-address="{{ way.address }}" data-note="{{ way.note }}"
+                       {% if loop.first %}checked{% endif %}>
+                <span class="way__body">
+                  <span class="way__name">{{ way.name }}</span>
+                  <span class="way__note">{{ way.note }}</span>
+                </span>
+              </label>
+              {% endfor %}
+            </div>
+            {% else %}
+            {# Способ доставки один, выбирать не из чего: показываем строкой,
+               а значение уходит скрытым полем. Появится второй способ -
+               шаблон сам вернёт выбор, ничего переписывать не придётся. #}
+            <p class="order__way-one">
+              <b>{{ delivery[0].name }}</b><br>
+              <span>{{ delivery[0].note }}</span>
+            </p>
+            <input type="hidden" name="delivery" value="{{ delivery[0].id }}"
+                   data-address="{{ delivery[0].address }}" data-note="{{ delivery[0].note }}">
+            {% endif %}
+
+            {# самовывозу адрес не нужен, поэтому блок прячется целиком #}
+            <div class="order__address" data-address-block>
+              <div class="order__pair order__pair--zip">
+                <label class="field">
+                  <span class="field__label">Индекс <b>*</b></span>
+                  <input class="field__input" name="zip" type="text" inputmode="numeric"
+                         autocomplete="postal-code" maxlength="6" placeholder="443001">
+                  <span class="field__error" data-error-for="zip"></span>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Область, край или республика</span>
+                  <input class="field__input" name="region" type="text"
+                         autocomplete="address-level1" placeholder="Самарская область">
+                </label>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Город или населённый пункт <b>*</b></span>
+                <input class="field__input" name="city" type="text"
+                       autocomplete="address-level2" placeholder="Самара">
+                <span class="field__error" data-error-for="city"></span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Улица, дом, корпус, квартира <b>*</b></span>
+                <input class="field__input" name="street" type="text"
+                       autocomplete="street-address" placeholder="ул. Ленинградская, д. 12, кв. 5">
+                <span class="field__error" data-error-for="street"></span>
+                <span class="field__hint">Одной строкой, как пишете на конверте.</span>
+              </label>
+            </div>
+
+            <label class="field">
+              <span class="field__label">Комментарий к заказу</span>
+              <textarea class="field__input field__input--area" name="comment" rows="3"
+                        maxlength="1000" placeholder="Например: подарочная упаковка или удобное время звонка"></textarea>
+            </label>
+          </fieldset>
+
+          {# Поле-приманка: человек его не видит и не заполняет, а рассыльщик
+             заполняет всё подряд. Заполненное - верный признак робота. #}
+          <div class="order__trap" aria-hidden="true">
+            <label>Не заполняйте это поле
+              <input type="text" name="podpis" tabindex="-1" autocomplete="off"></label>
+          </div>
+
+          <div class="agree order__agree">
+            <label class="agree__row">
+              <input type="checkbox" name="agree-terms">
+              <span>Я соглашаюсь с
+                <button type="button" class="agree__link" data-legal="terms">Условиями использования</button></span>
+            </label>
+            <label class="agree__row">
+              <input type="checkbox" name="agree-privacy">
+              <span>Я соглашаюсь с
+                <button type="button" class="agree__link" data-legal="privacy">Политикой конфиденциальности</button>
+                и на обработку моих данных для доставки заказа</span>
+            </label>
+            <p class="field__error field__error--wide" data-error-for="agree"></p>
+          </div>
+
+          <button class="btn order__send" type="submit">Отправить заказ</button>
+          <p class="order__note">
+            Деньги на сайте не списываются. После отправки здесь появится номер заказа
+            и реквизиты для перевода.
+          </p>
+          <p class="order__fail" data-form-error hidden></p>
+        </form>
+
+        {# сводка по игрушке: заполняется из каталога, руками ничего не вводится #}
+        <aside class="order__summary">
+          <p class="order__summary-title">Ваш заказ</p>
+          <div class="order__toy">
+            <img class="order__thumb" data-toy-img src="" alt="" width="96" height="96">
+            <div>
+              <p class="order__toy-name" data-toy-name></p>
+              <p class="order__toy-meta" data-toy-meta></p>
+            </div>
+          </div>
+          <p class="order__toy-note" data-toy-note hidden></p>
+          <dl class="order__sum">
+            <div><dt>Игрушка</dt><dd data-toy-price>-</dd></div>
+            <div><dt>Доставка</dt><dd data-sum-delivery>по тарифу перевозчика</dd></div>
+          </dl>
+          <p class="order__total"><span>Итого</span> <b data-toy-total>-</b></p>
+          <p class="order__summary-note" data-toy-status></p>
+        </aside>
+      </div>
+    </div>
+
+    {# ------------------------------------------------------- заказ принят #}
+    <div class="order__pane" data-pane="done" hidden>
+      <p class="done__badges">
+        <span class="badge" data-badge-pay></span>
+        <span class="badge" data-badge-ship></span>
+      </p>
+      <h1>Заказ <span data-done-number></span></h1>
+      <p class="order__lead" data-done-lead></p>
+
+      {# Письма сайт не отправляет, поэтому номер заказа - единственное
+         подтверждение. Просим записать его прямо здесь, а не мелким шрифтом. #}
+      <div class="done__save">
+        <p><b>Запишите номер заказа: <span data-done-number-3></span></b></p>
+        <p>По нему и вашему телефону состояние заказа всегда видно на странице
+          <a data-done-check href="#">Проверить заказ</a>: оплачен он, собран
+          или уже отправлен, и с каким трек-номером.</p>
+      </div>
+
+      <div class="done__grid">
+        <section class="done__pay">
+          <h2>Как оплатить</h2>
+          <ol class="done__steps">
+            <li>Переведите <b data-done-total></b> по кнопке ниже или по номеру
+              <b data-done-phone></b>, получатель <b data-done-owner></b>.</li>
+            <li>В сообщении к переводу укажите номер заказа <b data-done-number-2></b>.</li>
+            <li>Пришлите чек об оплате в MAX, и мы соберём посылку.</li>
+          </ol>
+          <div class="done__buttons">
+            <a class="btn" data-done-pay href="#" target="_blank" rel="noopener">Перейти к переводу</a>
+            <a class="btn btn--ghost" data-done-max href="#" target="_blank" rel="noopener">Написать в MAX</a>
+          </div>
+          <p class="done__hold" data-done-hold></p>
+        </section>
+
+        <section class="done__card">
+          <h2>Что и куда едет</h2>
+          <dl class="done__list" data-done-list></dl>
+          <p class="done__receipt" data-done-receipt hidden></p>
+        </section>
+      </div>
+
+      <p class="done__link">
+        Эта страница и есть ваш заказ. Сохраните ссылку, по ней он открывается без номера:
+        <br><code data-done-url></code>
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<script src="{{ root }}assets/js/order.js?v={{ v }}" defer></script>
+{% endblock %}

@@ -46,17 +46,22 @@
    "media": [
     {
      "type": "image",
-     "url": "img/igrushki/vodoley/2-900.jpg"
+     "url": "img/igrushki/vodoley/1-900.jpg",
+     "full": "img/igrushki/vodoley/1-1600.jpg"
     },
     {
      "type": "image",
-     "url": "img/igrushki/vodoley/3-900.jpg"
+     "url": "img/igrushki/vodoley/2-900.jpg",
+     "full": "img/igrushki/vodoley/2-1600.jpg"
     },
     {
      "type": "image",
-     "url": "img/igrushki/vodoley/1-900.jpg"
+     "url": "img/igrushki/vodoley/3-900.jpg",
+     "full": "img/igrushki/vodoley/3-1600.jpg"
     }
-   ]
+   ],
+   "coverUrlSmall": "img/igrushki/vodoley/cover-300.jpg",
+   "coverType": "image"
   },
   {
    "slug": "kozerog",

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Проверить заказ — cotton wool creativity{% endblock %}
+{% block description %}Состояние заказа по его номеру: оплачен, собран, отправлен. Здесь же трек-номер посылки.{% endblock %}
+{# в заказах чужие имена и адреса, поисковикам тут делать нечего #}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ root }}assets/css/check.css?v={{ v }}">{% endblock %}
+
+{% block content %}
+<main class="check" data-check-page
+      data-pay="{{ seller.pay }}"
+      data-max="{{ seller.max }}"
+      data-owner="{{ seller.first_name }}"
+      data-phone="{{ seller.phone }}">
+  <div class="wrap">
+
+    {# ------------------------------------------------ панель мастера.
+       Показывается только вошедшему: у покупателя её нет в принципе,
+       он видит сразу поле для номера ниже. #}
+    <section class="panel" data-admin hidden>
+      <div class="panel__head">
+        <h2>Все заказы</h2>
+        <button type="button" class="panel__refresh" data-refresh>Обновить</button>
+      </div>
+
+      <p class="panel__sum" data-summary></p>
+
+      <div class="panel__filters">
+        <label class="filter">
+          <span>С какого дня</span>
+          <input type="date" data-from>
+        </label>
+        <label class="filter">
+          <span>По какой день</span>
+          <input type="date" data-to>
+        </label>
+        <label class="filter filter--wide">
+          <span>Номер, имя, телефон, игрушка</span>
+          <input type="search" data-q placeholder="например, 2026-0001 или Иванова">
+        </label>
+        <label class="filter">
+          <span>Оплата</span>
+          <select data-payment>
+            <option value="">любая</option>
+            <option value="waiting">ждёт оплаты</option>
+            <option value="paid">оплачен</option>
+            <option value="cancelled">отменён</option>
+          </select>
+        </label>
+        <label class="filter">
+          <span>Отправка</span>
+          <select data-shipping>
+            <option value="">любая</option>
+            <option value="waiting">ждёт отправки</option>
+            <option value="sent">отправлен</option>
+          </select>
+        </label>
+        <button type="button" class="filter__reset" data-reset>Сбросить</button>
+      </div>
+
+      <p class="panel__error" data-panel-error hidden></p>
+      <div class="panel__list" data-list>
+        <p class="panel__empty">Загружаем заказы...</p>
+      </div>
+    </section>
+
+    {# ---------------------------------------------------- поиск покупателем #}
+    <h1>Проверить заказ</h1>
+    <p class="check__lead">
+      Номер заказа вы видели на экране сразу после оформления, он выглядит
+      как <b>2026-0001</b>. Вместе с телефоном, который вы указывали в форме,
+      он открывает ваш заказ: оплачен он или ещё нет, собран, отправлен
+      и с каким трек-номером.
+    </p>
+
+    <form class="check__form" novalidate>
+      <label class="field">
+        <span class="field__label">Номер заказа <b>*</b></span>
+        <input class="field__input" name="number" type="text" placeholder="2026-0001"
+               autocomplete="off" required>
+      </label>
+      <label class="field">
+        <span class="field__label">Телефон из заказа <b>*</b></span>
+        <input class="field__input" name="phone" type="tel" inputmode="tel"
+               placeholder="+7 900 000-00-00" autocomplete="tel" required>
+      </label>
+      <button class="btn check__send" type="submit">Найти заказ</button>
+    </form>
+
+    <p class="check__fail" data-find-error hidden></p>
+
+    <p class="check__help">
+      Номер потерялся? Напишите нам в MAX, мастер найдёт заказ по вашему телефону.
+    </p>
+
+    {# ------------------------------------------------------ найденный заказ #}
+    <div class="found" data-found hidden></div>
+
+  </div>
+</main>
+
+<script type="module" src="{{ root }}assets/js/check.js?v={{ v }}"></script>
+{% endblock %}

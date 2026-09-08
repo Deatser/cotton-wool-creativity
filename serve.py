@@ -25,6 +25,7 @@ from cryptography.x509 import load_pem_x509_certificate
 from PIL import Image, ImageOps
 
 import logs
+import orders
 
 BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
 # На хостинге данные обязаны лежать на постоянном диске: папка с кодом
@@ -49,7 +50,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 10
+API_VERSION = 11
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -60,6 +61,10 @@ TRANSLIT = {
     'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e',
     'ю': 'yu', 'я': 'ya',
 }
+
+
+# /order/<номер заказа>/ - страница одна, номеров много
+ORDER_PATH = re.compile(r'^/order/[0-9a-zA-Z-]{8,64}/?$')
 
 
 def translit(text):
@@ -315,6 +320,15 @@ class Handler(SimpleHTTPRequestHandler):
             current = (query.get('id') or [''])[0]
             taken = {t['slug'] for t in read_data()['toys'] if t['slug'] != current}
             return self.reply(200, {'slug': unique_slug(slugify(name), taken)})
+        if urlparse(self.path).path == '/api/order':
+            # заказ читает сам покупатель по своей ссылке: пароля у него нет,
+            # а угадать адрес из 36 знаков нельзя
+            query = parse_qs(urlparse(self.path).query)
+            order = orders.find((query.get('id') or [''])[0])
+            # заказа ещё нет - это обычное дело: покупатель только открыл форму.
+            # Отвечаем пустотой, а не ошибкой, иначе в консоли браузера
+            # у каждого покупателя горел бы красный 404
+            return self.reply(200, {'order': orders.public(order) if order else None})
         if urlparse(self.path).path == '/api/logs':
             # журнал действий видит только вошедший администратор
             if not self.allowed():
@@ -324,6 +338,18 @@ class Handler(SimpleHTTPRequestHandler):
                                         'keep': logs.ARCHIVE_KEEP})
             except Exception as e:
                 return self.reply(500, {'error': str(e)})
+        if urlparse(self.path).path == '/api/orders':
+            # весь список заказов виден только вошедшему мастеру
+            if not self.allowed():
+                return
+            query = parse_qs(urlparse(self.path).query)
+            one = lambda key: (query.get(key) or [''])[0].strip()
+            try:
+                rows = orders.listing(frm=one('from'), to=one('to'), query=one('q'),
+                                      payment=one('payment'), shipping=one('shipping'))
+                return self.reply(200, {'orders': rows, 'summary': orders.summary()})
+            except Exception as e:
+                return self.reply(500, {'error': str(e)})
         if urlparse(self.path).path == '/api/catalog':
             try:
                 data = read_data()
@@ -331,6 +357,11 @@ class Handler(SimpleHTTPRequestHandler):
                                                  for i, t in enumerate(data['toys'])]})
             except Exception as e:
                 return self.reply(500, {'error': str(e)})
+        # у каждого заказа свой адрес /order/<номер>/, а страница одна:
+        # папки с таким именем на диске нет и быть не должно
+        if ORDER_PATH.match(urlparse(self.path).path):
+            self.path = '/order/index.html'
+            return super().do_GET()
         if urlparse(self.path).path.startswith('/api/'):
             return self.reply(404, {'error': 'сервер не знает адрес ' +
                                     urlparse(self.path).path +
@@ -358,7 +389,14 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         parsed = urlparse(self.path)
         query = parse_qs(parsed.query)
-        # все точки ниже меняют данные, поэтому без пропуска не работают
+        # заказ оформляет покупатель, пропуска у него нет: эта точка открыта,
+        # а от роботов её закрывают проверки внутри orders.py
+        if parsed.path == '/api/order':
+            return self.new_order()
+        # покупатель ищет свой заказ по номеру и телефону: пропуска у него нет
+        if parsed.path == '/api/order-find':
+            return self.find_order()
+        # все остальные точки меняют данные сайта и без пропуска не работают
         if parsed.path.startswith('/api/') and not self.allowed():
             return
         try:
@@ -374,11 +412,78 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.reorder()
             if parsed.path == '/api/restore':
                 return self.restore_entry()
+            if parsed.path == '/api/order-update':
+                return self.update_order()
         except Exception as e:
             return self.reply(500, {'error': str(e)})
         self.reply(404, {'error': 'сервер не знает адрес ' + parsed.path +
                          '. Похоже, serve.py запущен старой версии: '
                          'остановите его (Ctrl+C) и запустите заново'})
+
+    def visitor(self):
+        """Адрес покупателя. На хостинге запрос идёт через прокси, поэтому
+        реальный адрес приходит заголовком, а не в соединении."""
+        head = self.headers.get('X-Forwarded-For') or ''
+        return head.split(',')[0].strip() or self.client_address[0]
+
+    def new_order(self):
+        """Форма заказа с сайта: записываем и отправляем письма."""
+        try:
+            payload = self.body_json()
+        except ValueError:
+            return self.reply(400, {'error': 'заказ пришёл в непонятном виде'})
+        try:
+            order = orders.create(payload, self.visitor(), read_data()['toys'])
+        except orders.Refused as e:
+            print('  заказ отклонён: ' + str(e), flush=True)
+            return self.reply(400, {'error': str(e)})
+        except Exception as e:
+            print('  заказ не сохранился: ' + repr(e), flush=True)
+            return self.reply(500, {'error': 'сайт не смог записать заказ'})
+        print('  заказ ' + order['number'] + ': ' + order['toy']['name'] +
+              ', ' + order['buyer']['email'], flush=True)
+        return self.reply(200, {'order': orders.public(order)})
+
+    def find_order(self):
+        """Покупатель смотрит свой заказ по номеру и телефону."""
+        try:
+            payload = self.body_json()
+        except ValueError:
+            return self.reply(400, {'error': 'запрос пришёл в непонятном виде'})
+        try:
+            order = orders.find_by_number(payload.get('number'), payload.get('phone'),
+                                          ip=self.visitor())
+        except orders.Refused as e:
+            return self.reply(400, {'error': str(e)})
+        except Exception as e:
+            print('  поиск заказа не удался: ' + repr(e), flush=True)
+            return self.reply(500, {'error': 'сайт не смог найти заказ'})
+        if not order:
+            # Ничего не нашлось - это обычный исход поиска, а не сбой, поэтому
+            # отвечаем 200: иначе у покупателя, опечатавшегося в номере,
+            # в консоли браузера горел бы красный 404.
+            # Что именно не совпало, не уточняем: иначе по номерам можно было бы
+            # выяснять, какие заказы вообще существуют.
+            return self.reply(200, {'order': None,
+                                    'error': 'заказ с таким номером и телефоном не найден. '
+                                    'Проверьте номер заказа и тот телефон, '
+                                    'который вы указывали в форме'})
+        return self.reply(200, {'order': orders.public(order)})
+
+    def update_order(self):
+        """Мастер отмечает оплату, отмену или отправку."""
+        payload = self.body_json() or {}
+        changes = {k: payload[k] for k in ('payment', 'shipping', 'track', 'receipt')
+                   if k in payload}
+        if not changes:
+            return self.reply(400, {'error': 'менять нечего'})
+        try:
+            order = orders.update(payload.get('id'), changes, who=self.who)
+        except orders.Refused as e:
+            return self.reply(400, {'error': str(e)})
+        print('  заказ ' + str(payload.get('id'))[:8] + ': ' +
+              ', '.join(sorted(changes)), flush=True)
+        return self.reply(200, {'order': order})
 
     @staticmethod
     def prepare_image(raw, folder, stem, kind):
