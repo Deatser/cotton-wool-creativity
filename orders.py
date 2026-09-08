@@ -382,6 +382,21 @@ def create(payload, ip, toys):
     return order
 
 
+def remove(order_id):
+    """Убираем заказ насовсем.
+
+    Это не то же самое, что отмена: отменённый заказ остаётся в панели,
+    а удалённый исчезает вместе с данными покупателя. Счётчик номеров
+    не трогаем, чтобы освободившийся номер не достался новому заказу."""
+    with _lock:
+        data = read_all()
+        before = len(data['orders'])
+        data['orders'] = [o for o in data['orders'] if o['id'] != order_id]
+        if len(data['orders']) == before:
+            raise Refused('заказ не найден')
+        write_all(data)
+
+
 # ------------------------------------------------------- состояние заказа
 
 TRACK_RE = re.compile(r'^[A-Za-z0-9 -]{6,40}$')

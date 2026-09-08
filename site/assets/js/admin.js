@@ -10,7 +10,7 @@
 
 import { firebase, whoAmI, call } from './fb.js';
 
-const API_VERSION = 11;   // должно совпадать с API_VERSION в serve.py
+const API_VERSION = 12;   // должно совпадать с API_VERSION в serve.py
 const ROOT = document.body.getAttribute('data-root') || '';
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {

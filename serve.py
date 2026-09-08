@@ -50,7 +50,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 11
+API_VERSION = 12
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -414,6 +414,8 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.restore_entry()
             if parsed.path == '/api/order-update':
                 return self.update_order()
+            if parsed.path == '/api/order-delete':
+                return self.delete_order()
         except Exception as e:
             return self.reply(500, {'error': str(e)})
         self.reply(404, {'error': 'сервер не знает адрес ' + parsed.path +
@@ -484,6 +486,16 @@ class Handler(SimpleHTTPRequestHandler):
         print('  заказ ' + str(payload.get('id'))[:8] + ': ' +
               ', '.join(sorted(changes)), flush=True)
         return self.reply(200, {'order': order})
+
+    def delete_order(self):
+        """Мастер убирает лишний заказ насовсем."""
+        payload = self.body_json() or {}
+        try:
+            orders.remove(payload.get('id'))
+        except orders.Refused as e:
+            return self.reply(400, {'error': str(e)})
+        print('  заказ удалён: ' + str(payload.get('id'))[:8], flush=True)
+        return self.reply(200, {'ok': True})
 
     @staticmethod
     def prepare_image(raw, folder, stem, kind):

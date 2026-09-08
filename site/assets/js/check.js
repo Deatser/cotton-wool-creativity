@@ -199,6 +199,9 @@ function actionsHtml(o) {
     parts.push('<button type="button" class="act" data-do="waiting">Вернуть в «ждёт оплаты»</button>');
   }
 
+  // удаление стоит последним и отделено от остальных: оно необратимо
+  parts.push('<button type="button" class="act act--del" data-do="delete">Удалить заказ</button>');
+
   let ship = '';
   if (o.shipping === 'sent') {
     ship = '<div class="act-row">' +
@@ -302,7 +305,8 @@ function changesFor(card, what) {
 }
 
 const ASK = {
-  cancelled: 'Отменить этот заказ? Игрушка снова станет свободной.',
+  delete: 'Удалить заказ насовсем? Он исчезнет вместе с данными покупателя, вернуть не получится.',
+  cancelled: 'Отменить этот заказ?',
   waiting: 'Вернуть заказ в состояние «ждёт оплаты»?',
   unsent: 'Вернуть заказ в состояние «ждёт отправки»?',
 };
@@ -325,18 +329,31 @@ list.addEventListener('click', async (e) => {
   // отмена и откаты необратимы наполовину, поэтому переспрашиваем
   if (ASK[what] && !confirm(ASK[what])) return;
 
-  const changes = changesFor(card, what);
-  if (!changes) return;
+  const id = card.dataset.order;
+  const changes = what === 'delete' ? null : changesFor(card, what);
+  if (what !== 'delete' && !changes) return;
 
   const was = btn.textContent;
   btn.disabled = true;
-  btn.textContent = 'Сохраняем...';
+  btn.textContent = what === 'delete' ? 'Удаляем...' : 'Сохраняем...';
   try {
+    if (what === 'delete') {
+      await call('/api/order-delete', {
+        method: 'POST',
+        auth: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      }, me);
+      orders = orders.filter((x) => x.id !== id);
+      card.remove();
+      load();
+      return;
+    }
     const data = await call('/api/order-update', {
       method: 'POST',
       auth: true,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(Object.assign({ id: card.dataset.order }, changes)),
+      body: JSON.stringify(Object.assign({ id }, changes)),
     }, me);
     replaceCard(data.order);
     load();          // сводка сверху тоже должна обновиться

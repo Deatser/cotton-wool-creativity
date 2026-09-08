@@ -276,6 +276,9 @@
 .act--go:hover { background: var(--blue-dark); }
 .act--off { color: #a11; border-color: #f0cccc; }
 .act--off:hover { border-color: #a11; }
+/* удаление необратимо, поэтому выглядит опаснее отмены */
+.act--del { background: #a11; border-color: #a11; color: #fff; }
+.act--del:hover { background: #8a0e0e; border-color: #8a0e0e; }
 
 .act-row {
   display: flex;
