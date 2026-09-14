@@ -2,7 +2,13 @@
    Кнопки берём общие, .btn-main и .btn-flat из admin.css: этот файл
    подключён на всех страницах. */
 
-.about { padding: 46px 0 70px; }
+/* Шапка у сайта закреплённая, поэтому страница обязана отступить от неё
+   на её высоту: без этого заголовок уезжал под шапку и обрезался.
+   Так же сделано на странице оплаты и на проверке заказа. */
+.about {
+  margin-top: var(--header-h);
+  padding: 34px 0 70px;
+}
 .about h1 { margin: 0 0 22px; font-size: 30px; line-height: 1.2; }
 
 .about__text { max-width: 680px; }
@@ -35,7 +41,7 @@
 .about__error:empty { display: none; }
 
 @media (max-width: 600px) {
-  .about { padding: 30px 0 50px; }
+  .about { padding: 24px 0 50px; }
   .about h1 { font-size: 24px; }
   .about__text p { font-size: 15.5px; }
   .about__form-foot { flex-direction: column-reverse; }
