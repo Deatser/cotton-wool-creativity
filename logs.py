@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Журнал действий администратора: кто, когда и что изменил в каталоге,
-и возврат карточки к прежнему виду.
+"""Журнал действий администратора: кто, когда и что изменил в каталоге
+и на странице «О себе», и возврат к прежнему виду.
 
 Записи лежат в data/logs.json, то есть на постоянном диске хостинга, рядом
 с каталогом и заказами. Читает журнал только вошедший администратор,
@@ -57,7 +57,22 @@ ACTIONS = {'add': 'добавил товар',
            'edit': 'изменил товар',
            'delete': 'удалил товар',
            'reorder': 'изменил порядок карточек',
-           'restore': 'вернул прежнюю версию'}
+           'restore': 'вернул прежнюю версию',
+           'about': 'изменил страницу'}
+
+# Страница «О себе» правится на самой странице, а не в админке, но в журнал
+# идёт наравне с карточками. Товара у такой записи нет, поэтому в строке
+# стоит ссылка на саму страницу.
+ABOUT_CARD = {'id': 'about', 'name': 'О себе', 'url': 'about/'}
+
+ABOUT_FIELDS = (('menu', 'Вкладка в меню'),
+                ('heading', 'Заголовок'),
+                ('text', 'Текст'))
+
+# Текста на странице бывает много, и целиком он занял бы весь экран журнала.
+# Показываем начало; полностью прежний текст лежит в entry['restore'],
+# оттуда его и берёт откат.
+ABOUT_CUT = 300
 
 # Какие файлы прячутся за одной записью в карточке: у обложки это квадраты
 # 600 и 300, у фотографии - 900 и 1600. Вернуть надо все, иначе на странице
@@ -252,6 +267,31 @@ def show(field, value):
     return str(value)
 
 
+def show_about(field, value):
+    """Значение для строки журнала: текст страницы в одну строку и с обрезкой.
+    Как и show(), только для показа."""
+    raw = str(value or '')
+    flat = ' '.join(raw.split())
+    if field != 'text' or len(flat) <= ABOUT_CUT:
+        return flat
+    return flat[:ABOUT_CUT].rstrip() + '... (всего ' + str(len(raw)) + ' знаков)'
+
+
+def compare_about(before, after):
+    """Изменения страницы «О себе». Файлов здесь нет, копировать нечего,
+    поэтому такая запись откатывается всегда."""
+    changes = []
+    for field, label in ABOUT_FIELDS:
+        was = (before or {}).get(field) or ''
+        now = (after or {}).get(field) or ''
+        if was == now:
+            continue
+        changes.append({'kind': 'text', 'label': label,
+                        'from': show_about(field, was),
+                        'to': show_about(field, now)})
+    return changes
+
+
 def same(a, b):
     """Один и тот же файл: сравниваем по адресу."""
     return (a or {}).get('url') == (b or {}).get('url')
@@ -335,6 +375,10 @@ def can_restore(entry):
     kind = plan.get('kind')
     if kind in ('remove', 'order'):
         return True, ''          # файлы для этого не нужны
+    if kind == 'about':
+        if plan.get('about'):
+            return True, ''      # один текст, файлов тоже нет
+        return False, 'прежний текст не сохранился'
     if kind != 'toy':
         return False, 'эту запись вернуть нельзя'
 
@@ -379,17 +423,20 @@ def toy_card(toy):
             'url': toy.get('staticUrl') or ('igrushki/' + str(toy.get('id')) + '/')}
 
 
-def add(who, action, before=None, after=None, extra='', restore=None):
+def add(who, action, before=None, after=None, extra='', restore=None, kind='toy'):
     """Пишем действие в журнал. Сбой журнала не должен мешать работе админки,
-    поэтому наружу ошибки не летят - только в вывод сервера."""
+    поэтому наружу ошибки не летят - только в вывод сервера.
+
+    kind='about' - правка страницы «О себе»: там нет ни файлов, ни карточки
+    товара, поэтому и сравнение, и откат у неё свои."""
     try:
-        return _add(who, action, before, after, extra, restore)
+        return _add(who, action, before, after, extra, restore, kind)
     except Exception as e:
         print('  журнал не записался: ' + repr(e), flush=True)
         return None
 
 
-def _add(who, action, before, after, extra, restore):
+def _add(who, action, before, after, extra, restore, kind='toy'):
     now = clock.now()
     entry_id = now.strftime('%Y%m%d-%H%M%S') + '-' + uuid.uuid4().hex[:6]
 
@@ -401,13 +448,18 @@ def _add(who, action, before, after, extra, restore):
         'who': who or 'администратор',
         'action': action,
         'actionText': ACTIONS.get(action, action),
-        'toy': toy_card(after or before or {}),
+        'toy': dict(ABOUT_CARD) if kind == 'about' else toy_card(after or before or {}),
         'extra': extra,
         'changes': [],
         'archived': False,
     }
 
-    if before and after:
+    if kind == 'about':
+        entry['changes'] = compare_about(before, after)
+        if not entry['changes']:
+            # нажали «Сохранить», ничего не поменяв: записывать нечего
+            return None
+    elif before and after:
         entry['changes'] = compare(before, after, entry_id)
         if not entry['changes']:
             # нажали «Сохранить», ничего не поменяв: записывать нечего
@@ -426,6 +478,8 @@ def _add(who, action, before, after, extra, restore):
     # у добавления - просто убрать товар
     if restore is not None:
         entry['restore'] = restore
+    elif kind == 'about':
+        entry['restore'] = {'kind': 'about', 'about': before}
     elif before:
         entry['restore'] = {'kind': 'toy', 'toy': before}
     elif after:

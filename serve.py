@@ -233,6 +233,22 @@ def write_data(data):
         json.dump(data, f, ensure_ascii=False, indent=1)
 
 
+def read_about():
+    """Текущий текст страницы «О себе». Спрашиваем у сборщика: файла может
+    не быть вовсе, и тогда страница собрана из значений по умолчанию,
+    которые лежат там же."""
+    if BASE not in sys.path:
+        sys.path.insert(0, BASE)
+    import build
+    return build.read_about()
+
+
+def write_about(item):
+    os.makedirs(os.path.dirname(ABOUT), exist_ok=True)
+    with open(ABOUT, 'w', encoding='utf-8') as f:
+        json.dump(item, f, ensure_ascii=False, indent=1)
+
+
 def to_admin(toy, order):
     """Запись каталога в том виде, в каком её ждёт админка в браузере."""
     slug = toy['slug']
@@ -717,13 +733,15 @@ class Handler(SimpleHTTPRequestHandler):
         if len(text) > 20000:
             return self.reply(413, {'error': 'текст длиннее 20 000 знаков'})
 
-        os.makedirs(os.path.dirname(ABOUT), exist_ok=True)
-        with open(ABOUT, 'w', encoding='utf-8') as f:
-            json.dump({'menu': menu, 'heading': heading, 'text': text,
-                       'updated': clock.now().strftime('%d.%m.%Y')},
-                      f, ensure_ascii=False, indent=1)
+        was = read_about()
+        now = {'menu': menu, 'heading': heading, 'text': text,
+               'updated': clock.now().strftime('%d.%m.%Y')}
+        write_about(now)
         print('  страница «о себе» изменена: ' + str(len(text)) + ' знаков, '
               'вкладка «' + menu + '»', flush=True)
+        # Эта страница правится без админки, но история нужна и ей: в журнале
+        # видно, что именно поменялось, и туда же можно вернуться.
+        logs.add(self.who, 'about', was, now, kind='about')
         rebuild()
         return self.reply(200, {'ok': True})
 
@@ -836,6 +854,9 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply(400, {'error': why})
 
         plan = entry['restore']
+        if plan['kind'] == 'about':
+            return self.restore_about(plan)
+
         data = read_data()
         toys = data['toys']
 
@@ -876,6 +897,21 @@ class Handler(SimpleHTTPRequestHandler):
         logs.add(self.who, 'restore', was, to_admin(toys[at], at))
         rebuild()
         self.reply(200, {'ok': True, 'slug': toy['id']})
+
+    def restore_about(self, plan):
+        """Возврат прежнего текста страницы «О себе». Файлов здесь нет,
+        поэтому такая запись откатывается и через год."""
+        was = read_about()
+        back = dict(plan.get('about') or {})
+        if not logs.compare_about(was, back):
+            return self.reply(400, {'error': 'текст и так этот'})
+        # дату ставим сегодняшнюю: страница и правда изменилась сегодня
+        back['updated'] = clock.now().strftime('%d.%m.%Y')
+        write_about(back)
+        logs.add(self.who, 'restore', was, back, kind='about')
+        rebuild()
+        print('  откат: страница «о себе» возвращена к прежнему виду')
+        return self.reply(200, {'ok': True, 'kind': 'about'})
 
     def restore_order(self, data, plan):
         """Возврат прежнего порядка карточек в разделе."""
