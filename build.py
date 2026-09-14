@@ -15,6 +15,8 @@ import shutil
 import sys
 from datetime import date
 
+import clock
+
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -537,7 +539,7 @@ def main():
           env.get_template('docs.html').render(root='../'))
 
     # --- sitemap и robots
-    today = date.today().isoformat()
+    today = clock.today().isoformat()
     urls = [BASE_URL + '/', BASE_URL + '/oplata/', BASE_URL + '/about/'] + \
            [f"{BASE_URL}/igrushki/{t['slug']}/" for t in toys]
     body = '\n'.join(

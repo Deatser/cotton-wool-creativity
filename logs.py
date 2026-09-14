@@ -25,6 +25,8 @@ import threading
 import uuid
 from datetime import datetime
 
+import clock
+
 from PIL import Image, ImageOps
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -388,7 +390,7 @@ def add(who, action, before=None, after=None, extra='', restore=None):
 
 
 def _add(who, action, before, after, extra, restore):
-    now = datetime.now()
+    now = clock.now()
     entry_id = now.strftime('%Y%m%d-%H%M%S') + '-' + uuid.uuid4().hex[:6]
 
     entry = {

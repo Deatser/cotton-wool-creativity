@@ -26,6 +26,7 @@ from PIL import Image, ImageOps
 
 import logs
 import orders
+import clock
 
 BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
 # На хостинге данные обязаны лежать на постоянном диске: папка с кодом
@@ -719,7 +720,7 @@ class Handler(SimpleHTTPRequestHandler):
         os.makedirs(os.path.dirname(ABOUT), exist_ok=True)
         with open(ABOUT, 'w', encoding='utf-8') as f:
             json.dump({'menu': menu, 'heading': heading, 'text': text,
-                       'updated': time.strftime('%d.%m.%Y')},
+                       'updated': clock.now().strftime('%d.%m.%Y')},
                       f, ensure_ascii=False, indent=1)
         print('  страница «о себе» изменена: ' + str(len(text)) + ' знаков, '
               'вкладка «' + menu + '»', flush=True)

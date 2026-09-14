@@ -21,6 +21,8 @@ import re
 import threading
 from datetime import datetime, timedelta
 
+import clock
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 STORAGE = os.environ.get('STORAGE_DIR') or BASE
 ORDERS_FILE = os.path.join(STORAGE, 'data', 'orders.json')
@@ -99,7 +101,7 @@ def next_number(data):
     Счётчику одному верить нельзя: файл могли править руками или
     восстановить из копии, и тогда номер повторился бы. А номер это ключ,
     по которому покупатель ищет свой заказ, поэтому занятые пропускаем."""
-    year = datetime.now().year
+    year = clock.now().year
     taken = {o.get('number') for o in data.get('orders', [])}
     last = data.get('last') or {}
     n = last.get('n', 0) if last.get('year') == year else 0
@@ -124,7 +126,7 @@ def expire(order):
         until = datetime.fromisoformat(order['holdUntil'])
     except ValueError:
         return order
-    if datetime.now() > until:
+    if clock.now() > until:
         order['payment'] = 'cancelled'
         order['cancelReason'] = 'оплата не пришла в срок'
     return order
@@ -158,7 +160,7 @@ def find(order_id):
 
 
 def find_limit(ip):
-    now = datetime.now()
+    now = clock.now()
     with _lock:
         times = [t for t in _finds.get(ip, []) if now - t < timedelta(hours=1)]
         if len(times) >= FIND_PER_HOUR:
@@ -266,7 +268,7 @@ def clean(value, limit):
 
 
 def rate_limit(ip):
-    now = datetime.now()
+    now = clock.now()
     with _lock:
         times = [t for t in _recent.get(ip, []) if now - t < timedelta(hours=1)]
         if len(times) >= PER_IP_HOUR:
@@ -348,7 +350,7 @@ def create(payload, ip, toys):
 
     rate_limit(ip)
     hold_hours = int(seller().get('hold_hours') or 48)
-    now = datetime.now()
+    now = clock.now()
 
     with _lock:
         data = read_all()
@@ -474,7 +476,7 @@ def update(order_id, changes, who=''):
         order['shipping'] = shipping
         order['track'] = track
         order['receipt'] = receipt
-        order['updated'] = datetime.now().isoformat(timespec='seconds')
+        order['updated'] = clock.now().isoformat(timespec='seconds')
         order.setdefault('history', []).append({
             'at': order['updated'],
             'who': who or 'администратор',
