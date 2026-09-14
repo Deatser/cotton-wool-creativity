@@ -37,6 +37,14 @@ UPLOAD_DIR = os.path.join(ROOT, 'img', 'upload')
 UPLOAD_PREFIX = 'img/upload/'
 MAX_IMAGE_BYTES = 60 * 1024 * 1024     # картинку читаем в память, поэтому скромнее
 MAX_VIDEO_BYTES = 1024 * 1024 * 1024   # ролик пишем на диск потоком
+
+# Прокси хостинга (у Amvera это envoy) отклоняет запрос с телом больше
+# 10 МиБ сам и до приложения его не доводит: снаружи это выглядит как
+# «413 payload too large» на пустом месте. Замерено на живом сайте:
+# 10485760 байт проходит, 10486784 уже нет. Поэтому крупный файл админка
+# присылает частями, а мы дописываем их в один временный файл.
+PART_SUFFIX = '.part'
+PART_TTL = 24 * 3600                   # брошенный кусок через сутки убираем
 IMAGE_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
 VIDEO_EXT = {'.mp4', '.webm', '.mov', '.m4v'}
 ALLOWED = IMAGE_EXT | VIDEO_EXT
@@ -50,7 +58,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 12
+API_VERSION = 13
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -190,6 +198,14 @@ def check_pass(header):
 
 
 # ------------------------------------------------------------------ каталог
+
+def counted(value, default):
+    """Целое число из запроса. Мусор и пустоту подменяем ожидаемым."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
 
 def read_data():
     with open(DATA, encoding='utf-8') as f:
@@ -534,6 +550,17 @@ class Handler(SimpleHTTPRequestHandler):
                 out[key] = name
         return out
 
+    def pour(self, target, length):
+        """Переливаем тело запроса в файл кусками по мегабайту: держать
+        крупный ролик в памяти целиком нельзя, её на тарифе мало."""
+        left = length
+        while left > 0:
+            chunk = self.rfile.read(min(1024 * 1024, left))
+            if not chunk:
+                break
+            target.write(chunk)
+            left -= len(chunk)
+
     def upload(self, query):
         length = int(self.headers.get('Content-Length') or 0)
         if not length:
@@ -545,32 +572,68 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply(415, {'error': 'такой тип файла не принимаем'})
 
         limit = MAX_VIDEO_BYTES if ext in VIDEO_EXT else MAX_IMAGE_BYTES
-        if length > limit:
-            return self.reply(413, {'error': 'файл больше ' + str(limit // 1024 // 1024) + ' МБ'})
-
         toy_id = safe_id((query.get('id') or [''])[0])
         folder = os.path.join(UPLOAD_DIR, toy_id)
         os.makedirs(folder, exist_ok=True)
-
-        stem = str(int(time.time() * 1000)) + '-' + os.path.splitext(name)[0]
         here = UPLOAD_PREFIX + toy_id + '/'
 
-        if ext in VIDEO_EXT:
-            # Ролики не пережимаем, для этого нужен ffmpeg. Пишем потоком:
-            # целиком в память большой файл класть нельзя, памяти на тарифе мало.
-            fname = stem + ext
-            left = length
-            with open(os.path.join(folder, fname), 'wb') as f:
-                while left > 0:
-                    chunk = self.rfile.read(min(1024 * 1024, left))
-                    if not chunk:
-                        break
-                    f.write(chunk)
-                    left -= len(chunk)
-            print('  принято видео: ' + here + fname + ' (' + str(length // 1024) + ' КБ)')
-            return self.reply(200, {'url': here + fname, 'path': here + fname, 'type': 'video'})
+        # Крупный файл приходит частями: целиком такой запрос отклонил бы
+        # прокси хостинга, не доводя его до приложения. Части дописываем
+        # подряд в один временный файл, и только последняя превращает его
+        # в готовый файл игрушки.
+        parts = counted((query.get('parts') or [''])[0], 1)
+        index = counted((query.get('part') or [''])[0], 0)
+        # safe_name пустое имя подменяет словом file, поэтому проверяем
+        # присланное значение, а не вычищенное: иначе две отправки без имени
+        # дописывались бы в один и тот же временный файл.
+        asked = (query.get('session') or [''])[0].strip()
+        session = safe_name(asked) if asked else ''
+        if parts > 1 and (not session or not 0 <= index < parts):
+            return self.reply(400, {'error': 'часть файла пришла без номера'})
 
-        raw = self.rfile.read(length)
+        temp = os.path.join(folder, (session or str(int(time.time() * 1000))) + PART_SUFFIX)
+        if index == 0 and os.path.exists(temp):
+            os.remove(temp)                   # ту же отправку начали заново
+        done = os.path.getsize(temp) if os.path.exists(temp) else 0
+
+        # Куда эта часть встаёт, говорит сама админка. Если место не совпало
+        # с тем, что уже лежит, порядок сбился: дописывать нельзя, иначе
+        # файл склеится неверно и окажется битым молча.
+        if parts > 1 and counted((query.get('offset') or [''])[0], -1) != done:
+            if os.path.exists(temp):
+                os.remove(temp)
+            return self.reply(409, {'error': 'части файла пришли не по порядку, '
+                                             'отправьте файл заново'})
+
+        if done + length > limit:
+            if os.path.exists(temp):
+                os.remove(temp)
+            return self.reply(413, {'error': 'файл больше ' +
+                                    str(limit // 1024 // 1024) + ' МБ'})
+
+        with open(temp, 'ab') as f:
+            self.pour(f, length)
+
+        if index + 1 < parts:
+            return self.reply(200, {'part': index, 'parts': parts,
+                                    'received': os.path.getsize(temp)})
+
+        stem = str(int(time.time() * 1000)) + '-' + os.path.splitext(name)[0]
+        size = os.path.getsize(temp)
+        how = ', частями: ' + str(parts) if parts > 1 else ''
+
+        if ext in VIDEO_EXT:
+            # Ролики не пережимаем, для этого нужен ffmpeg.
+            fname = stem + ext
+            os.replace(temp, os.path.join(folder, fname))
+            print('  принято видео: ' + here + fname +
+                  ' (' + str(size // 1024) + ' КБ' + how + ')')
+            return self.reply(200, {'url': here + fname, 'path': here + fname,
+                                    'type': 'video'})
+
+        with open(temp, 'rb') as f:
+            raw = f.read()
+        os.remove(temp)
         kind = (query.get('kind') or ['photo'])[0]
         try:
             made = self.prepare_image(raw, folder, stem, kind)
@@ -587,10 +650,11 @@ class Handler(SimpleHTTPRequestHandler):
         result = {key: here + fname for key, fname in made.items()}
         result['path'] = result['url']
         result['type'] = 'image'
-        was = length // 1024
         now = os.path.getsize(os.path.join(folder, made['url'])) // 1024
-        print('  принято фото: ' + result['url'] + ' (' + str(was) + ' КБ -> ' + str(now) + ' КБ)')
+        print('  принято фото: ' + result['url'] + ' (' + str(size // 1024) +
+              ' КБ -> ' + str(now) + ' КБ' + how + ')')
         self.reply(200, result)
+
 
     def remove(self, query):
         rel = (query.get('path') or [''])[0].lstrip('/')
@@ -807,6 +871,23 @@ def prepare_storage():
             shutil.copytree(src, dst)
 
 
+def sweep_parts():
+    """Убираем куски прерванных отправок: если связь оборвалась на середине,
+    временный файл остаётся на диске и занимает место зря."""
+    now = time.time()
+    for base, _dirs, files in os.walk(UPLOAD_DIR):
+        for name in files:
+            if not name.endswith(PART_SUFFIX):
+                continue
+            path = os.path.join(base, name)
+            try:
+                if now - os.path.getmtime(path) > PART_TTL:
+                    os.remove(path)
+                    print('убрал брошенный кусок: ' + path, flush=True)
+            except OSError:
+                pass
+
+
 def warm_up():
     """Готовим хранилище и пересобираем сайт. Выполняется уже после того,
     как порт открыт: перенос 70 МБ и сборка занимают время, а хостинг
@@ -820,6 +901,10 @@ def warm_up():
         os.makedirs(os.path.dirname(DATA), exist_ok=True)
     except Exception as e:
         print('не удалось создать папки: ' + repr(e), flush=True)
+    try:
+        sweep_parts()
+    except Exception as e:
+        print('уборка кусков не удалась: ' + repr(e), flush=True)
     try:
         rebuild()
     except Exception as e:

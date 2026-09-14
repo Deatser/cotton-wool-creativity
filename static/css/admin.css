@@ -216,10 +216,27 @@ body.is-reordering .card__tools { opacity: 1; }
 
 .modal__foot {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 22px;
   border-top: 1px solid var(--line);
+}
+
+/* Подсказка про незаполненные поля: занимает свободное место слева
+   от кнопок, на узком экране уходит на свою строку. */
+.modal__hint {
+  margin-right: auto;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--muted);
+  text-align: left;
+}
+.modal__hint:empty { display: none; }
+
+@media (max-width: 480px) {
+  .modal__foot { flex-wrap: wrap; }
+  .modal__hint { margin-right: 0; flex-basis: 100%; }
 }
 
 /* ------------------------------------------------------------------- поля

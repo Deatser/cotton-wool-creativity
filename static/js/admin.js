@@ -8,9 +8,13 @@
    DOMContentLoaded до ответа gstatic. Если тот отвечал медленно, страница
    висела «загружается» по десять-пятнадцать секунд. */
 
-import { firebase, whoAmI, call } from './fb.js';
+import { firebase, whoAmI, call, local } from './fb.js';
 
-const API_VERSION = 12;   // должно совпадать с API_VERSION в serve.py
+const API_VERSION = 13;   // должно совпадать с API_VERSION в serve.py
+/* Прокси хостинга не пропускает запрос с телом больше 10 МиБ: он
+   отвечает отказом сам, не доводя запрос до сайта. Поэтому файл
+   крупнее отправляем частями, а сервер склеивает их обратно. */
+const PART_BYTES = 8 * 1024 * 1024;
 const ROOT = document.body.getAttribute('data-root') || '';
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {
@@ -64,12 +68,17 @@ async function checkServer(hud) {
   try {
     const pong = await api('/api/ping');
     if (pong.version !== API_VERSION) {
-      warn = 'Сервер запущен старой версии. Остановите его в окне терминала ' +
-             '(Ctrl+C) и запустите заново: <b>py serve.py</b>';
+      warn = local()
+        ? 'Сервер запущен старой версии. Остановите его в окне терминала ' +
+          '(Ctrl+C) и запустите заново: <b>py serve.py</b>'
+        : 'Сайт обновился. Перезагрузите страницу: <b>Ctrl+F5</b>';
     }
   } catch (e) {
-    warn = 'Сохранять некуда: сайт открыт не через <b>py serve.py</b>. ' +
-           'Правки не запишутся.';
+    warn = local()
+      ? 'Сохранять некуда: сайт открыт не через <b>py serve.py</b>. ' +
+        'Правки не запишутся.'
+      : 'Сайт не отвечает на служебные запросы. Правки сейчас не сохранятся, ' +
+        'попробуйте через минуту.';
   }
   if (!warn) return;
   hud.classList.add('admin-hud--warn');
@@ -439,10 +448,28 @@ function validate() {
   if (!box) return;
   const f = (n) => box.querySelector('[name="' + n + '"]').value.trim();
   const section = f('section');
-  const ok = f('name') && f('size') &&
-    (section !== 'in_stock' || f('price')) &&
-    editorState.cover && editorState.media.length > 0;
+  // Чего именно не хватает, говорим прямо под кнопкой. Серая кнопка без
+  // объяснения читается как поломка админки: заказчица так и решила,
+  // добавив 14 фотографий и не заметив, что не выбрана обложка.
+  const need = [];
+  if (!f('name')) need.push('название');
+  if (!f('size')) need.push('высоту');
+  if (section === 'in_stock' && !f('price')) need.push('цену');
+  if (!editorState.cover) need.push('обложку для каталога');
+  if (!editorState.media.length) need.push('хотя бы одно фото');
+
+  const ok = need.length === 0;
   box.querySelector('[data-act="save"]').disabled = !ok;
+
+  const foot = box.querySelector('.modal__foot');
+  if (!foot) return;
+  let hint = foot.querySelector('.modal__hint');
+  if (!hint) {
+    hint = document.createElement('span');
+    hint.className = 'modal__hint';
+    foot.prepend(hint);
+  }
+  hint.textContent = ok ? '' : 'Чтобы сохранить, заполните ' + need.join(', ');
 }
 
 async function saveToy() {
@@ -465,9 +492,17 @@ async function saveToy() {
     }
 
     // новые файлы уезжают на сервер, уже загруженные остаются как есть
+    // отправка ролика занимает минуты: без процента кнопка просто молчит,
+    // и человек решает, что всё повисло
+    const tell = (what) => (percent) => {
+      save.textContent = 'Отправляю ' + what + ': ' + percent + '%';
+    };
+
     let cover;
     if (editorState.cover.local) {
-      const up = await upload(id, editorState.cover.file, 'cover');
+      const up = await upload(id, editorState.cover.file, 'cover',
+        tell(editorState.cover.type === 'video' ? 'видео' : 'фото'));
+      save.textContent = 'Сохраняем...';
       cover = { url: up.url, small: up.small, type: up.type || 'image' };
     } else {
       cover = {
@@ -480,7 +515,9 @@ async function saveToy() {
     const media = [];
     for (const m of editorState.media) {
       if (m.local) {
-        const up = await upload(id, m.file, 'photo');
+        const up = await upload(id, m.file, 'photo',
+          tell(m.type === 'video' ? 'видео' : 'фото'));
+        save.textContent = 'Сохраняем...';
         media.push({ url: up.url, full: up.full, type: m.type });
       } else {
         media.push({ url: m.url, full: m.full, type: m.type });
@@ -543,13 +580,32 @@ async function shrink(file) {
   return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
 }
 
-async function upload(id, file, kind) {
+async function upload(id, file, kind, tell) {
   const small = await shrink(file);
   const name = small.name || file.name;
   const q = '?id=' + encodeURIComponent(id) +
             '&name=' + encodeURIComponent(name) +
             '&kind=' + encodeURIComponent(kind || 'photo');
-  return api('/api/upload' + q, { method: 'POST', body: small, auth: true });
+
+  // фотография после уменьшения весит меньше мегабайта и едет одним куском
+  if (small.size <= PART_BYTES) {
+    return api('/api/upload' + q, { method: 'POST', body: small, auth: true });
+  }
+
+  // ролик режем на части и отправляем по очереди. Сервер сверяет место
+  // каждой части с тем, что уже принял, поэтому порядок важен: ждём ответа
+  // на предыдущую часть, прежде чем отправлять следующую.
+  const parts = Math.ceil(small.size / PART_BYTES);
+  const session = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  let answer = null;
+  for (let i = 0; i < parts; i++) {
+    const from = i * PART_BYTES;
+    answer = await api('/api/upload' + q + '&session=' + session +
+                       '&part=' + i + '&parts=' + parts + '&offset=' + from,
+      { method: 'POST', body: small.slice(from, from + PART_BYTES), auth: true });
+    if (tell) tell(Math.round(((i + 1) / parts) * 100));
+  }
+  return answer;
 }
 
 /** Стираем только то, что лежит в папке загрузок: файлы статики трогать нельзя. */

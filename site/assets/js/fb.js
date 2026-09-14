@@ -29,6 +29,14 @@ export function firebase() {
   return ready;
 }
 
+/** Сайт открыт с моего компьютера или уже на хостинге. Сообщения об
+    ошибках должны быть разные: совет «запустите py serve.py» на живом
+    сайте заказчицу только пугает, терминала у неё нет. */
+export function local() {
+  const host = location.hostname;
+  return !host || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+}
+
 /** Ждём первый ответ Firebase о том, вошёл пользователь или нет. */
 export function whoAmI(fb) {
   return new Promise((resolve) => {
@@ -61,11 +69,24 @@ export async function call(path, options, user) {
   try {
     res = await fetch(path, opts);
   } catch (e) {
-    throw new Error('локальный сервер не отвечает. Запустите его командой ' +
-      '«py serve.py» в папке проекта и откройте сайт по адресу, который он покажет');
+    throw new Error(local()
+      ? 'локальный сервер не отвечает. Запустите его командой «py serve.py» ' +
+        'в папке проекта и откройте сайт по адресу, который он покажет'
+      : 'связь с сайтом прервалась. Проверьте интернет и попробуйте ещё раз: ' +
+        'уже отправленное не потеряется');
   }
   let data = null;
   try { data = await res.json(); } catch (e) { /* тело может быть пустым */ }
-  if (!res.ok) throw new Error((data && data.error) || 'сервер ответил ' + res.status);
+  if (!res.ok) {
+    const why = (data && data.error) || 'сервер ответил ' + res.status;
+    // «payload too large» отвечает прокси хостинга, а не сайт: запрос до
+    // приложения не дошёл вовсе. Человеку эта строка не говорит ничего.
+    if (/payload too large/i.test(why)) {
+      throw new Error('хостинг не пропустил файл целиком: один запрос к сайту ' +
+        'не может быть больше 10 МБ. Перезагрузите страницу (Ctrl+F5) - ' +
+        'обновлённая админка отправляет крупные файлы частями');
+    }
+    throw new Error(why);
+  }
   return data;
 }
