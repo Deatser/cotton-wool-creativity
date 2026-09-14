@@ -10,7 +10,7 @@ import {
   onAuthStateChanged,
   signOut,
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
-import { firebaseConfig } from './firebase-config.js?v=0e41316e';
+import { firebaseConfig } from './firebase-config.js?v=cd3ce31a';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

@@ -10,7 +10,7 @@
    Правила переходов проверяет сервер, здесь они только отражены кнопками:
    отправить можно лишь оплаченный заказ, у отправленного оплату не снять. */
 
-import { firebase, whoAmI, call } from './fb.js?v=0e41316e';
+import { firebase, whoAmI, call } from './fb.js?v=cd3ce31a';
 
 const page = document.querySelector('[data-check-page]');
 const ROOT = document.body.getAttribute('data-root') || '';

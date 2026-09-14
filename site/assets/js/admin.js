@@ -8,7 +8,7 @@
    DOMContentLoaded до ответа gstatic. Если тот отвечал медленно, страница
    висела «загружается» по десять-пятнадцать секунд. */
 
-import { firebase, whoAmI, call } from './fb.js?v=0e41316e';
+import { firebase, whoAmI, call } from './fb.js?v=cd3ce31a';
 
 const API_VERSION = 13;   // должно совпадать с API_VERSION в serve.py
 /* Прокси хостинга не пропускает запрос с телом больше 10 МиБ: он
@@ -16,6 +16,11 @@ const API_VERSION = 13;   // должно совпадать с API_VERSION в s
    крупнее отправляем частями, а сервер склеивает их обратно. */
 const PART_BYTES = 8 * 1024 * 1024;
 const ROOT = document.body.getAttribute('data-root') || '';
+/* Отпечаток той сборки, из которой взялся этот файл: страницы подключают его
+   адресом с версией. Сравнивая его с ответом сервера, вкладка понимает,
+   что показывает устаревший сайт. */
+const MY_ASSETS = new URL(import.meta.url).searchParams.get('v') || '';
+let watching = 0;
 const SECTIONS = ['in_stock', 'repeat', 'custom'];
 const SECTION_NAMES = {
   in_stock: 'Игрушки в наличии',
@@ -70,13 +75,45 @@ function renderHud(user) {
   checkServer(hud);
 }
 
+/** Файлы на сервере уже другие, а в этой вкладке остались прежние. */
+const stale = (pong) => Boolean(pong.assets && MY_ASSETS && pong.assets !== MY_ASSETS);
+
+/** Обновляем страницу сами. Заказчица держит вкладку открытой неделями, и до
+    этого ей пришлось бы жать Ctrl+F5 руками, чтобы увидеть мои правки.
+    Открытое окно правки не трогаем: там несохранённая карточка. Метка
+    не даёт зациклиться, если после перезагрузки версия всё та же. */
+function refresh(stamp) {
+  if (document.querySelector('.modal')) return false;
+  try {
+    if (sessionStorage.getItem('assetsTried') === stamp) return false;
+    sessionStorage.setItem('assetsTried', stamp);
+  } catch (e) { /* приватный режим: обойдёмся без метки */ }
+  location.reload();
+  return true;
+}
+
+/** Раз в пять минут переспрашиваем: вкладка может стоять открытой сутками. */
+function watchVersion() {
+  if (watching) return;
+  watching = setInterval(async () => {
+    try {
+      const pong = await api('/api/ping');
+      if (stale(pong)) refresh(pong.assets);
+    } catch (e) { /* связи нет, вернёмся через пять минут */ }
+  }, 5 * 60 * 1000);
+}
+
 /** Сразу говорим, если сайт открыт не через serve.py: иначе про это
     выясняется только в момент сохранения, когда форма уже заполнена. */
 async function checkServer(hud) {
   let warn = '';
   try {
     const pong = await api('/api/ping');
-    if (pong.version !== API_VERSION) {
+    if (stale(pong) && refresh(pong.assets)) return;
+    if (stale(pong)) {
+      warn = 'Сайт обновился. Страница обновится сама, как только вы закроете ' +
+             'окно правки.';
+    } else if (pong.version !== API_VERSION) {
       warn = local()
         ? 'Сервер запущен старой версии. Остановите его в окне терминала ' +
           '(Ctrl+C) и запустите заново: <b>py serve.py</b>'
@@ -89,6 +126,7 @@ async function checkServer(hud) {
       : 'Сайт не отвечает на служебные запросы. Правки сейчас не сохранятся, ' +
         'попробуйте через минуту.';
   }
+  watchVersion();
   if (!warn) return;
   hud.classList.add('admin-hud--warn');
   hud.insertAdjacentHTML('afterbegin', '<span class="admin-hud__warn">' + warn + '</span>');

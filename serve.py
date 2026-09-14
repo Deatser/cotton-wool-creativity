@@ -200,6 +200,20 @@ def check_pass(header):
 
 # ------------------------------------------------------------------ каталог
 
+def assets_version():
+    """Отпечаток стилей и скриптов, тот же, что сборщик подставляет в адреса
+    файлов. По нему открытая страница узнаёт, что на сервере файлы уже другие,
+    и обновляется сама: раньше для этого приходилось жать Ctrl+F5 руками."""
+    try:
+        if BASE not in sys.path:
+            sys.path.insert(0, BASE)
+        import build
+        return build.assets_version()
+    except Exception as e:
+        print('  отпечаток статики не посчитан: ' + repr(e))
+        return ''
+
+
 def counted(value, default):
     """Целое число из запроса. Мусор и пустоту подменяем ожидаемым."""
     try:
@@ -321,6 +335,18 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def end_headers(self):
+        """Страницу браузер обязан переспрашивать у сервера, иначе она
+        неделями остаётся старой и человеку приходится жать Ctrl+F5.
+        А файл с версией в адресе можно держать в кэше сколько угодно:
+        при любой правке меняется сам адрес."""
+        parsed = urlparse(self.path)
+        if parsed.path.startswith('/assets/') and 'v=' in parsed.query:
+            self.send_header('Cache-Control', 'public, max-age=31536000, immutable')
+        elif parsed.path.endswith('/') or parsed.path.endswith('.html'):
+            self.send_header('Cache-Control', 'no-cache')
+        super().end_headers()
+
     def body_json(self):
         length = int(self.headers.get('Content-Length') or 0)
         return json.loads(self.rfile.read(length).decode('utf-8')) if length else {}
@@ -328,7 +354,8 @@ class Handler(SimpleHTTPRequestHandler):
     # ------------------------------------------------------------- GET
     def do_GET(self):
         if urlparse(self.path).path == '/api/ping':
-            return self.reply(200, {'ok': True, 'version': API_VERSION})
+            return self.reply(200, {'ok': True, 'version': API_VERSION,
+                                    'assets': assets_version()})
         if urlparse(self.path).path == '/api/slug':
             if not self.allowed():
                 return
