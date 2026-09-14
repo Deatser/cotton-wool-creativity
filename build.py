@@ -28,6 +28,15 @@ IMG = os.path.join(OUT, 'img')
 CATALOG_FILE = os.path.join(STORAGE, 'data', 'toys.json')
 # реквизиты, телефон, почта и ссылки продавца: подставляются во все страницы
 SELLER_FILE = os.path.join(ROOT, 'data', 'seller.json')
+# Текст «о себе» правится на живом сайте, поэтому лежит на постоянном диске,
+# рядом с каталогом, а не в коде.
+ABOUT_FILE = os.path.join(STORAGE, 'data', 'about.json')
+ABOUT_DEFAULT = {
+    'menu': 'О себе',
+    'heading': 'О себе',
+    'text': 'Здесь будет рассказ о мастере и о том, как делаются ватные игрушки.',
+    'updated': '',
+}
 
 # адрес будущего сайта: нужен для canonical и sitemap
 # Домен кириллический, поэтому адресов два. В canonical, sitemap и robots идёт
@@ -288,9 +297,24 @@ def build_toy(toy):
     return toy
 
 
+def read_about():
+    """Текст страницы «О себе». Файла может не быть вовсе: на хостинге
+    постоянный диск завели раньше, чем появилась эта страница, а стартовое
+    содержимое переносится туда только при первом запуске. Поэтому
+    недостающее берём из значений по умолчанию, а не падаем."""
+    try:
+        got = json.load(open(ABOUT_FILE, encoding='utf-8'))
+    except (OSError, ValueError):
+        got = {}
+    about = dict(ABOUT_DEFAULT)
+    about.update({k: v for k, v in got.items() if isinstance(v, str) and v.strip()})
+    return about
+
+
 def main():
     data = json.load(open(CATALOG_FILE, encoding='utf-8'))
     seller = json.load(open(SELLER_FILE, encoding='utf-8'))
+    about = read_about()
     # в документах адрес сайта пишется целиком, ссылкой
     seller['site_url'] = SITE_URL
 
@@ -361,6 +385,8 @@ def main():
     env.globals['v'] = assets_version()
     # подвал стоит на каждой странице, поэтому данные продавца нужны везде
     env.globals['seller'] = seller
+    # название вкладки «о себе» стоит в шапке, то есть тоже на каждой странице
+    env.globals['about'] = about
 
     def write(path, text):
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -384,6 +410,14 @@ def main():
           env.get_template('payment.html').render(
               site=data['site'], payments=payments, root='../', page='payment',
               canonical=BASE_URL + '/oplata/'))
+
+    # --- о себе: текст правится прямо на странице, абзацы разделены пустой строкой
+    paragraphs = [p.strip() for p in about['text'].split('\n\n') if p.strip()]
+    write(os.path.join(OUT, 'about', 'index.html'),
+          env.get_template('about.html').render(
+              site=data['site'], paragraphs=paragraphs,
+              summary=(paragraphs[0] if paragraphs else '')[:200],
+              root='../', page='about', canonical=BASE_URL + '/about/'))
 
     # --- оформление заказа. Своего адреса у страницы нет: она открывается
     #     как /order/<номер заказа>/, поэтому все ссылки внутри абсолютные.
@@ -487,7 +521,7 @@ def main():
 
     # --- sitemap и robots
     today = date.today().isoformat()
-    urls = [BASE_URL + '/', BASE_URL + '/oplata/'] + \
+    urls = [BASE_URL + '/', BASE_URL + '/oplata/', BASE_URL + '/about/'] + \
            [f"{BASE_URL}/igrushki/{t['slug']}/" for t in toys]
     body = '\n'.join(
         f'  <url><loc>{html.escape(u)}</loc><lastmod>{today}</lastmod></url>' for u in urls)

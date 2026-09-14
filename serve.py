@@ -33,6 +33,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))    # код приложени
 STORAGE = os.environ.get('STORAGE_DIR') or BASE
 ROOT = os.path.join(STORAGE, 'site')
 DATA = os.path.join(STORAGE, 'data', 'toys.json')
+ABOUT = os.path.join(STORAGE, 'data', 'about.json')
 UPLOAD_DIR = os.path.join(ROOT, 'img', 'upload')
 UPLOAD_PREFIX = 'img/upload/'
 MAX_IMAGE_BYTES = 60 * 1024 * 1024     # картинку читаем в память, поэтому скромнее
@@ -58,7 +59,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 13
+API_VERSION = 14
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -424,6 +425,8 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.save_toy()
             if parsed.path == '/api/toy-delete':
                 return self.delete_toy()
+            if parsed.path == '/api/about':
+                return self.save_about()
             if parsed.path == '/api/reorder':
                 return self.reorder()
             if parsed.path == '/api/restore':
@@ -670,6 +673,31 @@ class Handler(SimpleHTTPRequestHandler):
         except OSError as e:
             return self.reply(500, {'error': str(e)})
         self.reply(200, {'ok': True})
+
+    def save_about(self):
+        """Текст страницы «О себе» и название её вкладки в меню. Своей
+        админки у них нет: правятся на самой странице, поэтому здесь только
+        запись файла и пересборка. Вкладка стоит в шапке всех страниц,
+        без пересборки название осталось бы старым."""
+        item = self.body_json()
+        menu = str(item.get('menu') or '').strip()[:40]
+        heading = str(item.get('heading') or '').strip()[:80]
+        text = str(item.get('text') or '').replace('\r\n', '\n').strip()
+        if not menu or not heading or not text:
+            return self.reply(400, {'error': 'заполните название вкладки, '
+                                             'заголовок и текст'})
+        if len(text) > 20000:
+            return self.reply(413, {'error': 'текст длиннее 20 000 знаков'})
+
+        os.makedirs(os.path.dirname(ABOUT), exist_ok=True)
+        with open(ABOUT, 'w', encoding='utf-8') as f:
+            json.dump({'menu': menu, 'heading': heading, 'text': text,
+                       'updated': time.strftime('%d.%m.%Y')},
+                      f, ensure_ascii=False, indent=1)
+        print('  страница «о себе» изменена: ' + str(len(text)) + ' знаков, '
+              'вкладка «' + menu + '»', flush=True)
+        rebuild()
+        return self.reply(200, {'ok': True})
 
     def save_toy(self):
         item = self.body_json()
