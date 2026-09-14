@@ -8,7 +8,7 @@
    DOMContentLoaded до ответа gstatic. Если тот отвечал медленно, страница
    висела «загружается» по десять-пятнадцать секунд. */
 
-import { firebase, whoAmI, call, local } from './fb.js';
+import { firebase, whoAmI, call } from './fb.js';
 
 const API_VERSION = 13;   // должно совпадать с API_VERSION в serve.py
 /* Прокси хостинга не пропускает запрос с телом больше 10 МиБ: он
@@ -28,6 +28,15 @@ let isAdmin = false;
 let me = null;          // вошедший пользователь, у него берём пропуск
 let toys = [];
 let editorState = null;
+
+/** Сайт открыт с моего компьютера или уже на хостинге: сообщения об ошибках
+    должны быть разные. Своя копия, а не общая из fb.js: в браузере заказчицы
+    может лежать старая копия fb.js, и тогда весь этот файл не запустился бы
+    из-за одной недостающей функции. Так и случилось 14.09.2026. */
+function local() {
+  const host = location.hostname;
+  return !host || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+}
 
 const esc = (v) => String(v ?? '').replace(/[&<>"]/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

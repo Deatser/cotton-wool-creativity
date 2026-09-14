@@ -328,6 +328,23 @@ def main():
     shutil.copytree(os.path.join(ROOT, 'static', 'js'), os.path.join(OUT, 'assets', 'js'))
     shutil.copytree(os.path.join(ROOT, 'static', 'fonts'), os.path.join(OUT, 'assets', 'fonts'),
                     ignore=shutil.ignore_patterns('google.css'))
+    # Модули просят друг друга по имени без версии, и браузер отдаёт старую
+    # копию из кэша: свежий admin.js падал на импорте функции, которой в старом
+    # fb.js ещё не было, и админка исчезала целиком. Поэтому в копиях
+    # подставляем ту же версию, что стоит в адресах из разметки.
+    version = assets_version()
+    js_dir = os.path.join(OUT, 'assets', 'js')
+    for name in sorted(os.listdir(js_dir)):
+        if not name.endswith('.js'):
+            continue
+        path = os.path.join(js_dir, name)
+        text = open(path, encoding='utf-8').read()
+        fixed = text
+        for module in ('./fb.js', './firebase-config.js'):
+            fixed = fixed.replace("'" + module + "'", "'" + module + '?v=' + version + "'")
+        if fixed != text:
+            open(path, 'w', encoding='utf-8', newline='\n').write(fixed)
+
     # документы, которые скачивает покупатель: отказное письмо и всё, что добавится позже
     docs = os.path.join(ROOT, 'static', 'docs')
     if os.path.isdir(docs):
@@ -382,7 +399,7 @@ def main():
     env.filters['price'] = price_text
     # Версия статики: короткий отпечаток содержимого css и js. Подставляется
     # в адреса файлов, иначе после пересборки браузер отдаёт старый кэш.
-    env.globals['v'] = assets_version()
+    env.globals['v'] = version
     # подвал стоит на каждой странице, поэтому данные продавца нужны везде
     env.globals['seller'] = seller
     # название вкладки «о себе» стоит в шапке, то есть тоже на каждой странице
