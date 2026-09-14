@@ -335,6 +335,17 @@ def main():
     # fb.js ещё не было, и админка исчезала целиком. Поэтому в копиях
     # подставляем ту же версию, что стоит в адресах из разметки.
     version = assets_version()
+    # Номер набора адресов сервера админка обязана знать точно: по нему она
+    # понимает, что сервер запущен старой версии. Берём его прямо из serve.py,
+    # иначе число живёт в двух файлах и однажды разъезжается.
+    api = ''
+    try:
+        found = re.search(r'^API_VERSION = (\d+)',
+                          open(os.path.join(ROOT, 'serve.py'), encoding='utf-8').read(),
+                          re.M)
+        api = found.group(1) if found else ''
+    except OSError:
+        pass
     js_dir = os.path.join(OUT, 'assets', 'js')
     for name in sorted(os.listdir(js_dir)):
         if not name.endswith('.js'):
@@ -344,6 +355,9 @@ def main():
         fixed = text
         for module in ('./fb.js', './firebase-config.js'):
             fixed = fixed.replace("'" + module + "'", "'" + module + '?v=' + version + "'")
+        if api:
+            fixed = re.sub(r'const API_VERSION = \d+',
+                           'const API_VERSION = ' + api, fixed)
         if fixed != text:
             open(path, 'w', encoding='utf-8', newline='\n').write(fixed)
 
