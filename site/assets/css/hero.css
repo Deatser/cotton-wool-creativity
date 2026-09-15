@@ -1,0 +1,129 @@
+/* Правка обложки главной страницы. Всё, что здесь, видно только вошедшему
+   администратору: покупателю hero.js ничего не показывает.
+   Кнопки берём общие, .btn-main и .btn-flat из admin.css. */
+
+/* кнопка в углу обложки: под шапкой, у правого края экрана */
+.hero__edit {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--header-h) + 12px);
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  color: #fff;
+  background: rgba(20, 14, 6, .55);
+  border: 1px solid rgba(255, 255, 255, .45);
+  border-radius: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background-color .18s ease;
+}
+.hero__edit:hover { background: rgba(20, 14, 6, .8); }
+
+/* --------------------------------------------------- фотография под правкой */
+
+/* В правке фотография лежит в своей обёртке: ручка размера должна стоять
+   в её углу, а без обёртки ей не от чего отсчитывать. */
+.hero__photo-box {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+}
+
+.hero__grip {
+  position: absolute;
+  right: 2%;
+  bottom: 2%;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: #4a3010;
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(74, 48, 16, .25);
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+  cursor: nwse-resize;
+  /* без этого палец на телефоне не тянет ручку, а листает страницу */
+  touch-action: none;
+}
+
+.hero__size {
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  transform: translateX(-50%);
+  padding: 3px 10px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  color: #fff;
+  background: rgba(20, 14, 6, .7);
+  border-radius: 20px;
+}
+
+/* ----------------------------------------------------------------- окно правки */
+
+.hero__form {
+  position: relative;
+  z-index: 2;
+  max-width: var(--wrap);
+  margin: 26px auto 0;
+  padding: 22px 20px 24px;
+  color: var(--ink);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+}
+
+.hero__form h2 { margin: 0 0 16px; font-size: 19px; }
+
+.hero__fields { display: grid; gap: 14px; }
+.hero__fields label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+.hero__fields input,
+.hero__fields textarea {
+  width: 100%;
+  padding: 11px 12px;
+  /* 16px обязательны: при меньшем шрифте телефон приближает страницу,
+     как только палец попадает в поле */
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.hero__fields textarea { line-height: 1.6; resize: vertical; }
+
+.hero__photo-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero__hint { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+
+.hero__form-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.hero__error { margin: 0 0 12px; font-size: 13.5px; color: #d32f2f; }
+.hero__error:empty { display: none; }
+
+@media (max-width: 900px) {
+  .hero__edit { top: calc(var(--header-h) + 8px); right: 12px; }
+  .hero__form { margin-left: 12px; margin-right: 12px; }
+}
+
+@media (max-width: 600px) {
+  .hero__form-foot { flex-direction: column-reverse; }
+  .hero__form-foot button { width: 100%; }
+  .hero__photo-field .upload { width: 100%; justify-content: center; }
+}

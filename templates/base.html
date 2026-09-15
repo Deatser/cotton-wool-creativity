@@ -45,8 +45,10 @@
       <a class="nav__link" href="{{ root }}#in_stock">Игрушки в наличии</a>
       <a class="nav__link" href="{{ root }}#repeat">Реализованные игрушки</a>
       <a class="nav__link" href="{{ root }}#custom">Игрушки под заказ</a>
-      {# название вкладки правится на самой странице, поэтому берётся из данных #}
-      <a class="nav__link" href="{{ root }}about/"{% if page == 'about' %} aria-current="page"{% endif %} data-about-link>{{ about.menu }}</a>
+      {# названия вкладок правятся на самих страницах, поэтому берутся из данных #}
+      {% for key, item in pages.items() %}
+      <a class="nav__link" href="{{ root }}{{ item.url }}"{% if page == key %} aria-current="page"{% endif %} data-page-link="{{ key }}">{{ item.menu }}</a>
+      {% endfor %}
       {# отдельной страницы контактов нет: и в шапке, и в подвале открывается одно окно #}
       <a class="nav__link" href="{{ root }}proverit-zakaz/"{% if page == "check" %} aria-current="page"{% endif %}>Проверить заказ</a>
       <a class="nav__link" href="#" data-legal="contacts">Контакты</a>

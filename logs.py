@@ -26,6 +26,7 @@ import uuid
 from datetime import datetime
 
 import clock
+import pages
 
 from PIL import Image, ImageOps
 
@@ -58,21 +59,36 @@ ACTIONS = {'add': 'добавил товар',
            'delete': 'удалил товар',
            'reorder': 'изменил порядок карточек',
            'restore': 'вернул прежнюю версию',
-           'about': 'изменил страницу'}
+           'about': 'изменил страницу',
+           'hero': 'изменил обложку главной страницы'}
 
-# Страница «О себе» правится на самой странице, а не в админке, но в журнал
-# идёт наравне с карточками. Товара у такой записи нет, поэтому в строке
-# стоит ссылка на саму страницу.
-ABOUT_CARD = {'id': 'about', 'name': 'О себе', 'url': 'about/'}
+# Простые страницы («О себе», «Покупателю») и обложка главной правятся
+# на самих страницах, а не в админке, но в журнал идут наравне с карточками.
+# Товара у такой записи нет: у страницы в строке стоит ссылка на неё саму
+# (её отдаёт pages.card), а у обложки названия нет вовсе - она и так
+# на главной, и строки «изменил обложку главной страницы» достаточно.
+HERO_CARD = {'id': 'hero', 'name': '', 'url': ''}
 
-ABOUT_FIELDS = (('menu', 'Вкладка в меню'),
-                ('heading', 'Заголовок'),
-                ('text', 'Текст'))
+# Поля, изменения которых показываем строкой «было - стало».
+TEXT_FIELDS = {
+    'about': (('menu', 'Вкладка в меню'),
+              ('heading', 'Заголовок'),
+              ('text', 'Текст')),
+    'hero': (('tagline_big', 'Строка над названием'),
+             ('tagline_small', 'Приписка мелким'),
+             ('title', 'Название'),
+             ('subtitle', 'Подзаголовок'),
+             ('text', 'Текст'),
+             ('call', 'Выделенная надпись'),
+             ('alt', 'Подпись к фотографии'),
+             ('photo', 'Фотография'),
+             ('photoSize', 'Размер фотографии')),
+}
 
 # Текста на странице бывает много, и целиком он занял бы весь экран журнала.
 # Показываем начало; полностью прежний текст лежит в entry['restore'],
 # оттуда его и берёт откат.
-ABOUT_CUT = 300
+TEXT_CUT = 300
 
 # Какие файлы прячутся за одной записью в карточке: у обложки это квадраты
 # 600 и 300, у фотографии - 900 и 1600. Вернуть надо все, иначе на странице
@@ -267,28 +283,37 @@ def show(field, value):
     return str(value)
 
 
-def show_about(field, value):
-    """Значение для строки журнала: текст страницы в одну строку и с обрезкой.
+def show_text(field, value):
+    """Значение для строки журнала: длинный текст в одну строку и с обрезкой.
     Как и show(), только для показа."""
+    if field == 'photoSize':
+        try:
+            size = int(value or 0)
+        except (TypeError, ValueError):
+            size = 0
+        return (str(size) + ' px') if size > 0 else 'как в оформлении'
+    if field == 'photo':
+        return nice_name(value)
     raw = str(value or '')
     flat = ' '.join(raw.split())
-    if field != 'text' or len(flat) <= ABOUT_CUT:
+    if len(flat) <= TEXT_CUT:
         return flat
-    return flat[:ABOUT_CUT].rstrip() + '... (всего ' + str(len(raw)) + ' знаков)'
+    return flat[:TEXT_CUT].rstrip() + '... (всего ' + str(len(raw)) + ' знаков)'
 
 
-def compare_about(before, after):
-    """Изменения страницы «О себе». Файлов здесь нет, копировать нечего,
-    поэтому такая запись откатывается всегда."""
+def compare_text(before, after, kind='about'):
+    """Изменения простой страницы или обложки главной. Копий фотографий
+    такая запись не требует, поэтому и откатывается она всегда: текст лежит
+    в самой записи, а заменённое фото обложки с диска не стирается."""
     changes = []
-    for field, label in ABOUT_FIELDS:
+    for field, label in TEXT_FIELDS[kind]:
         was = (before or {}).get(field) or ''
         now = (after or {}).get(field) or ''
         if was == now:
             continue
         changes.append({'kind': 'text', 'label': label,
-                        'from': show_about(field, was),
-                        'to': show_about(field, now)})
+                        'from': show_text(field, was),
+                        'to': show_text(field, now)})
     return changes
 
 
@@ -379,6 +404,14 @@ def can_restore(entry):
         if plan.get('about'):
             return True, ''      # один текст, файлов тоже нет
         return False, 'прежний текст не сохранился'
+    if kind == 'hero':
+        back = plan.get('hero')
+        if not back:
+            return False, 'прежний вид не сохранился'
+        photo = back.get('photo') or ''
+        if photo and not os.path.exists(os.path.join(ROOT, *photo.split('/'))):
+            return False, 'прежней фотографии на диске уже нет'
+        return True, ''
     if kind != 'toy':
         return False, 'эту запись вернуть нельзя'
 
@@ -423,20 +456,31 @@ def toy_card(toy):
             'url': toy.get('staticUrl') or ('igrushki/' + str(toy.get('id')) + '/')}
 
 
-def add(who, action, before=None, after=None, extra='', restore=None, kind='toy'):
+def add(who, action, before=None, after=None, extra='', restore=None,
+        kind='toy', key=''):
     """Пишем действие в журнал. Сбой журнала не должен мешать работе админки,
     поэтому наружу ошибки не летят - только в вывод сервера.
 
-    kind='about' - правка страницы «О себе»: там нет ни файлов, ни карточки
-    товара, поэтому и сравнение, и откат у неё свои."""
+    kind='about' - правка простой страницы, её ключ приходит в key;
+    kind='hero' - правка обложки главной. Ни файлов, ни карточки товара
+    у таких записей нет, поэтому и сравнение, и откат у них свои."""
     try:
-        return _add(who, action, before, after, extra, restore, kind)
+        return _add(who, action, before, after, extra, restore, kind, key)
     except Exception as e:
         print('  журнал не записался: ' + repr(e), flush=True)
         return None
 
 
-def _add(who, action, before, after, extra, restore, kind='toy'):
+def card_of(kind, key, toy):
+    """Что стоит в строке журнала вместо названия игрушки."""
+    if kind == 'hero':
+        return dict(HERO_CARD)
+    if kind == 'about':
+        return pages.card(key or 'about')
+    return toy_card(toy)
+
+
+def _add(who, action, before, after, extra, restore, kind='toy', key=''):
     now = clock.now()
     entry_id = now.strftime('%Y%m%d-%H%M%S') + '-' + uuid.uuid4().hex[:6]
 
@@ -448,14 +492,14 @@ def _add(who, action, before, after, extra, restore, kind='toy'):
         'who': who or 'администратор',
         'action': action,
         'actionText': ACTIONS.get(action, action),
-        'toy': dict(ABOUT_CARD) if kind == 'about' else toy_card(after or before or {}),
+        'toy': card_of(kind, key, after or before or {}),
         'extra': extra,
         'changes': [],
         'archived': False,
     }
 
-    if kind == 'about':
-        entry['changes'] = compare_about(before, after)
+    if kind in ('about', 'hero'):
+        entry['changes'] = compare_text(before, after, kind)
         if not entry['changes']:
             # нажали «Сохранить», ничего не поменяв: записывать нечего
             return None
@@ -479,7 +523,9 @@ def _add(who, action, before, after, extra, restore, kind='toy'):
     if restore is not None:
         entry['restore'] = restore
     elif kind == 'about':
-        entry['restore'] = {'kind': 'about', 'about': before}
+        entry['restore'] = {'kind': 'about', 'about': before, 'page': key or 'about'}
+    elif kind == 'hero':
+        entry['restore'] = {'kind': 'hero', 'hero': before}
     elif before:
         entry['restore'] = {'kind': 'toy', 'toy': before}
     elif after:

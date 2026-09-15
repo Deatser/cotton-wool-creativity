@@ -1,29 +1,42 @@
 {% extends "base.html" %}
 
+{% block head %}<link rel="stylesheet" href="{{ root }}assets/css/hero.css?v={{ v }}">{% endblock %}
+
 {% block content %}
-<section class="hero" style="background-image:url('{{ root }}img/hero.jpg')">
+{# Обложка правится прямо на главной странице: и текст, и фотография, и её
+   размер. Всё, что в ней показано, лежит в каталоге разделом site. #}
+<section class="hero" data-hero style="background-image:url('{{ root }}img/hero.jpg'){% if hero.photoSize %};--hero-photo:{{ hero.photoSize }}px{% endif %}">
   <div class="wrap">
-    <img class="hero__logo" src="{{ root }}img/logo.png" width="270" height="270"
-         alt="Ватная игрушка «Пёс с тюльпанами» — работа мастерской">
+    <img class="hero__logo" data-hero-photo src="{{ root }}{{ hero.photo }}" width="270" height="270"
+         alt="{{ hero.alt }}">
     <div class="hero__body">
-      <p class="hero__tagline">{{ site.tagline_big }} <small>{{ site.tagline_small }}</small></p>
-      <h1 class="hero__title">{{ site.title }}</h1>
-      <p class="hero__subtitle">{{ site.subtitle }}</p>
+      {% if hero.tagline_big or hero.tagline_small %}
+      <p class="hero__tagline">{{ hero.tagline_big }} <small>{{ hero.tagline_small }}</small></p>
+      {% endif %}
+      {% if hero.title %}<h1 class="hero__title">{{ hero.title }}</h1>{% endif %}
+      {% if hero.subtitle %}<p class="hero__subtitle">{{ hero.subtitle }}</p>{% endif %}
 
+      {% if hero_text %}
       <div class="hero__text">
-        <p>Наши ватные ёлочные украшения — <strong>это возрождение древнего ремесла</strong>, где каждая
-          деталь лепится из натуральной хлопковой и льняной ваты. Никакой химии — только экологически
-          чистые материалы, бережные к вашему здоровью и природе.</p>
-        <p><strong>Каждая фигурка — единственная в своём роде.</strong> Лёгкие, прочные и невероятно
-          душевные — они превратят вашу ёлку в центр праздничного волшебства.</p>
+        {% for para in hero_text %}
+        <p>{{ para }}</p>
+        {% endfor %}
       </div>
+      {% endif %}
 
-      <p class="hero__call">
-        Подарите себе роскошь ручной работы и тепло ушедшей эпохи.<br>
-        Добавьте в свой дом неповторимый шарм, который запомнится надолго!
-      </p>
+      {% if hero_call %}
+      <div class="hero__call">
+        {% for para in hero_call %}
+        <p>{{ para }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
   </div>
+
+  {# Для правки нужны исходные значения, а не готовая разметка: переносы строк
+     в ней уже стали тегами, и обратно их не собрать. #}
+  <script type="application/json" data-hero-raw>{{ hero | tojson }}</script>
 </section>
 
 <main>
@@ -75,4 +88,6 @@
   {% endif %}
 {% endfor %}
 </main>
+
+<script type="module" src="{{ root }}assets/js/hero.js?v={{ v }}"></script>
 {% endblock %}

@@ -16,9 +16,11 @@ import sys
 from datetime import date
 
 import clock
+import pages
 
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 
 ROOT = os.path.dirname(os.path.abspath(__file__))   # где лежит код
 # На хостинге готовый сайт и каталог живут на постоянном диске, иначе
@@ -30,14 +32,32 @@ IMG = os.path.join(OUT, 'img')
 CATALOG_FILE = os.path.join(STORAGE, 'data', 'toys.json')
 # реквизиты, телефон, почта и ссылки продавца: подставляются во все страницы
 SELLER_FILE = os.path.join(ROOT, 'data', 'seller.json')
-# Текст «о себе» правится на живом сайте, поэтому лежит на постоянном диске,
-# рядом с каталогом, а не в коде.
-ABOUT_FILE = os.path.join(STORAGE, 'data', 'about.json')
-ABOUT_DEFAULT = {
-    'menu': 'О себе',
-    'heading': 'О себе',
-    'text': 'Здесь будет рассказ о мастере и о том, как делаются ватные игрушки.',
-    'updated': '',
+# Текст простых страниц («О себе», «Покупателю») правится на живом сайте,
+# поэтому лежит на постоянном диске, рядом с каталогом, а не в коде.
+# Какие это страницы и что показывать, пока файла нет, знает pages.py.
+
+# Обложка главной страницы тоже правится на самой странице, но своего файла
+# у неё нет: её текст и так лежит в каталоге, разделом site. Здесь только то,
+# чем заполняются недостающие поля. На хостинге каталог появился раньше этой
+# правки, и без значений по умолчанию обложка осталась бы пустой.
+HERO_DEFAULT = {
+    'title': 'cotton wool creativity',
+    'tagline_big': 'творчество из ваты',
+    'tagline_small': 'по забытой технологии XIX века',
+    'subtitle': 'Ватные авторские игрушки',
+    'text': 'Наши ватные ёлочные украшения — **это возрождение древнего ремесла**, '
+            'где каждая деталь лепится из натуральной хлопковой и льняной ваты. '
+            'Никакой химии — только экологически чистые материалы, бережные '
+            'к вашему здоровью и природе.\n\n'
+            '**Каждая фигурка — единственная в своём роде.** Лёгкие, прочные '
+            'и невероятно душевные — они превратят вашу ёлку в центр '
+            'праздничного волшебства.',
+    'call': 'Подарите себе роскошь ручной работы и тепло ушедшей эпохи.\n'
+            'Добавьте в свой дом неповторимый шарм, который запомнится надолго!',
+    'photo': 'img/logo.png',
+    'alt': 'Ватная игрушка «Пёс с тюльпанами» — работа мастерской',
+    # 0 - размер из оформления, иначе сторона круга в пикселях
+    'photoSize': 0,
 }
 
 # адрес будущего сайта: нужен для canonical и sitemap
@@ -299,24 +319,82 @@ def build_toy(toy):
     return toy
 
 
-def read_about():
-    """Текст страницы «О себе». Файла может не быть вовсе: на хостинге
-    постоянный диск завели раньше, чем появилась эта страница, а стартовое
+def page_file(key):
+    return os.path.join(STORAGE, 'data', pages.PAGES[key]['file'])
+
+
+def read_page(key):
+    """Текст простой страницы. Файла может не быть вовсе: на хостинге
+    постоянный диск завели раньше, чем появились эти страницы, а стартовое
     содержимое переносится туда только при первом запуске. Поэтому
     недостающее берём из значений по умолчанию, а не падаем."""
     try:
-        got = json.load(open(ABOUT_FILE, encoding='utf-8'))
+        got = json.load(open(page_file(key), encoding='utf-8'))
     except (OSError, ValueError):
         got = {}
-    about = dict(ABOUT_DEFAULT)
-    about.update({k: v for k, v in got.items() if isinstance(v, str) and v.strip()})
-    return about
+    item = dict(pages.PAGES[key]['default'])
+    item.update({k: v for k, v in got.items() if isinstance(v, str) and v.strip()})
+    return item
+
+
+def counted(value):
+    """Число из данных, которые правит человек: там бывает и пусто, и строка."""
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        return 0
+
+
+def read_hero(site):
+    """Обложка главной страницы. Лежит разделом site в самом каталоге,
+    поэтому отдельного файла у неё нет."""
+    # Пустое значение тоже значение: если заказчица стёрла приписку и сохранила,
+    # подставлять вместо неё стартовый текст нельзя. А вот недостающего поля
+    # в каталоге на хостинге просто нет - его и берём из значений по умолчанию.
+    hero = dict(HERO_DEFAULT)
+    hero.update({k: v for k, v in (site or {}).items()
+                 if k in HERO_DEFAULT and v is not None})
+    hero['photoSize'] = counted(hero.get('photoSize'))
+    return hero
+
+
+# **Две звёздочки** делают текст жирным. Больше никакой разметки в текстах,
+# которые правит заказчица, нет: жирное начертание в обложке главной было
+# с самого начала, и терять его при переводе текста в правимый нельзя.
+BOLD = re.compile(r'\*\*(.+?)\*\*', re.S)
+
+
+def rich(text):
+    """Текст, который писал человек, в абзацы для страницы.
+
+    Пустая строка разделяет абзацы, одиночный перенос строки остаётся
+    переносом: в списках вроде способов доставки каждая строка своя.
+    Сначала экранируем, потом расставляем разметку - иначе угловая скобка
+    из текста уехала бы на страницу тегом.
+    """
+    out = []
+    for para in (text or '').split('\n\n'):
+        para = para.strip()
+        if not para:
+            continue
+        safe = html.escape(para).replace('\n', '<br>')
+        out.append(Markup(BOLD.sub(r'<strong>\1</strong>', safe)))
+    return out
+
+
+def plain(text, limit=200):
+    """Тот же текст без разметки и в одну строку: для описания страницы."""
+    flat = ' '.join((text or '').replace('**', '').split())
+    return flat[:limit]
 
 
 def main():
     data = json.load(open(CATALOG_FILE, encoding='utf-8'))
     seller = json.load(open(SELLER_FILE, encoding='utf-8'))
-    about = read_about()
+    # простые страницы: и текст, и название вкладки в шапке
+    texts = {key: dict(read_page(key), url=meta['url'])
+             for key, meta in pages.PAGES.items()}
+    hero = read_hero(data.get('site'))
     # в документах адрес сайта пишется целиком, ссылкой
     seller['site_url'] = SITE_URL
 
@@ -418,8 +496,8 @@ def main():
     env.globals['v'] = version
     # подвал стоит на каждой странице, поэтому данные продавца нужны везде
     env.globals['seller'] = seller
-    # название вкладки «о себе» стоит в шапке, то есть тоже на каждой странице
-    env.globals['about'] = about
+    # названия вкладок простых страниц стоят в шапке, то есть на всех страницах
+    env.globals['pages'] = texts
 
     def write(path, text):
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -429,6 +507,7 @@ def main():
     write(os.path.join(OUT, 'index.html'),
           env.get_template('index.html').render(
               site=data['site'], sections=sections, toys=toys,
+              hero=hero, hero_text=rich(hero['text']), hero_call=rich(hero['call']),
               root='', page='home', canonical=BASE_URL + '/'))
 
     # --- страницы игрушек
@@ -444,13 +523,14 @@ def main():
               site=data['site'], payments=payments, root='../', page='payment',
               canonical=BASE_URL + '/oplata/'))
 
-    # --- о себе: текст правится прямо на странице, абзацы разделены пустой строкой
-    paragraphs = [p.strip() for p in about['text'].split('\n\n') if p.strip()]
-    write(os.path.join(OUT, 'about', 'index.html'),
-          env.get_template('about.html').render(
-              site=data['site'], paragraphs=paragraphs,
-              summary=(paragraphs[0] if paragraphs else '')[:200],
-              root='../', page='about', canonical=BASE_URL + '/about/'))
+    # --- простые страницы: текст правится прямо на них. Шаблон у всех один,
+    #     отличаются только содержимым.
+    for key, item in texts.items():
+        write(os.path.join(OUT, *item['url'].strip('/').split('/'), 'index.html'),
+              env.get_template('page.html').render(
+                  site=data['site'], item=item, key=key,
+                  paragraphs=rich(item['text']), summary=plain(item['text']),
+                  root='../', page=key, canonical=BASE_URL + '/' + item['url']))
 
     # --- оформление заказа. Своего адреса у страницы нет: она открывается
     #     как /order/<номер заказа>/, поэтому все ссылки внутри абсолютные.
@@ -554,7 +634,8 @@ def main():
 
     # --- sitemap и robots
     today = clock.today().isoformat()
-    urls = [BASE_URL + '/', BASE_URL + '/oplata/', BASE_URL + '/about/'] + \
+    urls = [BASE_URL + '/', BASE_URL + '/oplata/'] + \
+           [BASE_URL + '/' + meta['url'] for meta in pages.PAGES.values()] + \
            [f"{BASE_URL}/igrushki/{t['slug']}/" for t in toys]
     body = '\n'.join(
         f'  <url><loc>{html.escape(u)}</loc><lastmod>{today}</lastmod></url>' for u in urls)
@@ -569,7 +650,8 @@ def main():
           'Disallow: /proverit-zakaz/\n\n'
           f'Sitemap: {BASE_URL}/sitemap.xml\n')
 
-    print(f'\nстраниц: {len(toys) + 2}, адресов в sitemap: {len(urls)}')
+    print(f'\nстраниц: {len(toys) + 1 + len(pages.PAGES)}, '
+          f'адресов в sitemap: {len(urls)}')
 
 
 if __name__ == '__main__':

@@ -82,6 +82,7 @@
 .entry--delete { border-left-color: #d32f2f; }
 .entry--reorder { border-left-color: #b26a00; }
 .entry--restore { border-left-color: #6a4fa3; }
+.entry--about { border-left-color: #00796b; }
 
 .entry__line {
   display: flex;

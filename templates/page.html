@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.heading }} — cotton wool creativity{% endblock %}
+{% block description %}{{ summary }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ root }}assets/css/page.css?v={{ v }}">{% endblock %}
+
+{% block content %}
+<main class="page" data-page="{{ key }}">
+  <div class="wrap">
+    <h1>{{ item.heading }}</h1>
+
+    {# Текст правится прямо на этой странице, поэтому он лежит в отдельном
+       блоке: админка подменяет его целиком и не задевает остальную разметку. #}
+    <div class="page__text" data-page-text>
+      {% for para in paragraphs %}
+      <p>{{ para }}</p>
+      {% endfor %}
+    </div>
+
+    {% if item.updated %}<p class="page__date">Обновлено: {{ item.updated }}</p>{% endif %}
+  </div>
+
+  {# Для правки нужен текст в том виде, в каком его писал человек: из готовой
+     разметки его не собрать, переносы строк там уже стали тегами. #}
+  <script type="application/json" data-page-raw>{{ {'menu': item.menu, 'heading': item.heading, 'text': item.text} | tojson }}</script>
+</main>
+
+<script type="module" src="{{ root }}assets/js/page.js?v={{ v }}"></script>
+{% endblock %}

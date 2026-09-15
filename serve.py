@@ -27,6 +27,7 @@ from PIL import Image, ImageOps
 import logs
 import orders
 import clock
+import pages
 
 BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
 # На хостинге данные обязаны лежать на постоянном диске: папка с кодом
@@ -34,7 +35,8 @@ BASE = os.path.dirname(os.path.abspath(__file__))    # код приложени
 STORAGE = os.environ.get('STORAGE_DIR') or BASE
 ROOT = os.path.join(STORAGE, 'site')
 DATA = os.path.join(STORAGE, 'data', 'toys.json')
-ABOUT = os.path.join(STORAGE, 'data', 'about.json')
+# у каждой простой страницы свой файл, их список лежит в pages.py
+PAGES_DIR = os.path.join(STORAGE, 'data')
 UPLOAD_DIR = os.path.join(ROOT, 'img', 'upload')
 UPLOAD_PREFIX = 'img/upload/'
 MAX_IMAGE_BYTES = 60 * 1024 * 1024     # картинку читаем в память, поэтому скромнее
@@ -58,9 +60,18 @@ PHOTO_SIZES = (900, 1600)       # фото на странице и оно же 
 JPEG_Q = 82
 SECTIONS = ('in_stock', 'repeat', 'custom')
 
+# Обложка главной страницы: поля в одну строку и длина каждого,
+# многострочные поля отдельно.
+HERO_LINES = {'title': 80, 'tagline_big': 80, 'tagline_small': 120,
+              'subtitle': 80, 'alt': 200}
+HERO_TEXTS = {'text': 4000, 'call': 1000}
+# сторона круга с фотографией, в пикселях: меньше - не разглядеть,
+# больше - текст на широком экране уезжает вниз
+HERO_MIN, HERO_MAX = 120, 420
+
 # Поднимать при каждом изменении набора адресов. Админка сверяет это число
 # со своим и говорит, если сервер остался запущенным со старой версией.
-API_VERSION = 14
+API_VERSION = 15
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -215,6 +226,21 @@ def assets_version():
         return ''
 
 
+def one_line(value, limit):
+    """Поле в одну строку. Переносы убираем: они уехали бы в заголовок
+    страницы и в описание для поисковика, где им делать нечего."""
+    return ' '.join(str(value or '').split())[:limit]
+
+
+def hero_size(value):
+    """Размер фотографии на обложке, 0 - как в оформлении."""
+    try:
+        size = int(value)
+    except (TypeError, ValueError):
+        return 0
+    return max(HERO_MIN, min(HERO_MAX, size)) if size > 0 else 0
+
+
 def counted(value, default):
     """Целое число из запроса. Мусор и пустоту подменяем ожидаемым."""
     try:
@@ -233,20 +259,31 @@ def write_data(data):
         json.dump(data, f, ensure_ascii=False, indent=1)
 
 
-def read_about():
-    """Текущий текст страницы «О себе». Спрашиваем у сборщика: файла может
-    не быть вовсе, и тогда страница собрана из значений по умолчанию,
-    которые лежат там же."""
+def builder():
+    """Сборщик сайта. Он же знает, что показывать на страницах, файлов
+    которых ещё нет: значения по умолчанию лежат там."""
     if BASE not in sys.path:
         sys.path.insert(0, BASE)
     import build
-    return build.read_about()
+    return build
 
 
-def write_about(item):
-    os.makedirs(os.path.dirname(ABOUT), exist_ok=True)
-    with open(ABOUT, 'w', encoding='utf-8') as f:
+def read_page(key):
+    """Текущий текст простой страницы («О себе», «Покупателю»)."""
+    return builder().read_page(key)
+
+
+def write_page(key, item):
+    os.makedirs(PAGES_DIR, exist_ok=True)
+    with open(os.path.join(PAGES_DIR, pages.PAGES[key]['file']), 'w',
+              encoding='utf-8') as f:
         json.dump(item, f, ensure_ascii=False, indent=1)
+
+
+def read_hero(data):
+    """Обложка главной страницы. Своего файла у неё нет: текст и фотография
+    лежат разделом site в самом каталоге."""
+    return builder().read_hero(data.get('site'))
 
 
 def to_admin(toy, order):
@@ -469,8 +506,10 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.save_toy()
             if parsed.path == '/api/toy-delete':
                 return self.delete_toy()
-            if parsed.path == '/api/about':
-                return self.save_about()
+            if parsed.path == '/api/page':
+                return self.save_page()
+            if parsed.path == '/api/hero':
+                return self.save_hero()
             if parsed.path == '/api/reorder':
                 return self.reorder()
             if parsed.path == '/api/restore':
@@ -718,14 +757,17 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply(500, {'error': str(e)})
         self.reply(200, {'ok': True})
 
-    def save_about(self):
-        """Текст страницы «О себе» и название её вкладки в меню. Своей
-        админки у них нет: правятся на самой странице, поэтому здесь только
+    def save_page(self):
+        """Текст простой страницы и название её вкладки в меню. Своей админки
+        у таких страниц нет: правятся на самой странице, поэтому здесь только
         запись файла и пересборка. Вкладка стоит в шапке всех страниц,
         без пересборки название осталось бы старым."""
         item = self.body_json()
-        menu = str(item.get('menu') or '').strip()[:40]
-        heading = str(item.get('heading') or '').strip()[:80]
+        key = str(item.get('key') or 'about')
+        if key not in pages.PAGES:
+            return self.reply(400, {'error': 'нет такой страницы: ' + key})
+        menu = one_line(item.get('menu'), 40)
+        heading = one_line(item.get('heading'), 80)
         text = str(item.get('text') or '').replace('\r\n', '\n').strip()
         if not menu or not heading or not text:
             return self.reply(400, {'error': 'заполните название вкладки, '
@@ -733,17 +775,65 @@ class Handler(SimpleHTTPRequestHandler):
         if len(text) > 20000:
             return self.reply(413, {'error': 'текст длиннее 20 000 знаков'})
 
-        was = read_about()
+        was = read_page(key)
         now = {'menu': menu, 'heading': heading, 'text': text,
                'updated': clock.now().strftime('%d.%m.%Y')}
-        write_about(now)
-        print('  страница «о себе» изменена: ' + str(len(text)) + ' знаков, '
-              'вкладка «' + menu + '»', flush=True)
-        # Эта страница правится без админки, но история нужна и ей: в журнале
+        write_page(key, now)
+        print('  страница «' + pages.PAGES[key]['title'] + '» изменена: ' +
+              str(len(text)) + ' знаков, вкладка «' + menu + '»', flush=True)
+        # Эти страницы правятся без админки, но история нужна и им: в журнале
         # видно, что именно поменялось, и туда же можно вернуться.
-        logs.add(self.who, 'about', was, now, kind='about')
+        logs.add(self.who, 'about', was, now, kind='about', key=key)
         rebuild()
         return self.reply(200, {'ok': True})
+
+    def save_hero(self):
+        """Обложка главной страницы: текст, фотография и её размер.
+
+        Пишем в раздел site самого каталога, отдельного файла заводить незачем:
+        название и подзаголовок и так лежали там с первого дня.
+
+        Заменённую фотографию с диска не убираем, в отличие от фотографий
+        игрушек: по ней работает возврат из журнала, а весит она килобайты.
+        """
+        item = self.body_json()
+        data = read_data()
+        was = read_hero(data)
+        # чего в запросе нет, то и не трогаем: иначе неполная отправка
+        # молча стёрла бы половину обложки
+        now = dict(was)
+        for field, limit in HERO_LINES.items():
+            if field in item:
+                now[field] = one_line(item.get(field), limit)
+        for field, limit in HERO_TEXTS.items():
+            if field in item:
+                now[field] = str(item.get(field) or '').replace('\r\n', '\n').strip()[:limit]
+        if 'photo' in item:
+            now['photo'] = self.hero_photo(item.get('photo'))
+        if 'photoSize' in item:
+            now['photoSize'] = hero_size(item.get('photoSize'))
+        if not now['title'] and not now['text']:
+            return self.reply(400, {'error': 'у обложки не осталось ни названия, '
+                                             'ни текста'})
+
+        data['site'] = dict(data.get('site') or {}, **now)
+        write_data(data)
+        print('  обложка главной изменена: фото ' + now['photo'] +
+              ', размер ' + str(now['photoSize'] or 'как в оформлении'), flush=True)
+        logs.add(self.who, 'hero', was, now, kind='hero')
+        rebuild()
+        return self.reply(200, {'ok': True})
+
+    @staticmethod
+    def hero_photo(value):
+        """Фотография обложки: либо своя из загрузок, либо стартовая.
+        Чужие пути сюда попасть не должны, иначе на главную можно было бы
+        подставить любой файл с диска."""
+        start = builder().HERO_DEFAULT['photo']
+        rel = str(value or '').strip().lstrip('/')
+        if rel.startswith(UPLOAD_PREFIX) and '..' not in rel:
+            return rel
+        return start
 
     def save_toy(self):
         item = self.body_json()
@@ -855,7 +945,9 @@ class Handler(SimpleHTTPRequestHandler):
 
         plan = entry['restore']
         if plan['kind'] == 'about':
-            return self.restore_about(plan)
+            return self.restore_page(plan)
+        if plan['kind'] == 'hero':
+            return self.restore_hero(plan)
 
         data = read_data()
         toys = data['toys']
@@ -898,20 +990,41 @@ class Handler(SimpleHTTPRequestHandler):
         rebuild()
         self.reply(200, {'ok': True, 'slug': toy['id']})
 
-    def restore_about(self, plan):
-        """Возврат прежнего текста страницы «О себе». Файлов здесь нет,
+    def restore_page(self, plan):
+        """Возврат прежнего текста простой страницы. Файлов здесь нет,
         поэтому такая запись откатывается и через год."""
-        was = read_about()
+        # у записей, сделанных до появления второй страницы, ключа нет:
+        # тогда правилась единственная, «О себе»
+        key = plan.get('page') or 'about'
+        if key not in pages.PAGES:
+            return self.reply(400, {'error': 'такой страницы на сайте больше нет'})
+        was = read_page(key)
         back = dict(plan.get('about') or {})
-        if not logs.compare_about(was, back):
+        if not logs.compare_text(was, back, 'about'):
             return self.reply(400, {'error': 'текст и так этот'})
         # дату ставим сегодняшнюю: страница и правда изменилась сегодня
         back['updated'] = clock.now().strftime('%d.%m.%Y')
-        write_about(back)
-        logs.add(self.who, 'restore', was, back, kind='about')
+        write_page(key, back)
+        logs.add(self.who, 'restore', was, back, kind='about', key=key)
         rebuild()
-        print('  откат: страница «о себе» возвращена к прежнему виду')
+        print('  откат: страница «' + pages.PAGES[key]['title'] +
+              '» возвращена к прежнему виду')
         return self.reply(200, {'ok': True, 'kind': 'about'})
+
+    def restore_hero(self, plan):
+        """Возврат прежней обложки главной страницы. Заменённую фотографию
+        мы не стираем, поэтому вернуть её есть чем."""
+        data = read_data()
+        was = read_hero(data)
+        back = dict(plan.get('hero') or {})
+        if not logs.compare_text(was, back, 'hero'):
+            return self.reply(400, {'error': 'обложка и так эта'})
+        data['site'] = dict(data.get('site') or {}, **back)
+        write_data(data)
+        logs.add(self.who, 'restore', was, back, kind='hero')
+        rebuild()
+        print('  откат: обложка главной возвращена к прежнему виду')
+        return self.reply(200, {'ok': True, 'kind': 'hero'})
 
     def restore_order(self, data, plan):
         """Возврат прежнего порядка карточек в разделе."""
