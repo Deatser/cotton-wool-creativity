@@ -409,9 +409,10 @@ class Handler(SimpleHTTPRequestHandler):
 
     # ------------------------------------------------------------- GET
     def moved(self):
-        """Со служебного адреса на amvera.io уводим на домен.
+        """Уводим на домен всё, что не он сам: служебный адрес на amvera.io
+        и версию с www.
 
-        Иначе сайт открывается по двум адресам сразу: поисковики считают
+        Иначе сайт открывается по трём адресам сразу: поисковики считают
         это дублями и делят вес между ними, а у людей в закладках остаётся
         служебное имя, которое живёт только пока проект у этого хостинга.
         Путь и параметры сохраняем: ссылка на заказ должна открыть заказ,
@@ -422,7 +423,7 @@ class Handler(SimpleHTTPRequestHandler):
         и уводить её никуда нельзя. Свой компьютер тоже не трогаем.
         """
         host = (self.headers.get('Host') or '').split(':')[0].lower()
-        if not host.endswith('.amvera.io'):
+        if not (host.endswith('.amvera.io') or host.startswith('www.')):
             return False
         self.send_response(301)
         self.send_header('Location', BASE_URL + self.path)
