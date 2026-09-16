@@ -40,6 +40,24 @@ def setting(key):
 DOMAIN = BASE_URL.split('//', 1)[-1]
 FROM = setting('MAIL_FROM') or ('cotton wool creativity <zakaz@' + DOMAIN + '>')
 
+
+def readable(url):
+    """Адрес кириллицей, для человека.
+
+    В коде сайт живёт по punycode-адресу: такого требуют canonical,
+    sitemap и почтовый адрес отправителя. Но в письме такую строку
+    показывать нельзя - получатель не узнает в ней название сайта
+    и примет письмо за поддельное.
+    """
+    scheme, _, host = url.partition('//')
+    try:
+        return scheme + '//' + host.encode('ascii').decode('idna')
+    except (UnicodeError, ValueError):
+        return url
+
+
+SITE = readable(BASE_URL)
+
 MONTHS = ('января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
           'августа', 'сентября', 'октября', 'ноября', 'декабря')
 
@@ -90,7 +108,7 @@ def buyer_letter(order, s):
     toy = order['toy']
     b = order['buyer']
     price = money(toy.get('price')) or 'сумму подтвердит мастер'
-    link = BASE_URL + '/order/' + order['id'] + '/'
+    link = SITE + '/order/' + order['id'] + '/'
     name = first_name(b.get('name'))
 
     subject = 'Заказ ' + order['number'] + ' принят - ' + toy['name']
@@ -122,7 +140,7 @@ def buyer_letter(order, s):
         'Спасибо за заказ!',
         '',
         '--',
-        'Это письмо отправил сайт ' + BASE_URL + ' после оформления заказа.',
+        'Это письмо отправил сайт ' + SITE + ' после оформления заказа.',
     ])
     return subject, text
 
@@ -133,8 +151,8 @@ def seller_letter(order, s):
     toy = order['toy']
     b = order['buyer']
     price = money(toy.get('price')) or 'цена не указана'
-    link = BASE_URL + '/order/' + order['id'] + '/'
-    panel = BASE_URL + '/proverit-zakaz/'
+    link = SITE + '/order/' + order['id'] + '/'
+    panel = SITE + '/proverit-zakaz/'
 
     subject = 'Новый заказ ' + order['number'] + ': ' + toy['name'] + ', ' + price
 
