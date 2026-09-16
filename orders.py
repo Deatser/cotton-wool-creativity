@@ -202,9 +202,13 @@ def find_by_number(number, phone, ip=''):
 
 
 def public(order):
-    """То, что можно отдать в браузер: без адреса отправителя и служебного."""
+    """То, что можно отдать в браузер: без адреса отправителя и служебного.
+
+    Отметка о письмах тоже служебная: покупателю знать, дошло ли письмо
+    мастеру, незачем, а в панели она добавляется обратно в listing()."""
     out = dict(order)
     out.pop('ip', None)
+    out.pop('mail', None)
     return out
 
 
@@ -214,7 +218,8 @@ def listing(frm='', to='', query='', payment='', shipping=''):
         data = read_all()
         if refresh_all(data):
             write_all(data)
-        rows = [public(o) for o in data['orders']]
+        # мастеру, в отличие от покупателя, отметку о письмах показываем
+        rows = [dict(public(o), mail=o.get('mail')) for o in data['orders']]
 
     q = (query or '').strip().lower()
     q_digits = digits(q)
@@ -339,14 +344,17 @@ def check(payload, toys):
 # -------------------------------------------------------------------- заказ
 
 def create(payload, ip, toys):
-    """Записываем заказ. Возвращает готовую запись."""
+    """Записываем заказ. Возвращает запись и признак «он новый».
+
+    Признак нужен письмам: при повторной отправке формы заказ возвращается
+    старый, и слать о нём письмо второй раз нельзя."""
     order_id, toy, buyer = check(payload, toys)
 
     existing = find(order_id)
     if existing:
         # повторное нажатие кнопки или обновление страницы: второй заказ
         # с тем же адресом не заводим
-        return existing
+        return existing, False
 
     rate_limit(ip)
     hold_hours = int(seller().get('hold_hours') or 48)
@@ -355,7 +363,7 @@ def create(payload, ip, toys):
     with _lock:
         data = read_all()
         if any(o['id'] == order_id for o in data['orders']):
-            return next(o for o in data['orders'] if o['id'] == order_id)
+            return next(o for o in data['orders'] if o['id'] == order_id), False
         order = {
             'id': order_id,
             'number': next_number(data),
@@ -381,7 +389,21 @@ def create(payload, ip, toys):
         }
         data['orders'].append(order)
         write_all(data)
-    return order
+    return order, True
+
+
+def note_mail(order_id, info):
+    """Отмечаем в заказе, что ответил Resend по каждому письму.
+
+    Зовётся из потока отправки, уже после ответа покупателю. Заказа может
+    не оказаться на месте, если мастер успел его удалить, - это не ошибка."""
+    with _lock:
+        data = read_all()
+        order = next((o for o in data['orders'] if o['id'] == order_id), None)
+        if not order:
+            return
+        order['mail'] = info
+        write_all(data)
 
 
 def remove(order_id):

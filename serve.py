@@ -25,6 +25,7 @@ from cryptography.x509 import load_pem_x509_certificate
 from PIL import Image, ImageOps
 
 import logs
+import mail
 import orders
 import clock
 import pages
@@ -537,7 +538,8 @@ class Handler(SimpleHTTPRequestHandler):
         except ValueError:
             return self.reply(400, {'error': 'заказ пришёл в непонятном виде'})
         try:
-            order = orders.create(payload, self.visitor(), read_data()['toys'])
+            order, is_new = orders.create(payload, self.visitor(),
+                                          read_data()['toys'])
         except orders.Refused as e:
             print('  заказ отклонён: ' + str(e), flush=True)
             return self.reply(400, {'error': str(e)})
@@ -546,6 +548,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply(500, {'error': 'сайт не смог записать заказ'})
         print('  заказ ' + order['number'] + ': ' + order['toy']['name'] +
               ', ' + order['buyer']['email'], flush=True)
+        if is_new:
+            mail.order_created(order, orders.seller(), orders.note_mail)
         return self.reply(200, {'order': orders.public(order)})
 
     def find_order(self):
