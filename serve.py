@@ -29,6 +29,7 @@ import mail
 import orders
 import clock
 import pages
+from build import BASE_URL
 
 BASE = os.path.dirname(os.path.abspath(__file__))    # код приложения
 # На хостинге данные обязаны лежать на постоянном диске: папка с кодом
@@ -407,7 +408,39 @@ class Handler(SimpleHTTPRequestHandler):
         return json.loads(self.rfile.read(length).decode('utf-8')) if length else {}
 
     # ------------------------------------------------------------- GET
+    def moved(self):
+        """Со служебного адреса на amvera.io уводим на домен.
+
+        Иначе сайт открывается по двум адресам сразу: поисковики считают
+        это дублями и делят вес между ними, а у людей в закладках остаётся
+        служебное имя, которое живёт только пока проект у этого хостинга.
+        Путь и параметры сохраняем: ссылка на заказ должна открыть заказ,
+        а не главную.
+
+        Внутреннее имя приложения (amvera-...-run-...) под это правило
+        не подпадает: по нему хостинг стучится с проверкой живости,
+        и уводить её никуда нельзя. Свой компьютер тоже не трогаем.
+        """
+        host = (self.headers.get('Host') or '').split(':')[0].lower()
+        if not host.endswith('.amvera.io'):
+            return False
+        self.send_response(301)
+        self.send_header('Location', BASE_URL + self.path)
+        self.send_header('Content-Length', '0')
+        self.end_headers()
+        return True
+
+    def do_HEAD(self):
+        if self.moved():
+            return
+        return super().do_HEAD()
+
     def do_GET(self):
+        # только для GET и HEAD: у POST заголовок с пропуском Firebase
+        # при переезде на другой домен браузер срезает, и админка
+        # со старого адреса молча получала бы отказ вместо ответа
+        if self.moved():
+            return
         if urlparse(self.path).path == '/api/ping':
             return self.reply(200, {'ok': True, 'version': API_VERSION,
                                     'assets': assets_version()})
