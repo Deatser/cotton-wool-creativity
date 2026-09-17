@@ -10,7 +10,7 @@
    Правила переходов проверяет сервер, здесь они только отражены кнопками:
    отправить можно лишь оплаченный заказ, у отправленного оплату не снять. */
 
-import { firebase, whoAmI, call } from './fb.js?v=f9462644';
+import { firebase, whoAmI, call } from './fb.js?v=53bc2699';
 
 const page = document.querySelector('[data-check-page]');
 const ROOT = document.body.getAttribute('data-root') || '';
@@ -53,9 +53,20 @@ const badge = (map, key) => {
 };
 
 /** Строки с данными заказа: одинаковые и у покупателя, и у мастера. */
+/**
+ * Что ответил Resend по одному письму. Пустая строка - заказ старый,
+ * до писем, и строку в карточке рисовать не надо.
+ */
+function mailText(one) {
+  if (!one) return '';
+  if (one.ok) return 'отправлено';
+  return 'НЕ отправлено' + (one.error ? ' - ' + one.error : '');
+}
+
 function rowsHtml(o) {
   const b = o.buyer || {};
   const toy = o.toy || {};
+  const post = o.mail || {};
   const address = [b.zip, b.region, b.city, b.street].filter(Boolean).join(', ');
   const rows = [
     ['Игрушка', toy.name],
@@ -68,6 +79,8 @@ function rowsHtml(o) {
     ['Адрес', address],
     ['Комментарий', b.comment],
     ['Трек-номер', o.track],
+    ['Письмо покупателю', mailText(post.buyer)],
+    ['Письмо мне', mailText(post.seller)],
   ];
   return rows.filter((r) => r[1])
     .map((r) => '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>')

@@ -136,6 +136,24 @@ def make_logo(src, dst, side):
     out.save(dst, 'PNG', optimize=True)
 
 
+def make_favicon(src, dst):
+    """Иконка сайта: /favicon.ico из готового круглого логотипа.
+
+    Берём не оригинал из photos/ (его на хостинге нет), а собранный logo.png:
+    он лежит на постоянном диске рядом с каталогом.
+
+    Почему .ico в корне, а не прежняя ссылка на logo.png. Роботы поиска
+    забирают иконку отдельно от страниц и первым делом стучатся в /favicon.ico.
+    Размеров в файле несколько: 16 и 32 - вкладка браузера, 48 - требование
+    Google (сторона должна быть кратна 48), 120 - рекомендация Яндекса.
+    """
+    if os.path.exists(dst):
+        return
+    im = ImageOps.exif_transpose(Image.open(src)).convert('RGBA')
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    im.save(dst, 'ICO', sizes=[(16, 16), (32, 32), (48, 48), (120, 120)])
+
+
 def make_hero(src, dst, width):
     """Фон шапки: тёплое оранжево-коричневое размытие, как на её сайте.
 
@@ -446,6 +464,7 @@ def main():
 
     # --- логотип, обложка, экраны оплаты
     make_logo(os.path.join(PHOTOS, 'круг.png'), os.path.join(IMG, 'logo.png'), 400)
+    make_favicon(os.path.join(IMG, 'logo.png'), os.path.join(OUT, 'favicon.ico'))
     make_hero(os.path.join(PHOTOS, 'обложка.jpg'), os.path.join(IMG, 'hero.jpg'), 1920)
 
     payments = []
