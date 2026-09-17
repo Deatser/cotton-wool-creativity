@@ -138,6 +138,7 @@
     ways.forEach(function (w) { w.addEventListener('change', refreshWay); });
     refreshWay();
 
+    setupPhone(form.querySelector('[name="phone"]'));
     form.addEventListener('submit', submit);
     show('form');
     openedAt = Date.now();
@@ -189,6 +190,18 @@
       comment: get('comment'),
       podpis: get('podpis')
     };
+  }
+
+  // Код страны стоит в поле с самого начала, номер набирают без восьмёрки.
+  // Стереть «+7» не выйдет, ведущая восьмёрка отбрасывается, а вставленный
+  // целиком номер обрезается до последних десяти цифр.
+  function setupPhone(input) {
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var rest = input.value.replace(/^\s*\+?7?/, '').replace(/\D/g, '').replace(/^8/, '');
+      if (rest.length > 10) rest = rest.slice(-10);
+      input.value = '+7 ' + rest;
+    });
   }
 
   function check(form, v) {
