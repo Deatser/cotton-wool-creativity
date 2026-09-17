@@ -6,7 +6,10 @@
 {% block title %}Ватные игрушки ручной работы {{ site.title }}{% endblock %}
 {% block description %}Ватные ёлочные украшения — это возрождение древнего ремесла, где каждая деталь лепится из натуральной хлопковой и льняной ваты по забытой технологии XIX века{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="{{ root }}assets/css/hero.css?v={{ v }}">{% endblock %}
+{# подтверждение прав на сайт в Яндексе: тег ищется только на главной,
+   на остальные страницы его тащить незачем #}
+{% block head %}<meta name="yandex-verification" content="3374cd31efccb8e1" />
+<link rel="stylesheet" href="{{ root }}assets/css/hero.css?v={{ v }}">{% endblock %}
 
 {% block content %}
 {# Обложка правится прямо на главной странице: и текст, и фотография, и её
