@@ -12,7 +12,7 @@ export function firebase() {
     ready = Promise.all([
       import(SDK + 'firebase-app.js'),
       import(SDK + 'firebase-auth.js'),
-      import('./firebase-config.js?v=57b82608'),
+      import('./firebase-config.js?v=b0672225'),
     ]).then(([appMod, authMod, cfg]) => {
       const app = appMod.initializeApp(cfg.firebaseConfig);
       return {

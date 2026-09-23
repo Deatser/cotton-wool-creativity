@@ -7,7 +7,7 @@
    переименовать её, например в «Корпоративные заказы». Название стоит
    в шапке всех страниц, поэтому после сохранения сайт пересобирается. */
 
-import { firebase, whoAmI, call } from './fb.js?v=57b82608';
+import { firebase, whoAmI, call } from './fb.js?v=b0672225';
 
 const main = document.querySelector('[data-page]');
 const textBox = document.querySelector('[data-page-text]');
