@@ -41,6 +41,8 @@ SELLER_FILE = os.path.join(ROOT, 'data', 'seller.json')
 # чем заполняются недостающие поля. На хостинге каталог появился раньше этой
 # правки, и без значений по умолчанию обложка осталась бы пустой.
 HERO_DEFAULT = {
+    # название в левом верхнем углу шапки, стоит на всех страницах
+    'brand': 'Ватные игрушки ручной работы Cotton Wool Creativity',
     'title': 'cotton wool creativity',
     'tagline_big': 'творчество из ваты',
     'tagline_small': 'по забытой технологии XIX века',
@@ -517,6 +519,8 @@ def main():
     env.globals['seller'] = seller
     # названия вкладок простых страниц стоят в шапке, то есть на всех страницах
     env.globals['pages'] = texts
+    # название в шапке правится на обложке главной, а стоит на всех страницах
+    env.globals['brand'] = hero['brand'] or HERO_DEFAULT['brand']
 
     def write(path, text):
         os.makedirs(os.path.dirname(path), exist_ok=True)

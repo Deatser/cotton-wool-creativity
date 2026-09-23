@@ -64,7 +64,7 @@ SECTIONS = ('in_stock', 'repeat', 'custom')
 
 # Обложка главной страницы: поля в одну строку и длина каждого,
 # многострочные поля отдельно.
-HERO_LINES = {'title': 80, 'tagline_big': 80, 'tagline_small': 120,
+HERO_LINES = {'brand': 80, 'title': 80, 'tagline_big': 80, 'tagline_small': 120,
               'subtitle': 80, 'alt': 200}
 HERO_TEXTS = {'text': 4000, 'call': 1000}
 # сторона круга с фотографией, в пикселях: меньше - не разглядеть,
