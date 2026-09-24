@@ -31,7 +31,7 @@ export function firebase() {
 
 /** Сайт открыт с моего компьютера или уже на хостинге. Сообщения об
     ошибках должны быть разные: совет «запустите py serve.py» на живом
-    сайте заказчицу только пугает, терминала у неё нет. */
+    сайте хозяйку сайта только пугает, терминала у неё нет. */
 export function local() {
   const host = location.hostname;
   return !host || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');

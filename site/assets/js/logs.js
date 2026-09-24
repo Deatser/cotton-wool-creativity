@@ -4,7 +4,7 @@
    и только с пропуском от Firebase. Тому, кто не вошёл, показывать нечего,
    поэтому его сразу уводит на главную. */
 
-import { firebase, whoAmI, call } from './fb.js?v=7b927257';
+import { firebase, whoAmI, call } from './fb.js?v=4789b125';
 
 const page = document.querySelector('[data-logs-page]');
 const ROOT = document.body.getAttribute('data-root') || '';
